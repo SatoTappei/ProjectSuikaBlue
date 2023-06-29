@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 261e62702aacf264f8c1813d74e387b8, type: 3}
+  m_Name: Eat
+  m_EditorClassIdentifier: 
+  Name: Eat
+  _considerations:
+  - {fileID: 11400000, guid: 57cbdedd42e160f48a22848e71d57838, type: 2}
