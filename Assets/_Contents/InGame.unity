@@ -603,6 +603,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
+      _type: 0
       _decreaseMag: 0.01
     _energy:
       _curve:
@@ -629,6 +630,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
+      _type: 0
       _decreaseMag: 0.01
 --- !u!114 &1809699008
 MonoBehaviour:
