@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public class EnemyStateIdle : EnemyStateBase
 {
+    public EnemyStateIdle(UtilityStateType type) : base(type) { }
+
     protected override void Enter()
     {
         throw new System.NotImplementedException();

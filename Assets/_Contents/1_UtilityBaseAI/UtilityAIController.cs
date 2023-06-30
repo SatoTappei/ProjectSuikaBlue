@@ -11,12 +11,19 @@ public class UtilityAIController : MonoBehaviour
     /// </summary>
     const float UtilityUpdateInterval = 0.1f;
 
-    [SerializeField] UtilityParamControlModule _paramControlModule;
+    [SerializeField] UtilityParams _paramControlModule;
 
     UtilityStateBase _currentState;
+    //UtilityStateAndParamLinker _linker;
 
     void Awake()
     {
+        UtilitySateSleep stateSleep = new();
+        UtilityStateEat stateEat = new();
+        UtilityStateWork stateWork = new();
+
+        _currentState = stateSleep;
+
         // 最適な評価値の取得
         Observable.Interval(System.TimeSpan.FromSeconds(UtilityUpdateInterval)).Subscribe(_ => 
         {
@@ -47,4 +54,4 @@ public class UtilityAIController : MonoBehaviour
 // ステート自体も毎フレーム更新
 
 // 時間経過で減少する(空腹度など)
-// 何かしらのアクションで減少する(疲労など)
+// 何かしらのアクションで減少する(疲労など

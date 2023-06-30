@@ -2,22 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ユーティリティベースで実行する仕事をする状態のクラス
+/// </summary>
 public class UtilityStateWork : UtilityStateBase
 {
-    public UtilityStateWork(UtilityStateType type) : base(type) { }
+    public UtilityStateWork() : base(UtilityStateType.Work) { }
 
     protected override void Enter()
     {
-        throw new System.NotImplementedException();
     }
 
     protected override void Exit()
     {
-        throw new System.NotImplementedException();
     }
 
     protected override void Stay()
     {
-        throw new System.NotImplementedException();
     }
 }

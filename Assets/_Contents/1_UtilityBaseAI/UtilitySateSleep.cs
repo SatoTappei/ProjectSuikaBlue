@@ -2,22 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ユーティリティベースで実行する睡眠をする状態のクラス
+/// </summary>
 public class UtilitySateSleep : UtilityStateBase
 {
-    public UtilitySateSleep(UtilityStateType type) : base(type) { }
+    public UtilitySateSleep() : base(UtilityStateType.Sleep) { }
 
     protected override void Enter()
     {
-        throw new System.NotImplementedException();
     }
 
     protected override void Exit()
     {
-        throw new System.NotImplementedException();
+        // 徐々にエネルギーが回復していく
     }
 
     protected override void Stay()
     {
-        throw new System.NotImplementedException();
     }
 }
