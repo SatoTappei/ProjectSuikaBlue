@@ -7,7 +7,8 @@ using UnityEngine;
 /// </summary>
 public class UtilitySateSleep : UtilityStateBase
 {
-    public UtilitySateSleep() : base(UtilityStateType.Sleep) { }
+    public UtilitySateSleep(UtilityBlackBoard blackBoard) 
+        : base(UtilityStateType.Sleep, blackBoard) { }
 
     protected override void Enter()
     {
@@ -20,5 +21,6 @@ public class UtilitySateSleep : UtilityStateBase
 
     protected override void Stay()
     {
+
     }
 }

@@ -539,8 +539,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1809699006}
+  - component: {fileID: 1809699010}
   - component: {fileID: 1809699007}
-  - component: {fileID: 1809699008}
+  - component: {fileID: 1809699011}
+  - component: {fileID: 1809699009}
   m_Layer: 0
   m_Name: Boy
   m_TagString: Untagged
@@ -576,63 +578,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bb0fbd9189b1c244bb1422de0645709, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _paramControlModule:
-    _paramView: {fileID: 1809699008}
-    _food:
-      _curve:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 0
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 2
-          outSlope: 2
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      _type: 0
-      _decreaseMag: 0.01
-    _energy:
-      _curve:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 0
-          inSlope: 2
-          outSlope: 2
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      _type: 0
-      _decreaseMag: 0.01
---- !u!114 &1809699008
+--- !u!114 &1809699009
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -645,8 +591,49 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _foodBar: {fileID: 7463403634847383553}
-  _funBar: {fileID: 7151461221251379538}
   _energyBar: {fileID: 2100236953881775003}
+--- !u!114 &1809699010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809699005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c49e3449fde8bc4692a8fb119dd4e65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _food:
+    _curve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _type: 0
+    _decreaseMag: 0.01
+  _energy:
+    _curve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _type: 0
+    _decreaseMag: 0.01
+--- !u!114 &1809699011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809699005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5ccd8bb2ee3bad4a9c092e2396587ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1924605882
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,7 +7,8 @@ using UnityEngine;
 /// </summary>
 public class UtilityStateWork : UtilityStateBase
 {
-    public UtilityStateWork() : base(UtilityStateType.Work) { }
+    public UtilityStateWork(UtilityBlackBoard blackBoard) 
+        : base(UtilityStateType.Work, blackBoard) { }
 
     protected override void Enter()
     {

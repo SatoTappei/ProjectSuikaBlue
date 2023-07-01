@@ -15,7 +15,7 @@ public enum UtilityStateType
 /// <summary>
 /// ユーティリティベースで選択された各行動を行う状態のクラス
 /// </summary>
-public abstract class UtilityStateBase
+public abstract class UtilityStateBase : MonoBehaviour
 {
     enum Stage
     {
@@ -27,11 +27,13 @@ public abstract class UtilityStateBase
     Stage _stage;
     UtilityStateBase _nextState;
 
-    public UtilityStateBase(UtilityStateType type)
+    public UtilityStateBase(UtilityStateType type, UtilityBlackBoard blackBoard)
     {
+        BlackBoard = blackBoard;
         Type = type;
     }
 
+    public UtilityBlackBoard BlackBoard { get; }
     public UtilityStateType Type { get; }
 
     /// <summary>

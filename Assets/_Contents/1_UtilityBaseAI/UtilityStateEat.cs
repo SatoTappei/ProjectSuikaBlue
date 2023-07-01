@@ -7,7 +7,8 @@ using UnityEngine;
 /// </summary>
 public class UtilityStateEat : UtilityStateBase
 {
-    public UtilityStateEat() : base(UtilityStateType.Eat) { }
+    public UtilityStateEat(UtilityBlackBoard blackBoard) 
+        : base(UtilityStateType.Eat, blackBoard) { }
 
     protected override void Enter()
     {
