@@ -29,8 +29,8 @@ public class UtilityParam
     /// </summary>
     float _value = 1.0f;
 
-    public float Value { get => _value; set => _value = value; }
     public UtilityParamType Type => _type;
+    public float Value { get => _value; set => _value = Mathf.Clamp01(value); }
 
     public float Decrease()
     {

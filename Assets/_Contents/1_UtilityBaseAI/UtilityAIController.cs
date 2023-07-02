@@ -39,6 +39,7 @@ public class UtilityAIController : MonoBehaviour
         // 評価値の自然減少＆現在の状態の更新
         update.Subscribe(_ => 
         {
+            //currentState
             currentState.Update();
         });
     }

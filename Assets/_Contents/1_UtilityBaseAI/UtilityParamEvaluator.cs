@@ -5,6 +5,7 @@ using UnityEngine;
 /// 各パラメータを評価して次にする行動を決定するクラス
 /// </summary>
 [RequireComponent(typeof(UtilityBlackBoard))]
+[DefaultExecutionOrder(-1)]
 public class UtilityParamEvaluator : MonoBehaviour
 {
     UtilityBlackBoard _blackBoard;

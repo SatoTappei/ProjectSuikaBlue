@@ -21,6 +21,7 @@ public class UtilityBlackBoard : MonoBehaviour
     /// <summary>
     /// インスペクターから割り当てる用
     /// </summary>
+    [System.Serializable]
     class Environment
     {
         [SerializeField] EnvironmentType _type;
@@ -36,10 +37,14 @@ public class UtilityBlackBoard : MonoBehaviour
     [SerializeField] UtilityParam _food;
     [Header("やる気")]
     [SerializeField] UtilityParam _energy;
+    [Header("移動速度")]
+    [SerializeField] float _moveSpeed = 3.0f;
 
+    Transform _transform;
     Dictionary<EnvironmentType, GameObject> _environmentDict;
     UtilityStateType _selectedStateType;
 
+    public Transform Transform => _transform;
     public UtilityParam FoodParam => _food;
     public UtilityParam EnergyParam => _energy;
     public GameObject this[EnvironmentType key]
@@ -57,6 +62,7 @@ public class UtilityBlackBoard : MonoBehaviour
             }
         }
     }
+    public float MoveSpeed => _moveSpeed;
 
     /// <summary>
     /// Controllerから書き込まれて、Stateが読み取る
@@ -66,5 +72,6 @@ public class UtilityBlackBoard : MonoBehaviour
     void Awake()
     {
         _environmentDict = _environments.ToDictionary(e => e.Type, e => e.Object);
+        _transform = transform;
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine;
 /// 各状態のインスタンスを保持しているクラス
 /// </summary>
 [RequireComponent(typeof(UtilityBlackBoard))]
+[DefaultExecutionOrder(-1)]
 public class UtilityStateHolder : MonoBehaviour
 {
     UtilityBlackBoard _blackBoard;

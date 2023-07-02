@@ -1,5 +1,3 @@
-using UnityEngine;
-
 /// <summary>
 /// 各状態を表す列挙型
 /// 状態が増えた場合は対応する値を追加する必要がある
@@ -15,7 +13,7 @@ public enum UtilityStateType
 /// <summary>
 /// ユーティリティベースで選択された各行動を行う状態のクラス
 /// </summary>
-public abstract class UtilityStateBase : MonoBehaviour
+public abstract class UtilityStateBase
 {
     enum Stage
     {
