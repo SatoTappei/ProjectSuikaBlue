@@ -14,18 +14,17 @@ public class UtilityAIController : MonoBehaviour
     /// <summary>
     /// 最適な評価値を選択する間隔
     /// </summary>
-    const float UtilityUpdateInterval = 0.1f;
+    const float UtilityUpdateInterval = 1.0f;
 
     void Awake()
     {
         UtilityParamEvaluator evaluator = GetComponent<UtilityParamEvaluator>();
-        UtilityStateHolder stateHolder = GetComponent<UtilityStateHolder>();
         UtilityBodyLayer bodyLayer = GetComponent<UtilityBodyLayer>();
         UtilityBlackBoard blackBoard = GetComponent<UtilityBlackBoard>();
         UtilityParamToStateConverter converter = new();
 
         // 初期状態の状態を設定
-        UtilityStateBase currentState = stateHolder.CreateStateAll();
+        UtilityStateBase currentState = blackBoard[UtilityStateType.Sleep];
 
         IObservable<Unit> update = this.UpdateAsObservable();
         // 評価値を取得 -> 身体の層で調整 -> 黒板に書き込む
@@ -39,8 +38,7 @@ public class UtilityAIController : MonoBehaviour
         // 評価値の自然減少＆現在の状態の更新
         update.Subscribe(_ => 
         {
-            //currentState
-            currentState.Update();
+            currentState = currentState.Update();
         });
     }
 }
@@ -75,3 +73,13 @@ public class UtilityAIController : MonoBehaviour
 // 評価値を対応する動作に変更 <- ここまでが知能の層
 // その動作が身体が出来るかどうかチェック <- ここから身体の層
 // 
+// 各状態は反射などでいつ遷移しても大丈夫なように作っておくこと
+// 遷移先が何処であろうと大丈夫、つまり各状態は独立している
+
+// 各状態には黒板しかない
+// 黒板には変数、Propertyしかない
+// 状態のリストを黒板に書き込むしかない
+
+// 仕事: 疲労が増える 腹減りが増える 楽しさが減る
+// 睡眠: 疲労が減る 腹減りが増える
+// 食事: 腹減りが減る 楽しさが増える

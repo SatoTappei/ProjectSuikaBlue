@@ -9,7 +9,7 @@ public enum UtilityParamType
     Base,
     Food,
     Fun,
-    Energy,
+    Tired,
 }
 
 /// <summary>
@@ -25,9 +25,9 @@ public class UtilityParam
     [SerializeField] float _decreaseMag = 0.01f;
 
     /// <summary>
-    /// 0~1‚ÌŠÔ‚ğæ‚é‚Ì‚Å‰Šú’l‚Í1‚ÅŒÅ’è
+    /// 0~1‚ÌŠÔ‚ğæ‚é•K—v‚ª‚ ‚é
     /// </summary>
-    float _value = 1.0f;
+    float _value = 0.5f;
 
     public UtilityParamType Type => _type;
     public float Value { get => _value; set => _value = Mathf.Clamp01(value); }
@@ -35,6 +35,14 @@ public class UtilityParam
     public float Decrease()
     {
         _value -= Time.deltaTime * _decreaseMag;
+        Mathf.Clamp01(_value);
+
+        return _value;
+    }
+
+    public float Increase()
+    {
+        _value += Time.deltaTime * _decreaseMag;
         Mathf.Clamp01(_value);
 
         return _value;

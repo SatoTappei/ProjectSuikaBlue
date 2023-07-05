@@ -23,7 +23,8 @@ public class UtilityParamEvaluator : MonoBehaviour
         UtilityParam[] temp =
         {
             _blackBoard.FoodParam,
-            _blackBoard.EnergyParam,
+            _blackBoard.FunParam,
+            _blackBoard.TiredParam,
         };
 
         return temp.OrderByDescending(param => param.Evaluate()).FirstOrDefault().Type;

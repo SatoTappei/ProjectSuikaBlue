@@ -6,11 +6,11 @@ using UnityEngine;
 public class UtilitySateSleep : UtilityStateBase
 {
     /// <summary>
-    /// 回復する間隔
+    /// 疲労が減少する間隔
     /// </summary>
     const float Interval = 1.0f;
     /// <summary>
-    /// 一回の回復量
+    /// 一回の疲労の減少量
     /// </summary>
     const float HealingValue = 0.05f;
 
@@ -34,23 +34,25 @@ public class UtilitySateSleep : UtilityStateBase
         float distance = Vector3.SqrMagnitude(toBed);
         if(distance < .1f)
         {
-            // 徐々にエネルギーを回復する
+            // 徐々に疲労が減少する
             _timer += Time.deltaTime;
             if(_timer > Interval)
             {
                 _timer = 0;
-                BlackBoard.EnergyParam.Value += HealingValue;
+                BlackBoard.TiredParam.Value -= HealingValue;
+
+                // 遷移
+                TransitionIfStateChanged();
             }
         }
         else
         {
-            // 各種パラメータを自然減少
-            BlackBoard.EnergyParam.Decrease();
-            BlackBoard.FoodParam.Decrease();
-
             // ベッドに向けて移動
             Vector3 velo = toBed.normalized * Time.deltaTime * BlackBoard.MoveSpeed;
             BlackBoard.Transform.position += velo;
         }
+
+        // 食べたい欲が増える
+        BlackBoard.FoodParam.Increase();
     }
 }

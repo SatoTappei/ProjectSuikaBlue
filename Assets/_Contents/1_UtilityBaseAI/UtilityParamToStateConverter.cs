@@ -10,7 +10,7 @@ public class UtilityParamToStateConverter
         switch (param)
         {
             case UtilityParamType.Food: return UtilityStateType.Eat;
-            case UtilityParamType.Energy: return UtilityStateType.Sleep;
+            case UtilityParamType.Tired: return UtilityStateType.Sleep;
             case UtilityParamType.Fun: return UtilityStateType.Work;
         }
 

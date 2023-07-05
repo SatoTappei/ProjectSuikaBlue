@@ -9,7 +9,8 @@ public class UtilityParamView : MonoBehaviour
 {
     [Header("パラメータを表示するUI")]
     [SerializeField] Transform _foodBar;
-    [SerializeField] Transform _energyBar;
+    [SerializeField] Transform _funBar;
+    [SerializeField] Transform _tired;
 
     UtilityBlackBoard _blackBoard;
 
@@ -17,13 +18,15 @@ public class UtilityParamView : MonoBehaviour
     {
         _blackBoard = GetComponent<UtilityBlackBoard>();
         _foodBar.localScale = Vector3.one;
-        _energyBar.localScale = Vector3.one;
+        _funBar.localScale = Vector3.one;
+        _tired.localScale = Vector3.one;
     }
 
     void Update()
     {
         View(_blackBoard.FoodParam.Value, _foodBar);
-        View(_blackBoard.EnergyParam.Value, _energyBar);
+        View(_blackBoard.FunParam.Value, _funBar);
+        View(_blackBoard.TiredParam.Value, _tired);
     }
 
     void View(float current, Transform bar)
