@@ -8,16 +8,16 @@ namespace PathTableGraph
     /// </summary>
     public class Neighbour
     {
-        VertexObject _vertex;
+        Vertex _vertex;
         float _distance;
 
-        public Neighbour(VertexObject vertex, float distance)
+        public Neighbour(Vertex vertex, float distance)
         {
             _vertex = vertex;
             _distance = distance;
         }
 
-        public VertexObject Vertex => _vertex;
+        public Vertex Vertex => _vertex;
         public float Distance => _distance;
     }
 
@@ -25,20 +25,26 @@ namespace PathTableGraph
     /// 経路テーブルの頂点オブジェクト
     /// PathTableManagerクラスが持つ頂点のGameObjectに対してAddComponentされる
     /// </summary>
-    public class VertexObject : MonoBehaviour
+    public class Vertex : MonoBehaviour
     {
-        public List<Neighbour> _neighbourList = new List<Neighbour>();
-
         /// <summary>
-        /// 1始まりの頂点番号
+        /// 隣接した頂点のリスト
         /// </summary>
+        List<Neighbour> _neighbourList = new List<Neighbour>();
+
+        public Vertex Parent { get; set; }
         public int Number { get; set; } = -1;
+        public float GCost { get; set; }
+        public float HCost { get; set; }
+        public float FCost => GCost + HCost;
+
+        public IReadOnlyList<Neighbour> NeighbourList => _neighbourList;
 
         /// <summary>
         /// 頂点とその距離を隣接しているリストに追加
         /// 頂点番号で追加しているわけではないので注意
         /// </summary>
-        public void AddNeighbour(VertexObject vertex)
+        public void AddNeighbour(Vertex vertex)
         {
             float distance = (vertex.transform.position - transform.position).sqrMagnitude;
             _neighbourList.Add(new Neighbour(vertex, distance));
