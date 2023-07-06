@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace CommonUtility
 {
@@ -27,22 +26,6 @@ namespace CommonUtility
             {
                 throw new KeyNotFoundException(dict + " 内にキーが無い: " + key);
             }
-        }
-    }
-
-    /// <summary>
-    /// 3Dプリミティブの便利クラス
-    /// </summary>
-    public static class PrimitiveUtility
-    {
-        /// <summary>
-        /// 3Dオブジェクトの球を作成して返す
-        /// </summary>
-        public static GameObject CreateSphere(Vector3 pos)
-        {
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            sphere.transform.position = pos;
-            return sphere;
         }
     }
 }

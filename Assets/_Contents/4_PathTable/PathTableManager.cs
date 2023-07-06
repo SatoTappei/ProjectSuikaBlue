@@ -1,4 +1,5 @@
 using PathTableGraph;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,41 +21,46 @@ public class PathTableManager : MonoBehaviour
     [Header("ギズモへの描画")]
     [SerializeField] bool _drawGizmos = true;
 
+    AStarTask _aStarTask;
+    Vertex[] _graph;
     /// <summary>
     /// ギズモに表示するためにメンバとして保持しておく
     /// </summary>
     Stack<Vector3> _path;
+    /// <summary>
+    /// 経路テーブル
+    /// </summary>
+    Stack<Vector3>[,] _table;
 
     void Awake()
     {
         // 1始まりの頂点番号で取得したいので 0番目をダミーにしておく
-        Vertex[] graph = new Vertex[_vertexObjects.Length + 1];
+        _graph = new Vertex[_vertexObjects.Length + 1];
+        _aStarTask = new AStarTask(_graph);
 
-        CreateVertex(graph);
-        CreateGraph(graph);
-
-        AStarTask aStarTask = new AStarTask(graph);
-        _path = aStarTask.Pathfinding(2, 9);
+        CreateVertex();
+        CreateGraph();
+        WritePathToTextAsset();
     }
 
     /// <summary>
     /// 1始まりの頂点番号を付与して頂点の作成
     /// グラフから頂点番号で取得できるようにする
     /// </summary>
-    void CreateVertex(Vertex[] graph)
+    void CreateVertex()
     {
         for(int i = 0; i < _vertexObjects.Length; i++)
         {
             Vertex vertex = _vertexObjects[i].gameObject.AddComponent<Vertex>();
             vertex.Number = i + 1;
-            graph[i + 1] = vertex;
+            _graph[i + 1] = vertex;
         }
     }
 
     /// <summary>
     /// レイキャストを用いて各頂点の隣接している頂点を取得＆追加する
     /// </summary>
-    void CreateGraph(Vertex[] graph)
+    void CreateGraph()
     {
         for (int i = 0; i < _vertexObjects.Length; i++)
         {
@@ -73,14 +79,33 @@ public class PathTableManager : MonoBehaviour
                     // 隣接している頂点を追加
                     if (hitInfo.collider.TryGetComponent(out Vertex neighbourVertex))
                     {
-                        graph[i + 1].AddNeighbour(neighbourVertex);
+                        _graph[i + 1].AddNeighbour(neighbourVertex);
                     }
                 }
             }
         }
     }
 
+    /// <summary>
+    /// 経路探索を行い、テキストファイルに書き込む
+    /// </summary>
+    public void WritePathToTextAsset()
+    {
+        //TextAssetGenerator generator = new();
 
+
+        int i = Random.Range(1, _vertexObjects.Length + 1);
+        int k = Random.Range(1, _vertexObjects.Length + 1);
+
+#if UNITY_EDITOR
+        Stopwatch stopwatch = new(i, k);
+        stopwatch.Start();
+#endif
+        _path = _aStarTask.Pathfinding(i, k);
+#if UNITY_EDITOR
+        stopwatch.Stop();
+#endif
+    }
 
     void OnDrawGizmos()
     {

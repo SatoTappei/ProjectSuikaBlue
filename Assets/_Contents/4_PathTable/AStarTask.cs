@@ -22,6 +22,8 @@ namespace PathTableGraph
         /// </summary>
         public Stack<Vector3> Pathfinding(int startNumber, int goalNumber)
         {
+            ResetCost();
+
             Vertex current = _graph[startNumber];
             Vertex goal = _graph[goalNumber];
 
@@ -70,6 +72,19 @@ namespace PathTableGraph
                     // ノードを開いた場合は開いたノードのリストに追加
                     if (unContainedInOpenList) openList.Add(neighbour.Vertex);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 経路探索の前に各頂点のコストをリセットする
+        /// </summary>
+        void ResetCost()
+        {
+            for (int i = 1; i < _graph.Length; i++)
+            {
+                _graph[i].GCost = float.MaxValue;
+                _graph[i].HCost = float.MaxValue;
+                _graph[i].Parent = null;
             }
         }
 
