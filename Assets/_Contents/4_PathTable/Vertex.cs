@@ -25,20 +25,31 @@ namespace PathTableGraph
     /// 経路テーブルの頂点オブジェクト
     /// PathTableManagerクラスが持つ頂点のGameObjectに対してAddComponentされる
     /// </summary>
-    public class Vertex : MonoBehaviour
+    public class Vertex : MonoBehaviour, IBinaryHeapCollectable<Vertex>
     {
         /// <summary>
         /// 隣接した頂点のリスト
         /// </summary>
         List<Neighbour> _neighbourList = new List<Neighbour>();
 
+        public IReadOnlyList<Neighbour> NeighbourList => _neighbourList;
         public Vertex Parent { get; set; }
         public int Number { get; set; } = -1;
         public float GCost { get; set; }
         public float HCost { get; set; }
         public float FCost => GCost + HCost;
+        public int BinaryHeapIndex { get; set; }
 
-        public IReadOnlyList<Neighbour> NeighbourList => _neighbourList;
+        public int CompareTo(Vertex other)
+        {
+            int result = FCost.CompareTo(other.FCost);
+            if (result == 0)
+            {
+                result = HCost.CompareTo(other.HCost);
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// 頂点とその距離を隣接しているリストに追加

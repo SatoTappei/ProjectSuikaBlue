@@ -8,13 +8,11 @@ namespace PathTableGraph
     public class Stopwatch
     {
         System.Diagnostics.Stopwatch _stopwatch = new();
-        int _start;
-        int _goal;
+        string _prefixMessage;
 
-        public Stopwatch(int start, int goal)
+        public Stopwatch(string prefixMessage = "")
         {
-            _start = start;
-            _goal = goal;
+            _prefixMessage = prefixMessage;
         }
 
         public void Start()
@@ -25,7 +23,7 @@ namespace PathTableGraph
         public void Stop()
         {
             _stopwatch.Stop();
-            Debug.Log($"{_start}‚©‚ç{_goal}‚Ö‚ÌŒo˜H’Tõ‚É‚©‚©‚Á‚½ŠÔ: {_stopwatch.Elapsed} ms");
+            Debug.Log($"{_prefixMessage} ˆ—ŠÔ: {_stopwatch.Elapsed} ms");
         }
     }
 }

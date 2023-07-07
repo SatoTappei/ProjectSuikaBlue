@@ -12,7 +12,7 @@ namespace PathTableGraph
         /// <summary>
         /// 出力先のパスは、ビルド後で変わるので注意
         /// </summary>
-        readonly string FilePath = Path.Combine(Application.dataPath, "PathData.text");
+        readonly string FilePath = Path.Combine(Application.dataPath, "PathData.txt");
 
         public TextAssetGenerator()
         {
@@ -24,7 +24,7 @@ namespace PathTableGraph
         /// <summary>
         /// 1つのテキストファイルに、このメソッドを呼び出すたびに経路を書き込む
         /// </summary>
-        public void Generate(IEnumerable<Vector3> path, int startNumber, int goalNumber)
+        public void WritePath(IEnumerable<Vector3> path, int startNumber, int goalNumber)
         {
             using (StreamWriter writer = new StreamWriter(FilePath, true))
             {

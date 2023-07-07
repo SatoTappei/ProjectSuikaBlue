@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,30 +24,28 @@ namespace PathTableGraph
             ResetCost();
 
             Vertex current = _graph[startNumber];
-            Vertex goal = _graph[goalNumber];
-
             current.HCost = CalculateHeuristicCost(startNumber, goalNumber);
 
-            List<Vertex> openList = new() { current };
+            BinaryHeap<Vertex> openHeap = new(_graph.Length);
+            openHeap.Add(current);
             HashSet<Vertex> closeSet = new();
 
             while (true)
             {
-                if (openList.Count == 0)
+                if (openHeap.Count == 0)
                 {
                     Debug.LogWarning("経路が見つからないので途中までの経路を作成");
                     return CreatePath(current);
                 }
 
                 // 最小コストの頂点
-                current = openList.OrderBy(vertex => vertex.FCost).FirstOrDefault();
+                current = openHeap.Pop();
                 // 同じ番号の場合は経路を生成して返す
                 if (current.Number == goalNumber)
                 {
                     return CreatePath(current);
                 }
                 // 開いたノードのリストから閉じたノードのリストに移す
-                openList.Remove(current);
                 closeSet.Add(current);
                 // 隣接した頂点のコストを計算
                 foreach (Neighbour neighbour in current.NeighbourList)
@@ -59,7 +56,7 @@ namespace PathTableGraph
                     float gCost = current.GCost + neighbour.Distance;
                     float hCost = CalculateHeuristicCost(neighbour.Vertex.Number, goalNumber);
                     float fCost = gCost + hCost;
-                    bool unContainedInOpenList = !openList.Contains(neighbour.Vertex);
+                    bool unContainedInOpenList = !openHeap.Contains(neighbour.Vertex);
 
                     // 開いたノードのリストに含まれていない
                     // もしくはよりコストが低い場合は、コストと親を上書き
@@ -70,7 +67,7 @@ namespace PathTableGraph
                         neighbour.Vertex.Parent = current;
                     }
                     // ノードを開いた場合は開いたノードのリストに追加
-                    if (unContainedInOpenList) openList.Add(neighbour.Vertex);
+                    if (unContainedInOpenList) openHeap.Add(neighbour.Vertex);
                 }
             }
         }
