@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace InGameProfiler
+namespace MyUtility
 {
     /// <summary>
     /// FPSとメモリ消費量をリアルタイムに表示する

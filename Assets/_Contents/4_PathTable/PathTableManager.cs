@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(PathfindingSystem))]
 public class PathTableManager : MonoBehaviour
 {
-    [Header("Œo˜H‚ÌƒMƒYƒ‚‚Ö‚Ì•`‰æ")]
+    [Header("Path‚ÌƒMƒYƒ‚‚Ö‚Ì•`‰æ")]
     [SerializeField] bool _drawGizmos = true;
 
     PathfindingSystem _pathfindingSystem;

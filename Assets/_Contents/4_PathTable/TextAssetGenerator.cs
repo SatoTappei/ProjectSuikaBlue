@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace PathTableGraph
 {
+    // 未使用
+
     /// <summary>
     /// 経路探索で求めた経路をテキスト形式で保存するクラス
     /// </summary>

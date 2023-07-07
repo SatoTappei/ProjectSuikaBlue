@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace PathTableGraph
+namespace MyUtility
 {
     /// <summary>
-    /// デバッグ用の経路探索用のストップウォッチのクラス
+    /// デバッグ用のストップウォッチのクラス
     /// </summary>
     public class Stopwatch
     {
