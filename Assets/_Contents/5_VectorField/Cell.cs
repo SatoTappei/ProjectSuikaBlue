@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace VectorField
@@ -9,12 +7,37 @@ namespace VectorField
     /// </summary>
     public class Cell
     {
-        int _cellSize;
+        Vector3 _vector;
+        byte _cost;
+        ushort _calculatedCost;
 
-        public void DrawOnGizmos(Vector3 pos)
+        public Cell(Vector3 pos, int z, int x)
         {
-            Vector3 size = new Vector3(_cellSize, 1, _cellSize);
-            Gizmos.DrawWireCube(pos, size);
+            Pos = pos;
+            Z = z;
+            X = x;
+        }
+
+        public Vector3 Pos { get; }
+        public int Z { get;  }
+        public int X { get;  }
+
+        public Vector3 Vector
+        { 
+            get => _vector; 
+            set => _vector = value;
+        }
+        public byte Cost
+        {
+            get => _cost;
+            // コストを0から255の間に制限する
+            set => _cost = (byte)Mathf.Min(value, byte.MaxValue);
+        }
+        public ushort CalculatedCost
+        {
+            get => _calculatedCost;
+            // コストを0から65535に制限する
+            set => _calculatedCost = (ushort)Mathf.Min(value, ushort.MaxValue);
         }
     }
 }

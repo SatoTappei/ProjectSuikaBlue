@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 29595327}
   - component: {fileID: 29595326}
   - component: {fileID: 29595325}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Building
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 66000068}
   - component: {fileID: 66000067}
   - component: {fileID: 66000066}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Building
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -483,7 +483,7 @@ GameObject:
   - component: {fileID: 611286565}
   - component: {fileID: 611286564}
   - component: {fileID: 611286563}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Building (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -657,7 +657,7 @@ GameObject:
   - component: {fileID: 1237717141}
   - component: {fileID: 1237717140}
   - component: {fileID: 1237717139}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Building (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1048,7 +1048,7 @@ GameObject:
   - component: {fileID: 1497967816}
   - component: {fileID: 1497967815}
   - component: {fileID: 1497967814}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Building (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1151,6 +1151,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1560196038}
   - component: {fileID: 1560196039}
+  - component: {fileID: 1560196040}
+  - component: {fileID: 1560196041}
   m_Layer: 0
   m_Name: VectorFieldManager
   m_TagString: Untagged
@@ -1166,7 +1168,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1560196037}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1185,10 +1187,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0ba8460c782224c80638708f1a6775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _width: 6
-  _height: 6
+--- !u!114 &1560196040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560196037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c772cb25d2efcd48abb6b7d5489a6ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _width: 20
+  _height: 20
   _cellSize: 5
-  _drawGizmos: 1
+  _obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  _obstacleHeight: 100
+  _gizmosViewMode: 2
+--- !u!114 &1560196041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560196037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba341af48b32a9a418eb230222c9584f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _CursorSprite: {fileID: 21300000, guid: 100d4476a360f874aa09cd6df0c98017, type: 3}
 --- !u!1 &1621926638
 GameObject:
   m_ObjectHideFlags: 0
@@ -1201,7 +1232,7 @@ GameObject:
   - component: {fileID: 1621926642}
   - component: {fileID: 1621926641}
   - component: {fileID: 1621926640}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Building (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1306,7 +1337,7 @@ GameObject:
   - component: {fileID: 1648146310}
   - component: {fileID: 1648146309}
   - component: {fileID: 1648146308}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Building (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1413,7 +1444,7 @@ GameObject:
   - component: {fileID: 1649450261}
   - component: {fileID: 1649450260}
   - component: {fileID: 1649450259}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Building (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

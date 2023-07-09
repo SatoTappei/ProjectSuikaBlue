@@ -75,7 +75,6 @@ namespace PathTableGraph
 #if UNITY_EDITOR
             Vector3 pos = transform.position + Vector3.up * 1.5f;
             string str = $"’¸“_: {Number}";
-            UnityEditor.Handles.color = Color.black;
             UnityEditor.Handles.Label(pos, str);
 #endif
         }
