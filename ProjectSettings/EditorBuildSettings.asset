@@ -8,4 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Contents/InGame.unity
     guid: b3cf2a86439d5eb449476e68622f9cb3
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 948968daf0cae104abcff5ca1dc1c8fc,
+      type: 2}

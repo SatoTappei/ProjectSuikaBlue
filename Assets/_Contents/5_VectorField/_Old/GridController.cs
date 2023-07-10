@@ -1,22 +1,13 @@
-using System;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
-namespace VectorField
+namespace Old
 {
-    /// <summary>
-    /// ベクトルの流れの列挙型
-    /// 指定した地点に向かう/指定した地点から離れるを決定する
-    /// </summary>
-    public enum FlowMode
-    {
-        Toward,
-        Away,
-    }
+
 
     /// <summary>
     /// ベクターフィールドのグリッドのクラス
+    /// グリッドの生成＆各コストの設定を行う
     /// </summary>
     public class GridController : MonoBehaviour
     {
@@ -33,7 +24,8 @@ namespace VectorField
         Transform _transform;
         Cell[,] _grid;
         Cell _targetCell;
-        VectorCalculator _vectorCalculator;
+        VectorCalculator _calculator;
+        VectorVisualizer _visualizer;
 
         public Cell[,] Grid => _grid;
         public int Width => _width;
@@ -44,8 +36,8 @@ namespace VectorField
         {
             _transform = transform;
             CreateGrid();
-            TryGetComponent(out VectorVisualizer vectorVisualizer);
-            _vectorCalculator = new(_grid, vectorVisualizer);
+            TryGetComponent(out _visualizer);
+            _calculator = new(_grid, transform.position, _cellSize);
         }
 
         /// <summary>
@@ -53,7 +45,27 @@ namespace VectorField
         /// </summary>
         public void SetVectorFlowCenterCell(Vector3 pos, FlowMode mode)
         {
-            _vectorCalculator.SetTargetCell(Vector3.zero);
+            // ↓ここ修正必要
+            _targetCell = _calculator.CreateVectorField(Vector3.zero);
+#if UNITY_EDITOR
+            if (_visualizer != null)
+            {
+                _visualizer.RemoveAll();
+                foreach (var cell in _grid)
+                {
+                    _visualizer.VisualizeCellVector(cell);
+                }
+                //_visualizer.Add(cell.Pos, GetDir(cell.Vector));
+            }
+#endif
+        }
+
+        // posからのベクトルの流れを返す
+        // 
+        public List<Vector3> GetFlow(Vector3 pos)
+        {
+            List<Vector3> list = _calculator.GetFlow(pos);
+            return list;
         }
 
         void CreateGrid()
@@ -72,17 +84,20 @@ namespace VectorField
         void CreateCell(int z, int x)
         {
             // 各セルの位置に向けて上からRayを飛ばして障害物を検知
-            Vector3 cellPos = GetCellWorldPos(z, x);
+            Vector3 cellPos = GridIndexToWorldPos(z, x);
             Vector3 rayOrigin = cellPos + Vector3.up * _obstacleHeight;
             bool isHit = Physics.SphereCast(rayOrigin, _cellSize / 2, Vector3.down,
                 out RaycastHit hit, _obstacleHeight, _obstacleLayer);
 
-            _grid[z, x] = new Cell(cellPos, z, x);
-            _grid[z, x].Cost = (byte)(isHit ? byte.MaxValue : 1);
-            _grid[z, x].CalculatedCost = ushort.MaxValue;
+            // セルの作成＆コストを設定
+            _grid[z, x] = new Cell(cellPos, z, x)
+            {
+                Cost = (byte)(isHit ? byte.MaxValue : 1),
+                CalculatedCost = ushort.MaxValue,
+            };
         }
 
-        Vector3 GetCellWorldPos(int z, int x)
+        Vector3 GridIndexToWorldPos(int z, int x)
         {
             // 辺の大きさが偶数の場合はセルの中心に合わせるオフセットが必要
             float offsetZ = _height % 2 == 0 ? 0.5f : 0;

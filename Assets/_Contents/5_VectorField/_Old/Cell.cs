@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace VectorField
+namespace Old
 {
     /// <summary>
     /// ベクターフィールドのグリッドの各セルのクラス
@@ -27,8 +27,8 @@ namespace VectorField
         public int X => _x;
 
         public Vector3 Vector
-        {
-            get => _vector;
+        { 
+            get => _vector; 
             set => _vector = value;
         }
         public byte Cost

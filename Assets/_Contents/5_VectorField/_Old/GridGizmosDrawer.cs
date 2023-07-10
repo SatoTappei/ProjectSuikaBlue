@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace VectorField
+namespace Old
 {
     /// <summary>
     /// ベクトルフィールドをギズモに表示するクラス
@@ -61,9 +61,15 @@ namespace VectorField
             }
         }
 
+        void DrawCellIndexOnTGizmos(Cell cell, int i, int k)
+        {
+            UnityEditor.Handles.Label(cell.Pos, $"({i},{k})", _style);
+        }
+
         void DrawCellOnGizmos(Cell cell, float cellSize)
         {
             Vector3 size = new Vector3(cellSize, 0.01f, cellSize);
+            Gizmos.color = Color.green;
             Gizmos.DrawWireCube(cell.Pos, size);
         }
 
