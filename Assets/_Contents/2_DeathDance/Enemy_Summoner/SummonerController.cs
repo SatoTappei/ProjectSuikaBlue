@@ -1,21 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
+using UniRx.Triggers;
 
 /// <summary>
 /// 召喚してくる敵を制御するクラス
+/// 最初からステージに配置されるのではなく、ゲーム中に生成されることを考慮した作りになっている
 /// </summary>
+[RequireComponent(typeof(CommonLayerBlackBoard))]
 public class SummonerController : MonoBehaviour
 {
     [SerializeField] GameObject _spawnPrefab;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        
+        CommonLayerBlackBoard commonLayerBlackBoard = GetComponent<CommonLayerBlackBoard>();
+        // 初期状態を割り当てる
+        EnemyStateBase currentState = commonLayerBlackBoard[EnemyStateType.Init];
+        this.UpdateAsObservable().Subscribe(_ =>
+        {
+            currentState = currentState.Update();
+        });
     }
 
-    // Update is called once per frame
+    void Start()
+    {
+
+    }
+
     void Update()
     {
         
