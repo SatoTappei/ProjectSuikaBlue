@@ -43,22 +43,19 @@ public class VectorFieldManager : MonoBehaviour
     [SerializeField] GridData _gridData;
 
     Cell[,] _grid;
+    VectorCalculator _calculator;
+    DebugVectorVisualizer _vectorVisualizer;
+    DebugGridVisualizer _gridVisualizer;
 
     void Awake()
     {
         // グリッド生成
         GridBuilder gridBuilder = new();
         _grid = gridBuilder.CreateGrid(_gridData);
-    }
 
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
+        _calculator = new(_grid, _gridData);
+        TryGetComponent(out _vectorVisualizer);
+        TryGetComponent(out _gridVisualizer);
     }
 
     /// <summary>
@@ -67,7 +64,18 @@ public class VectorFieldManager : MonoBehaviour
     /// </summary>
     public void CreateVectorField(Vector3 pos, FlowMode mode)
     {
+        _calculator.CreateVectorField(pos);
 
+#if UNITY_EDITOR
+        // ベクトルの流れの描画
+        if (_vectorVisualizer != null)
+        {
+            foreach (Cell cell in _grid)
+            {
+                _vectorVisualizer.VisualizeCellVector(cell);
+            }
+        }
+#endif
     }
 
     /// <summary>
@@ -76,6 +84,15 @@ public class VectorFieldManager : MonoBehaviour
     /// </summary>
     public List<Vector3> GetFlow(Vector3 pos)
     {
+        throw new System.Exception("未実装");
+    }
 
+    void OnDrawGizmos()
+    {
+        if (Application.isPlaying && _gridVisualizer != null)
+        {
+            // グリッドと各セルのコストの描画
+            _gridVisualizer.DrawGridOnGizmos(_grid, _gridData);
+        }
     }
 }
