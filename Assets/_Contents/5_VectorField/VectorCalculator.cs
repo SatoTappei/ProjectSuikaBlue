@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VectorField;
@@ -74,65 +73,12 @@ public class VectorCalculator
     /// </summary>
     Cell SetTargetCell(Vector3 targetPos)
     {
-        Vector2Int index = WorldPosToGridIndex(targetPos);
+        Vector2Int index = GridUtility.WorldPosToGridIndex(targetPos, _grid, _data);
         Cell targetCell = _grid[index.y, index.x];
         targetCell.Cost = 0;
         targetCell.CalculatedCost = 0;
 
         return targetCell;
-    }
-
-    /// <summary>
-    /// ワールド座標に対応したグリッドの添え字を返す
-    /// </summary>
-    Vector2Int WorldPosToGridIndex(Vector3 targetPos)
-    {
-        // グリッドの1辺の長さ
-        float forwardZ = _grid[0, 0].Pos.z;
-        float backZ = _grid[_data.Height - 1, _data.Width - 1].Pos.z;
-        float leftX = _grid[0, 0].Pos.x;
-        float rightX = _grid[_data.Height - 1, _data.Width - 1].Pos.x;
-        // グリッドの端から座標までの長さ
-        float lengthZ = backZ - forwardZ;
-        float lengthX = rightX - leftX;
-        // グリッドの端から何％の位置か
-        float fromPosZ = targetPos.z - forwardZ;
-        float fromPosX = targetPos.x - leftX;
-        // グリッドの端から何％の位置か
-        float percentZ = Mathf.Abs(fromPosZ / lengthZ);
-        float percentX = Mathf.Abs(fromPosX / lengthX);
-        
-        // xはそのまま、yはzに対応している
-        Vector2Int index = new Vector2Int()
-        {
-            x = Mathf.RoundToInt((_data.Width - 1) * percentX),
-            y = Mathf.RoundToInt((_data.Height - 1) * percentZ),
-        };
-
-        return index;
-    }
-
-    /// <summary>
-    /// 周囲八近傍を調べてコストを元にベクトルの流れを作成する
-    /// </summary>
-    void CreateVectorFlow()
-    {
-        foreach (Cell cell in _grid)
-        {
-            _neighbourQueue.Clear();
-            InsertNeighbours(cell, EightDirections);
-            int baseCalculatedCost = cell.CalculatedCost;
-            foreach (Cell neighbour in _neighbourQueue)
-            {
-                // 基準となる計算済みコストより周囲のセルの計算済みコストの方が低い場合は
-                // その方向へのベクトルを作成して基準を更新
-                if (neighbour.CalculatedCost < baseCalculatedCost)
-                {
-                    baseCalculatedCost = neighbour.CalculatedCost;
-                    cell.Vector = CalculateVectorToNeighbourCell(cell, neighbour);
-                }
-            }
-        }
     }
 
     /// <summary>
@@ -165,6 +111,29 @@ public class VectorCalculator
     }
 
     /// <summary>
+    /// 周囲八近傍を調べてコストを元にベクトルの流れを作成する
+    /// </summary>
+    void CreateVectorFlow()
+    {
+        foreach (Cell cell in _grid)
+        {
+            _neighbourQueue.Clear();
+            InsertNeighbours(cell, EightDirections);
+            int baseCalculatedCost = cell.CalculatedCost;
+            foreach (Cell neighbour in _neighbourQueue)
+            {
+                // 基準となる計算済みコストより周囲のセルの計算済みコストの方が低い場合は
+                // その方向へのベクトルを作成して基準を更新
+                if (neighbour.CalculatedCost < baseCalculatedCost)
+                {
+                    baseCalculatedCost = neighbour.CalculatedCost;
+                    cell.Vector = CalculateVectorToNeighbourCell(cell, neighbour);
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 選択したセルの8もしくは4方向のセルを開いたセルのキューに挿入する
     /// </summary>
     void InsertNeighbours(Cell current, Vector2Int[] directions)
@@ -174,14 +143,14 @@ public class VectorCalculator
             int neighbourIndexZ = current.Z + dir.y;
             int neighbourIndexX = current.X + dir.x;
 
-            if (IsWithinGridRange(neighbourIndexZ, neighbourIndexX))
+            if (IsWithinGrid(neighbourIndexZ, neighbourIndexX))
             {
                 _neighbourQueue.Enqueue(_grid[neighbourIndexZ, neighbourIndexX]);
             }
         }
     }
 
-    bool IsWithinGridRange(int z, int x)
+    bool IsWithinGrid(int z, int x)
     {
         return 0 <= z && z < _grid.GetLength(0) && 0 <= x && x < _grid.GetLength(1);
     }

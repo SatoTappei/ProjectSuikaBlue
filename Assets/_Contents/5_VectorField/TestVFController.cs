@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -6,6 +7,7 @@ using UnityEngine;
 public class TestVFController : MonoBehaviour
 {
     VectorFieldManager _vfManager;
+    Queue<Vector3> _queue = new();
 
     void Awake()
     {
@@ -17,6 +19,10 @@ public class TestVFController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             _vfManager.CreateVectorField(transform.position, FlowMode.Toward);
+        }
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            _vfManager.InsertVectorFlowToQueue(transform.position, _queue);
         }
     }
 }

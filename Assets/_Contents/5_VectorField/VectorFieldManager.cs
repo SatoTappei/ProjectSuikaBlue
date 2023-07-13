@@ -43,9 +43,15 @@ public class VectorFieldManager : MonoBehaviour
     [SerializeField] GridData _gridData;
 
     Cell[,] _grid;
-    VectorCalculator _calculator;
+    VectorCalculator _vectorCalculator;
+    FlowCalculator _flowCalculator;
     DebugVectorVisualizer _vectorVisualizer;
     DebugGridVisualizer _gridVisualizer;
+
+    /// <summary>
+    /// 一度CreateVectorFieldメソッドを呼び、ベクトルフィールドを生成したフラグ
+    /// </summary>
+    bool _vectorFieldCreated;
 
     void Awake()
     {
@@ -53,7 +59,8 @@ public class VectorFieldManager : MonoBehaviour
         GridBuilder gridBuilder = new();
         _grid = gridBuilder.CreateGrid(_gridData);
 
-        _calculator = new(_grid, _gridData);
+        _vectorCalculator = new(_grid, _gridData);
+        _flowCalculator = new(_grid, _gridData);
         TryGetComponent(out _vectorVisualizer);
         TryGetComponent(out _gridVisualizer);
     }
@@ -64,7 +71,8 @@ public class VectorFieldManager : MonoBehaviour
     /// </summary>
     public void CreateVectorField(Vector3 pos, FlowMode mode)
     {
-        _calculator.CreateVectorField(pos);
+        _vectorCalculator.CreateVectorField(pos);
+        _vectorFieldCreated = true;
 
 #if UNITY_EDITOR
         // ベクトルの流れの描画
@@ -79,9 +87,14 @@ public class VectorFieldManager : MonoBehaviour
     /// 外部から呼び出すことで、指定した位置からの正規化されたベクトルの流れを取得する
     /// Y座標はグリッドの高さを基準にするので無視される
     /// </summary>
-    public List<Vector3> GetFlow(Vector3 pos)
+    public void InsertVectorFlowToQueue(Vector3 targetPos, Queue<Vector3> queue)
     {
-        throw new System.Exception("未実装");
+        if (!_vectorFieldCreated)
+        {
+            throw new System.InvalidOperationException("ベクトルフィールド未作成");
+        }
+
+        _flowCalculator.InsertVectorFlowToQueue(targetPos, queue);
     }
 
     void OnDrawGizmos()
