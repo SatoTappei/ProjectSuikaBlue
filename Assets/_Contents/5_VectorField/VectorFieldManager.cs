@@ -70,10 +70,7 @@ public class VectorFieldManager : MonoBehaviour
         // ƒxƒNƒgƒ‹‚Ì—¬‚ê‚Ì•`‰æ
         if (_vectorVisualizer != null)
         {
-            foreach (Cell cell in _grid)
-            {
-                _vectorVisualizer.VisualizeCellVector(cell);
-            }
+            _vectorVisualizer.VisualizeVectorFlow(_grid);
         }
 #endif
     }

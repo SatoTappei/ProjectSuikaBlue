@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace VectorField
@@ -21,15 +22,31 @@ namespace VectorField
         public void Valid() => _parent.gameObject.SetActive(true);
         public void Invalid() => _parent.gameObject.SetActive(false);
 
-        /// <summary>
-        /// 矢印を全削除する
-        /// ベクターフィールドの更新時に呼び出される
-        /// </summary>
-        public void RemoveAll()
+        public void VisualizeVectorFlow(Cell[,] grid)
         {
-            while (_parent.transform.childCount > 0)
+            RemoveAll();
+            foreach (Cell cell in grid)
             {
-                Destroy(_parent.transform.GetChild(0));
+                VisualizeCellVector(cell);
+            }
+        }
+
+        /// <summary>
+        /// ベクターフィールドの更新時に呼び出され、矢印を全削除する
+        /// 矢印の生成と同時に呼び出される想定なので、一度現在の矢印をまとめてから破棄する
+        /// この手順を踏まない場合無限ループに陥る
+        /// </summary>
+        void RemoveAll()
+        {
+            List<GameObject> cursorList = new();
+            foreach (Transform cursor in _parent.transform)
+            {
+                cursorList.Add(cursor.gameObject);
+            }
+
+            foreach(GameObject cursor in cursorList)
+            {
+                Destroy(cursor);
             }
         }
 
@@ -37,7 +54,7 @@ namespace VectorField
         /// セルのベクトルに対応した矢印を 2DSprite として生成する
         /// 斜め方向のベクトルは正規化済みである必要がある
         /// </summary>
-        public void VisualizeCellVector(Cell cell)
+        void VisualizeCellVector(Cell cell)
         {
             if (cell.Vector == Vector3.zero) return;
 
@@ -47,7 +64,7 @@ namespace VectorField
             else if (cell.Vector == new Vector3(-1, 0, 0)) CreateCursor(cell.Pos, 90, 180);
             else if (cell.Vector == new Vector3(1, 0, 1).normalized) CreateCursor(cell.Pos, 90, -45);
             else if (cell.Vector == new Vector3(1, 0, -1).normalized) CreateCursor(cell.Pos, 90, 45);
-            else if (cell.Vector == new Vector3(-1, 0, 1).normalized) CreateCursor(cell.Pos, 90, 315);
+            else if (cell.Vector == new Vector3(-1, 0, 1).normalized) CreateCursor(cell.Pos, 90, -135);
             else if (cell.Vector == new Vector3(-1, 0, -1).normalized) CreateCursor(cell.Pos, 90, 135);
             else
             {

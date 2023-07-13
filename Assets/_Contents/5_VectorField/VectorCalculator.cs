@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VectorField;
@@ -48,15 +49,23 @@ public class VectorCalculator
     /// <summary>
     /// このメソッドを外部から呼び出すことで、指定した位置に向けたベクトルフィールドを作成する
     /// </summary>
-    /// <param name="targetPos"></param>
-    /// <returns></returns>
     public Cell CreateVectorField(Vector3 targetPos)
     {
+        InitCellAll();
         Cell targetCell = SetTargetCell(targetPos);
         CalculateNeighbourCellCost(targetCell);
         CreateVectorFlow();
 
         return targetCell;
+    }
+
+    void InitCellAll()
+    {
+        foreach (Cell cell in _grid)
+        {
+            cell.CalculatedCost = ushort.MaxValue;
+            cell.Vector = Vector3.zero;
+        }
     }
 
     /// <summary>

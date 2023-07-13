@@ -1194,7 +1194,7 @@ MonoBehaviour:
     _obstacleLayer:
       serializedVersion: 2
       m_Bits: 128
-    _obstacleHeight: 10
+    _obstacleHeight: 20
 --- !u!114 &1560196040
 MonoBehaviour:
   m_ObjectHideFlags: 0

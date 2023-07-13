@@ -15,6 +15,7 @@ public class DebugGridVisualizer : MonoBehaviour
         None,
         Cost,
         CalculatedCost,
+        DetectObstacleRay
     }
 
     [Header("ギズモへの表示モード")]
@@ -40,15 +41,32 @@ public class DebugGridVisualizer : MonoBehaviour
     {
         if (_gizmosViewMode == GizmosViewMode.None) return;
 
-        // 各セルの描画
-        for (int i = 0; i < data.Height; i++)
+        if (_gizmosViewMode == GizmosViewMode.DetectObstacleRay)
         {
-            for (int k = 0; k < data.Width; k++)
+            // 障害物を検知するRay
+            DrawDetectObstacleRay(data);
+        }
+        else
+        {
+            // 各セルの描画
+            for (int i = 0; i < data.Height; i++)
             {
-                DrawCellOnGizmos(grid[i, k], data.CellSize);
-                DrawCellCostOnGizmos(grid[i, k]);
+                for (int k = 0; k < data.Width; k++)
+                {
+                    DrawCellOnGizmos(grid[i, k], data.CellSize);
+                    DrawCellCostOnGizmos(grid[i, k]);
+                }
             }
         }
+    }
+
+    void DrawDetectObstacleRay(GridData data)
+    {
+        Vector3 rayOrigin = data.GridOrigin + Vector3.up * data.ObstacleHeight;
+        UnityEditor.Handles.Label(rayOrigin + Vector3.up, "障害物Ray", _style);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(rayOrigin, Vector3.down * data.ObstacleHeight);
+        Gizmos.DrawWireSphere(rayOrigin, 0.5f);
     }
 
     void DrawCellIndexOnTGizmos(Cell cell, int i, int k)
