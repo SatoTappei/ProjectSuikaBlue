@@ -207,7 +207,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 205528632}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AnimationAction.Controller, Assembly-CSharp
         m_MethodName: Play
         m_Mode: 1
@@ -266,9 +266,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 205528631}
+  - component: {fileID: 205528633}
   - component: {fileID: 205528632}
   m_Layer: 0
-  m_Name: Actor
+  m_Name: Summoner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -289,7 +290,7 @@ Transform:
   - {fileID: 3918122417479614778}
   - {fileID: 207246456}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &205528632
 MonoBehaviour:
@@ -300,14 +301,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 205528630}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1a9747eafd1acb4683363a1baf9c0e1, type: 3}
+  m_Script: {fileID: 11500000, guid: cf8d4cc6263a17f4ba17c391d412fa1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _actionTask:
-    _transform: {fileID: 205528631}
-    _animator: {fileID: 6401291094747425856}
-    _hitBox: {fileID: 207246455}
-  _clip: {fileID: 7400000, guid: 957420b6008a50a49862caa4bca98feb, type: 2}
+  _spawnPrefab: {fileID: 8089693766809835741, guid: ffe42e6d25c9f9c4cabc14ec5a2c06c3,
+    type: 3}
+--- !u!114 &205528633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 205528630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100fc136476fe5e40a221f969cfbf851, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHp: 10
+  _sightRadius: 10
 --- !u!1 &207246455
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,7 +382,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 207246455}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -936,7 +948,7 @@ GameObject:
   m_Component:
   - component: {fileID: 848966176}
   m_Layer: 0
-  m_Name: --->Object
+  m_Name: --->Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1159,7 +1171,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 205528632}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AnimationAction.Controller, Assembly-CSharp
         m_MethodName: Cancel
         m_Mode: 1
@@ -1276,6 +1288,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2105013905
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2105013906}
+  m_Layer: 0
+  m_Name: --->Actor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2105013906
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105013905}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0079660835, y: -26.974592, z: -2.321988}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1317543759901481
 GameObject:

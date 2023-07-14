@@ -3,6 +3,34 @@ using UnityEngine;
 using FSM;
 
 /// <summary>
+/// 視界に捉えた対象を黒板で辞書型で保持するためのKeyとなる列挙型
+/// </summary>
+public enum VisibleTargetType
+{
+    Player,
+}
+
+/// <summary>
+/// 視界に捉えた対象を黒板で辞書型で保持するためのデータ
+/// </summary>
+public class VisibleTargetData
+{
+    VisibleTargetType _type;
+    Vector3 _pos;
+    float _time;
+    // TODO:脅威度/優先度 があると良い？
+
+    public VisibleTargetData(VisibleTargetType type, in Vector3 pos, float time)
+    {
+        _type = type;
+        _pos = pos;
+        _time = time;
+    }
+
+    //public Type
+}
+
+/// <summary>
 /// ボスと敵が共通で持つパラメータを読み書きする黒板
 /// Init/PlayerDetect/PlayerUndetect/Defeated の4つの状態が主に参照する
 /// </summary>
