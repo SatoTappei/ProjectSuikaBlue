@@ -27,7 +27,9 @@ public class VisibleTargetData
         _time = time;
     }
 
-    //public Type
+    public VisibleTargetType Type => _type;
+    public Vector3 Pos => _pos;
+    public float Time => _time;
 }
 
 /// <summary>
@@ -43,8 +45,12 @@ public class CommonLayerBlackBoard : MonoBehaviour
     [SerializeField] float _sightRadius = 10;
 
     Dictionary<EnemyStateType, EnemyStateBase> _stateDict;
+    /// <summary>
+    /// 視界に捉えたターゲットを種類ごとにリストで保持しておく
+    /// 種類ごとに複数のターゲットを保持可能
+    /// </summary>
+    Dictionary<VisibleTargetType, List<VisibleTargetData>> _visibleTargetDict;
     int _currentHp;
-    bool _isDetectedPlayer;
     
     /// <summary>
     /// 各状態が遷移条件を満たした場合に遷移先を取得する
@@ -64,13 +70,27 @@ public class CommonLayerBlackBoard : MonoBehaviour
         }
     }
     public float SightRadius => _sightRadius;
-    public int CurrentHp { get => _currentHp; set => _currentHp = value; }
-    public bool IsDetectedPlayer { get => _isDetectedPlayer; set => _isDetectedPlayer = value; }
+    /// <summary>
+    /// 視界に捉えているリストにプレイヤーが追加されていればプレイヤーを検知しているとみなす
+    /// </summary>
+    public bool IsDetectedPlayer => _visibleTargetDict[VisibleTargetType.Player].Count > 0;
+    
+    public int CurrentHp 
+    { 
+        get => _currentHp;
+        set => _currentHp = value;
+    }
+    public Dictionary<VisibleTargetType, List<VisibleTargetData>> VisibleTargetDict 
+    {
+        get => _visibleTargetDict;
+        set => _visibleTargetDict = value; 
+    }
 
     void Awake()
     {
         _currentHp = _maxHp;
         CreateState();
+        CreateVisibleTargetDict();
     }
 
     void CreateState()
@@ -80,5 +100,11 @@ public class CommonLayerBlackBoard : MonoBehaviour
         _stateDict.Add(EnemyStateType.PlayerDetected, new PlayerDetectState(EnemyStateType.PlayerDetected, this));
         _stateDict.Add(EnemyStateType.PlayerUndetected, new PlayerUndetectState(EnemyStateType.PlayerUndetected, this));
         _stateDict.Add(EnemyStateType.Defeated, new DefeatedState(EnemyStateType.Init, this));
+    }
+
+    void CreateVisibleTargetDict()
+    {
+        _visibleTargetDict = new();
+        _visibleTargetDict.Add(VisibleTargetType.Player, new());
     }
 }

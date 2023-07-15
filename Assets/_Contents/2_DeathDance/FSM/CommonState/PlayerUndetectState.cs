@@ -27,6 +27,13 @@ namespace FSM
 
         protected override void Stay()
         {
+            //Debug.Log("未検知");
+
+            // プレイヤーを検知した場合は発見状態へ遷移
+            if (_blackBoard.IsDetectedPlayer)
+            {
+                TryChangeState(_blackBoard[EnemyStateType.PlayerDetected]);
+            }
         }
     }
 }
