@@ -9,6 +9,11 @@ using UnityEngine.Profiling;
 
 namespace BoidECS
 {
+    // 現状: 指定した数のエンティティの生成及びそれらのNativeArrayへの代入は完了
+    //       しかし、生成したEntityに対してランダムな角度と位置が反映されていない。
+
+#if false
+
     [RequireMatchingQueriesForUpdate] // <- Queryが空の場合は実行しない属性
     [BurstCompile]
     public partial struct BirdSpawnSystem : ISystem
@@ -88,4 +93,5 @@ namespace BoidECS
             LocalToWorldLookup[bird] = localToWorld;
         }
     }
+#endif
 }
