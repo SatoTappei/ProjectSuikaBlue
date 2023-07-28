@@ -5,6 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 文字に対応したダンジョンの各タイルを生成するクラス
 /// </summary>
+[DefaultExecutionOrder(-1)]
 public class TileGenerator : MonoBehaviour
 {
     [System.Serializable]

@@ -20,6 +20,8 @@ public class DebugGridVisualizer : MonoBehaviour
 
     [Header("ギズモへの表示モード")]
     [SerializeField] GizmosViewMode _gizmosViewMode = GizmosViewMode.CalculatedCost;
+    [Header("セルを描画する際の高さのオフセット")]
+    [SerializeField] float _drawHeightOffset = 0;
 
     GUIStyle _style;
     GUIStyleState _styleState;
@@ -77,8 +79,9 @@ public class DebugGridVisualizer : MonoBehaviour
     void DrawCellOnGizmos(Cell cell, float cellSize)
     {
         Vector3 size = new Vector3(cellSize, 0.01f, cellSize);
+        Vector3 pos = cell.Pos;
         Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(cell.Pos, size);
+        Gizmos.DrawWireCube(pos + Vector3.up * _drawHeightOffset, size);
     }
 
     void DrawCellCostOnGizmos(Cell cell)

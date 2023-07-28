@@ -63,6 +63,8 @@ public class VectorFieldManager : MonoBehaviour
         _flowCalculator = new(_grid, _gridData);
         TryGetComponent(out _vectorVisualizer);
         TryGetComponent(out _gridVisualizer);
+
+        Debug.Log("VFM‚ÌAwake");
     }
 
     /// <summary>

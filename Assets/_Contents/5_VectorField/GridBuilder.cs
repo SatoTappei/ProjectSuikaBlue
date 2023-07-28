@@ -29,6 +29,8 @@ public class GridBuilder
         Vector3 rayOrigin = cellPos + Vector3.up * data.ObstacleHeight;
         bool isHit = Physics.SphereCast(rayOrigin, data.CellSize / 2, Vector3.down,
             out RaycastHit _, data.ObstacleHeight, data.ObstacleLayer);
+        //Debug.DrawRay(rayOrigin, Vector3.down * data.ObstacleHeight); // <- テスト
+        //GameObject.CreatePrimitive(PrimitiveType.Sphere).transform.position = rayOrigin;
 
         // セルの作成＆コストを設定
         grid[z, x] = new Cell(cellPos, z, x)

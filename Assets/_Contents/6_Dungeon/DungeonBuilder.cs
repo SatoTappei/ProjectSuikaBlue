@@ -24,10 +24,19 @@ public class DungeonBuilder : MonoBehaviour
     [Header("文字列テキスト")]
     [SerializeField] TextAsset _blueprint;
 
-    void Start()
+    /// <summary>
+    /// 文字に対応したタイルのリストを取得するための辞書
+    /// </summary>
+    Dictionary<char, List<GameObject>> _tileDataDict = new();
+
+    public IReadOnlyDictionary<char, List<GameObject>> TileDataDict => _tileDataDict;
+
+    void Awake()
     {
         if (_buildMode == BuildMode.TextAsset) BuildFromTextAsset();
         if (_buildMode == BuildMode.Algorithm) BuildFromAlgorithm();
+
+        Debug.Log("DBのAwake");
     }
 
     /// <summary>
@@ -81,7 +90,22 @@ public class DungeonBuilder : MonoBehaviour
                 GameObject tile = tileGenerator.Generate(lines[i][k]);
                 tile.transform.position = new Vector3(basePosX + k, 0, basePosZ + i);
                 tile.transform.SetParent(_parent);
+
+                AddTileDataToDict(lines[i][k], tile);
             }
         }
+    }
+
+    /// <summary>
+    /// 外部から生成したダンジョンのタイルのデータを参照できるように辞書に追加する
+    /// </summary>
+    void AddTileDataToDict(char key, GameObject value)
+    {
+        if (!_tileDataDict.ContainsKey(key))
+        {
+            _tileDataDict.Add(key, new List<GameObject>());
+        }
+
+        _tileDataDict[key].Add(value);
     }
 }
