@@ -28,15 +28,27 @@ public class DungeonBuilder : MonoBehaviour
     /// 文字に対応したタイルのリストを取得するための辞書
     /// </summary>
     Dictionary<char, List<GameObject>> _tileDataDict = new();
+    /// <summary>
+    /// 既にダンジョンが生成済みの場合に呼び出していないかチェックするためのフラグ
+    /// </summary>
+    bool _created;
 
     public IReadOnlyDictionary<char, List<GameObject>> TileDataDict => _tileDataDict;
 
-    void Awake()
+    /// <summary>
+    /// 外部から呼び出すことでダンジョンを生成する
+    /// </summary>
+    public void Build()
     {
+        if (_created)
+        {
+            Debug.LogWarning("既に生成済みなのにダンジョン生成メソッドを呼び出しているので無効");
+            return;
+        }
+        _created = true;
+
         if (_buildMode == BuildMode.TextAsset) BuildFromTextAsset();
         if (_buildMode == BuildMode.Algorithm) BuildFromAlgorithm();
-
-        Debug.Log("DBのAwake");
     }
 
     /// <summary>

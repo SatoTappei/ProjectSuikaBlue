@@ -11,22 +11,16 @@ namespace MiniGame
         [SerializeField] VectorFieldManager _vectorFieldManager;
         [SerializeField] GameObject _playerPrefab;
 
-        void Awake()
-        {
-
-        }
-
         async void Start()
         {
-            Debug.Log("GMのStart開始");
-            _dungeonBuilder.gameObject.SetActive(true);
-            await UniTask.DelayFrame(10);
-            _vectorFieldManager.gameObject.SetActive(true);
-            Debug.Log("GMのStart終わり");
+            _dungeonBuilder.Build();
             GameObject player = SpawnPlayer();
-            //_vectorFieldManager.CreateGrid();
-            //await UniTask.DelayFrame(10);
-            //_vectorFieldManager.CreateVectorField(player.transform.position, FlowMode.Toward);
+
+            // 生成されたダンジョンに合わせるので最低でも1フレーム待たないといけない。
+            // タイトルのタイミングはここ
+            await UniTask.Yield();
+            _vectorFieldManager.CreateGrid();
+            _vectorFieldManager.CreateVectorField(player.transform.position, FlowMode.Toward);
         }
         
         /// <summary>
@@ -46,6 +40,3 @@ namespace MiniGame
         }
     }
 }
-
-// VFのRayを飛ばしてもダンジョンの壁に障害物のレイヤーが割り当てられていないので市場に動作しない
-// 解決、呼び出し順の問題だった

@@ -38,6 +38,10 @@ public class GridData
     public Vector3 GridOrigin { get; set; }
 }
 
+/// <summary>
+/// ベクトルフィールドの生成を管理するクラス
+/// 外部からはこのクラスのメソッドを用いてベクトルフィールドを操作する
+/// </summary>
 public class VectorFieldManager : MonoBehaviour
 {
     [SerializeField] GridData _gridData;
@@ -50,10 +54,16 @@ public class VectorFieldManager : MonoBehaviour
 
     /// <summary>
     /// 一度CreateVectorFieldメソッドを呼び、ベクトルフィールドを生成したフラグ
+    /// ベクトルフィールドを作成しないとベクトルの流れを取得できない
     /// </summary>
     bool _vectorFieldCreated;
 
-    void Awake()
+
+    /// <summary>
+    /// 外部から呼び出すことでベクトルフィールドの作成に必要なグリッドを作成する
+    /// グリッド自体はステージに合わせて作成する必要があるので、それらの生成処理が終わった後に呼ぶ
+    /// </summary>
+    public void CreateGrid()
     {
         // グリッド生成
         GridBuilder gridBuilder = new();
@@ -63,8 +73,6 @@ public class VectorFieldManager : MonoBehaviour
         _flowCalculator = new(_grid, _gridData);
         TryGetComponent(out _vectorVisualizer);
         TryGetComponent(out _gridVisualizer);
-
-        Debug.Log("VFMのAwake");
     }
 
     /// <summary>
@@ -73,6 +81,11 @@ public class VectorFieldManager : MonoBehaviour
     /// </summary>
     public void CreateVectorField(Vector3 pos, FlowMode mode)
     {
+        if (_grid == null)
+        {
+            throw new System.NullReferenceException("グリッド未作成");
+        }
+
         _vectorCalculator.CreateVectorField(pos);
         _vectorFieldCreated = true;
 
