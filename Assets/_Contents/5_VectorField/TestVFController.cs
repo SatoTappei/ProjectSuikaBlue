@@ -14,6 +14,11 @@ public class TestVFController : MonoBehaviour
         _vfManager = FindObjectsByType<VectorFieldManager>(FindObjectsSortMode.InstanceID)[0];
     }
 
+    void Start()
+    {
+        _vfManager.CreateGrid();
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))

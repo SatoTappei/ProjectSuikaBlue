@@ -10,7 +10,7 @@ namespace VectorField
         /// <summary>
         /// ワールド座標に対応したグリッドの添え字を返す
         /// </summary>
-        public static Vector2Int WorldPosToGridIndex(Vector3 targetPos, Cell[,] grid, GridData data)
+        public static Vector2Int WorldPosToGridIndex(in Vector3 targetPos, Cell[,] grid, GridData data)
         {
             // グリッドの1辺の長さ
             float forwardZ = grid[0, 0].Pos.z;

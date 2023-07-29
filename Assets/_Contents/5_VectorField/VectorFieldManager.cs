@@ -58,7 +58,6 @@ public class VectorFieldManager : MonoBehaviour
     /// </summary>
     bool _vectorFieldCreated;
 
-
     /// <summary>
     /// 外部から呼び出すことでベクトルフィールドの作成に必要なグリッドを作成する
     /// グリッド自体はステージに合わせて作成する必要があるので、それらの生成処理が終わった後に呼ぶ
@@ -99,17 +98,26 @@ public class VectorFieldManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 位置に対応したセルのベクトルを取得する
+    /// </summary>
+    public Vector3 GetCellVector(in Vector3 pos)
+    {
+        Vector2Int index = GridUtility.WorldPosToGridIndex(in pos, _grid, _gridData);
+        return _grid[index.y, index.x].Vector;
+    }
+
+    /// <summary>
     /// 外部から呼び出すことで、指定した位置からの正規化されたベクトルの流れを取得する
     /// Y座標はグリッドの高さを基準にするので無視される
     /// </summary>
-    public void InsertVectorFlowToQueue(Vector3 targetPos, Queue<Vector3> queue)
+    public void InsertVectorFlowToQueue(Vector3 pos, Queue<Vector3> queue)
     {
         if (!_vectorFieldCreated)
         {
             throw new System.InvalidOperationException("ベクトルフィールド未作成");
         }
 
-        _flowCalculator.InsertVectorFlowToQueue(targetPos, queue);
+        _flowCalculator.InsertVectorFlowToQueue(pos, queue);
     }
 
     void OnDrawGizmos()
