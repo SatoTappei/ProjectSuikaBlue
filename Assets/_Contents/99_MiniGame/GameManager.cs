@@ -9,6 +9,7 @@ namespace MiniGame
     {
         [SerializeField] DungeonBuilder _dungeonBuilder;
         [SerializeField] VectorFieldManager _vectorFieldManager;
+        [SerializeField] EnemyGenerator _enemyGenerator;
         [SerializeField] GameObject _playerPrefab;
 
         async void Start()
@@ -21,6 +22,7 @@ namespace MiniGame
             await UniTask.Yield();
             _vectorFieldManager.CreateGrid();
             _vectorFieldManager.CreateVectorField(player.transform.position, FlowMode.Toward);
+            _enemyGenerator.GenerateStart();
         }
         
         /// <summary>

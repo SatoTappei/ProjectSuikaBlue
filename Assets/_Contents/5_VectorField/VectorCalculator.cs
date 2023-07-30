@@ -118,7 +118,7 @@ public class VectorCalculator
         foreach (Cell cell in _grid)
         {
             _neighbourQueue.Clear();
-            InsertNeighbours(cell, EightDirections);
+            InsertNeighbours(cell, FourDirections);
             int baseCalculatedCost = cell.CalculatedCost;
             foreach (Cell neighbour in _neighbourQueue)
             {
