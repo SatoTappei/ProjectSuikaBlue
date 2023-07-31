@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MiniGame
 {
-    public class EnemyGenerator : MonoBehaviour
+    public class EnemySpawner : MonoBehaviour
     {
         [System.Serializable]
         class LevelData
@@ -30,43 +30,49 @@ namespace MiniGame
         [SerializeField] Transform _parent;
 
         Transform[] _spawnPoints;
+        float _spawnTimer;
         float _levelTimer;
-        float _timer;
         int _currentLevel;
         bool _isValid;
 
-        Vector3 RandomSpawnPointPos => _spawnPoints[Random.Range(0, _spawnPoints.Length)].position;
-
-        void Start()
-        {
-
-        }
-
         void Update()
         {
-            if (!_isValid) return;
-
-            _timer += Time.deltaTime;
-            if (_timer > _levelData[_currentLevel].Interval)
+            if (_isValid)
             {
-                _levelTimer += _timer;
-                if (_levelTimer > _levelData[_currentLevel].TimeLimit)
-                {
-                    Debug.Log("れべら");
-                    _currentLevel = Mathf.Min(_currentLevel + 1, _levelData.Length - 1);
-                    _levelTimer = 0;
-                }
-
-                Spawn();
-
-                _timer = 0;
-
+                StepSpawn();
+                StepLevelUp();
             }
         }
 
         // 以下2つのメソッドを外部から呼ぶことで生成開始/停止
         public void GenerateStart() { FindSpawnPoints(); _isValid = true; }
         public void GenerateStop() => _isValid = false;
+
+        /// <summary>
+        /// 現在のレベルの間隔で一定間隔で敵を生成する
+        /// </summary>
+        void StepSpawn()
+        {
+            _spawnTimer += Time.deltaTime;
+            if (_spawnTimer > _levelData[_currentLevel].Interval)
+            {
+                Spawn();
+                _spawnTimer = 0;
+            }
+        }
+
+        /// <summary>
+        /// 一定間隔でレベルを上げて、難易度アップ
+        /// </summary>
+        void StepLevelUp()
+        {
+            _levelTimer += Time.deltaTime;
+            if (_levelTimer > _levelData[_currentLevel].TimeLimit)
+            {
+                _currentLevel = Mathf.Min(_currentLevel + 1, _levelData.Length - 1);
+                _levelTimer = 0;
+            }
+        }
 
         /// <summary>
         /// 敵の湧きポイントをタグで取得する
@@ -87,10 +93,14 @@ namespace MiniGame
         /// </summary>
         void Spawn()
         {
+            // 生成箇所の重複を防ぐために、ランダムな添え字の配列
+            int[] randomArray = MyUtility.Utility.DurstenfeldShuffle(_spawnPoints.Length);
             for(int i = 0; i < _levelData[_currentLevel].ConcurrentSpawn; i++)
             {
                 GameObject prefab = _levelData[_currentLevel].RandomEnemyPrefab;
-                GameObject enemy = Instantiate(prefab, RandomSpawnPointPos, Quaternion.identity, _parent);
+                int index = randomArray[i];
+                Vector3 spawnPos = _spawnPoints[index].position;
+                GameObject enemy = Instantiate(prefab, spawnPos, Quaternion.identity, _parent);
             }
         }
     }

@@ -9,7 +9,7 @@ namespace MiniGame
     {
         [SerializeField] DungeonBuilder _dungeonBuilder;
         [SerializeField] VectorFieldManager _vectorFieldManager;
-        [SerializeField] EnemyGenerator _enemyGenerator;
+        [SerializeField] EnemySpawner _enemyGenerator;
         [SerializeField] GameObject _playerPrefab;
 
         async void Start()
