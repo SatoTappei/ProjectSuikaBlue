@@ -11,7 +11,9 @@ namespace MiniGame
         {
             [SerializeField] GameObject[] _enemyPrefabs;
             [SerializeField] float _timeLimit;
+            [Min(1.0f)]
             [SerializeField] float _interval;
+            [Range(1, 5)]
             [SerializeField] int _concurrentSpawn;
 
             public GameObject RandomEnemyPrefab
@@ -24,8 +26,6 @@ namespace MiniGame
         }
 
         [SerializeField] LevelData[] _levelData;
-        [Header("沸きポイントのタグ")]
-        [SerializeField] string _spawnPointTag = "SpawnPoint";
         [Header("生成した敵の親")]
         [SerializeField] Transform _parent;
 
@@ -79,10 +79,10 @@ namespace MiniGame
         /// </summary>
         void FindSpawnPoints()
         {
-            GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag(_spawnPointTag);
+            GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag(TagUtility.SpawnPointTag);
             if (spawnPoints.Length == 0)
             {
-                throw new System.InvalidOperationException("沸きポイント生成されていない: " + _spawnPointTag);
+                throw new System.InvalidOperationException("沸きポイント生成されていない: " + TagUtility.SpawnPointTag);
             }
 
             _spawnPoints = System.Array.ConvertAll(spawnPoints, g => g.transform);
@@ -90,6 +90,7 @@ namespace MiniGame
 
         /// <summary>
         /// 現在のレベルに応じた敵を生成する
+        /// 高速で大量に生成せず、複数の敵を生成する可能性があるのでプーリングではなく生成をする
         /// </summary>
         void Spawn()
         {

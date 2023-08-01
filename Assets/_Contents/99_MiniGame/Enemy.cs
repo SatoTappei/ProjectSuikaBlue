@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 namespace MiniGame
 {
-    public class Enemy : MonoBehaviour
-    { 
+    public class Enemy : ActorBase
+    {
+        [SerializeField] int _score = 100;
         [Header("移動速度に関する値")]
         [Tooltip(" 移動方向が完全に変わるまでの時間は 移動速度 と セルの大きさ に応じて調節する")]
         [SerializeField] float _dirChangeDuration = 3.0f;
@@ -22,8 +24,9 @@ namespace MiniGame
             _vectorFieldManager = vectorFieldManager;
         }
 
-        void Start()
+        protected override void Start()
         {
+            base.Start();
             // 直接シーンに配置した場合は探してくる
             _vectorFieldManager ??= FindFirstObjectByType<VectorFieldManager>();
         }
@@ -45,6 +48,22 @@ namespace MiniGame
             // 線形補完することで、セルを跨いだ時にベクトルが変わったせいで、セルの辺上を移動するのを防ぐ。
             _currentDir = Vector3.Lerp(_currentDir, vector, Time.deltaTime * _dirChangeDuration);
             transform.Translate(_currentDir.normalized * Time.deltaTime * _moveSpeed);
+        }
+
+        void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag(TagUtility.PlayerTag))
+            {
+                if (other.TryGetComponent(out IDamageable damageable)) damageable.Damage();
+                // プレイヤーと衝突した場合は自身も撃破される
+                Defeated();
+            }
+        }
+
+        protected override void Defeated()
+        {
+            MessageBroker.Default.Publish(new AddScoreMessage() { Score = _score });
+            Destroy(gameObject);
         }
     }
 }

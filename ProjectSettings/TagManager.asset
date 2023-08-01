@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Vertex
   - SpawnPoint
+  - Obstacle
+  - Enemy
   layers:
   - Default
   - TransparentFX
