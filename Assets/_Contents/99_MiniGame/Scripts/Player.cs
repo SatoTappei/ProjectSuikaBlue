@@ -19,6 +19,11 @@ namespace MiniGame
         float _fireTimer;
         bool _isValid;
 
+        /// <summary>
+        /// 死亡したかどうかのフラグであり、操作可能/不可能のフラグとは別
+        /// </summary>
+        public bool IsDefeated { get; private set; }
+
         protected override void Awake()
         {
             base.Awake();
@@ -83,6 +88,7 @@ namespace MiniGame
         protected override void Defeated()
         {
             gameObject.SetActive(false);
+            IsDefeated = true;
             MessageBroker.Default.Publish(new PlayerDefeatedMessage());
         }
     }

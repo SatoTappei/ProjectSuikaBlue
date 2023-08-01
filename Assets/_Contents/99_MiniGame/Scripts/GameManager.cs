@@ -1,13 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using System.Threading;
 using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
+using System.Threading;
 using UniRx;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MiniGame
 {
+    [RequireComponent(typeof(GameOver))]
     public class GameManager : MonoBehaviour
     {
         [SerializeField] DungeonBuilder _dungeonBuilder;
@@ -15,28 +15,35 @@ namespace MiniGame
         [SerializeField] EnemySpawner _enemySpawner;
         [SerializeField] GameObject _playerPrefab;
         [SerializeField] ClickOnceButton _startButton;
+        [SerializeField] GameOver _gameOver;
 
-        void Awake()
+        void Start()
         {
-
+            CancellationToken token = this.GetCancellationTokenOnDestroy();
+            StreamAsync(token).Forget();
         }
 
-        async void Start()
+        async UniTaskVoid StreamAsync(CancellationToken token)
         {
             _dungeonBuilder.Build();
             GameObject player = SpawnPlayer();
 
             // 生成されたダンジョンに合わせるので最低でも1フレーム待たないといけない。
             // タイトルボタンクリックまで待つ。
-            CancellationToken token = this.GetCancellationTokenOnDestroy();
-            if (await _startButton.ClickedAsync(token).SuppressCancellationThrow()) return;
-
+            await _startButton.ClickedAsync(token);
             _vectorFieldManager.CreateGrid();
             _vectorFieldManager.CreateVectorField(player.transform.position, FlowMode.Toward);
             _enemySpawner.GenerateStart();
-
-            // インゲーム開始のメッセージング
             MessageBroker.Default.Publish(new InGameStartMessage());
+
+            // プレイヤーが撃破されたらがめおべら
+            await UniTask.WaitUntil(() => player.GetComponent<Player>().IsDefeated, cancellationToken: token);
+            _enemySpawner.GenerateStop();
+            MessageBroker.Default.Publish(new GameOverMessage());
+
+            // リトライボタンがクリックされたらリトライ
+            await _gameOver.WaitForRetryAsync(token);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         
         /// <summary>

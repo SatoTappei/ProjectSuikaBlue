@@ -500,7 +500,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f54813a165b9b446aa7966ea4ec02b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHp: 10
+  _maxHp: 1
   _muzzle: {fileID: 1001802015138520211}
   _turret: {fileID: 7199086304366442833}
   _bullet: {fileID: -7855480820195771554, guid: 4cddbf7a460fe9441863ccc6397051da,
