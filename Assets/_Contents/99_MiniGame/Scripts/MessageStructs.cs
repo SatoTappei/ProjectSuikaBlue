@@ -4,10 +4,11 @@ using UnityEngine;
 
 namespace MiniGame
 {
-    // 撃破された際にそれぞれ呼ばれる
-    public struct PlayerDefeatedMessage
-    {
-    }
+    // ゲームの状態が遷移した際にそれぞれ送信されるメッセージ
+    public struct InGameStartMessage { }
+    public struct GameOverMessage { }
+
+    public struct PlayerDefeatedMessage { }
     public struct AddScoreMessage
     {
         public int Score { get; set; }

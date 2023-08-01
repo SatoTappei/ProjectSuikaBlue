@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 namespace MiniGame
 {
@@ -16,21 +17,30 @@ namespace MiniGame
 
         PlayerBulletPool _bulletPool;
         float _fireTimer;
+        bool _isValid;
 
         protected override void Awake()
         {
             base.Awake();
-            _bulletPool = new(_bullet, "PlayerBulletPool");
+            CreateBulletPool();
+
+            // ゲーム開始で操作可能/ゲームオーバーで操作不可能
+            MessageBroker.Default.Receive<InGameStartMessage>().Subscribe(_ => _isValid = true).AddTo(this);
+            MessageBroker.Default.Receive<GameOverMessage>().Subscribe(_ => _isValid = false).AddTo(this);
         }
 
         void Update()
         {
+            if (!_isValid) return;
+
             LooaAtMouse();
 
             if      (Input.GetMouseButtonDown(0)) ExceedFireTimer();
             else if (Input.GetMouseButton(0) && StepFireTimer()) Fire();
             else if (Input.GetMouseButtonUp(0)) ResetFireTimer();
         }
+
+        void CreateBulletPool()=> _bulletPool = new(_bullet, "PlayerBulletPool");
 
         /// <summary>
         /// 砲塔をマウスの方向に向ける
@@ -73,6 +83,7 @@ namespace MiniGame
         protected override void Defeated()
         {
             gameObject.SetActive(false);
+            MessageBroker.Default.Publish(new PlayerDefeatedMessage());
         }
     }
 }

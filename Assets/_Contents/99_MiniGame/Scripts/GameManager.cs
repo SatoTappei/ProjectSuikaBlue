@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Threading;
 using Cysharp.Threading.Tasks;
+using UniRx;
 
 namespace MiniGame
 {
@@ -11,6 +14,12 @@ namespace MiniGame
         [SerializeField] VectorFieldManager _vectorFieldManager;
         [SerializeField] EnemySpawner _enemySpawner;
         [SerializeField] GameObject _playerPrefab;
+        [SerializeField] ClickOnceButton _startButton;
+
+        void Awake()
+        {
+
+        }
 
         async void Start()
         {
@@ -18,11 +27,16 @@ namespace MiniGame
             GameObject player = SpawnPlayer();
 
             // 生成されたダンジョンに合わせるので最低でも1フレーム待たないといけない。
-            // タイトルのタイミングはここ
-            await UniTask.Yield();
+            // タイトルボタンクリックまで待つ。
+            CancellationToken token = this.GetCancellationTokenOnDestroy();
+            if (await _startButton.ClickedAsync(token).SuppressCancellationThrow()) return;
+
             _vectorFieldManager.CreateGrid();
             _vectorFieldManager.CreateVectorField(player.transform.position, FlowMode.Toward);
             _enemySpawner.GenerateStart();
+
+            // インゲーム開始のメッセージング
+            MessageBroker.Default.Publish(new InGameStartMessage());
         }
         
         /// <summary>
