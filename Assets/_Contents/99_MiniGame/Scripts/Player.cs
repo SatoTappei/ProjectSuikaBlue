@@ -7,14 +7,16 @@ namespace MiniGame
 {
     public class Player : ActorBase
     {
+        [Space(20)]
         [SerializeField] Transform _muzzle;
         [SerializeField] Transform _turret;
         [SerializeField] PlayerBullet _bullet;
         [Header("弾速")]
         [SerializeField] float _bulletSpeed = 25.0f;
-        [Header("発射速度")]
+        [Header("発射速度"), Min(0.1f)]
         [SerializeField] float _fireRate = 0.33f;
 
+        AudioModule _audio;
         PlayerBulletPool _bulletPool;
         float _fireTimer;
         bool _isValid;
@@ -27,6 +29,7 @@ namespace MiniGame
         protected override void Awake()
         {
             base.Awake();
+            TryGetComponent(out _audio);
             CreateBulletPool();
 
             // ゲーム開始で操作可能/ゲームオーバーで操作不可能
@@ -83,13 +86,20 @@ namespace MiniGame
         {
             PlayerBullet bullet = _bulletPool.Rent();
             bullet.SetBulletParamsOnFire(_muzzle, _turret.forward, _bulletSpeed);
+
+            if (_audio != null) _audio.Play(AudioKey.SeFire);
         }
 
         protected override void Defeated()
         {
-            gameObject.SetActive(false);
+            // スケールを0に変更＆コライダーの無効化で画面から消す
+            transform.localScale = Vector3.zero;
+            GetComponent<Collider>().enabled = false;
+
             IsDefeated = true;
             MessageBroker.Default.Publish(new PlayerDefeatedMessage());
+
+            if (_audio != null) _audio.Play(AudioKey.SeExplode);
         }
     }
 }

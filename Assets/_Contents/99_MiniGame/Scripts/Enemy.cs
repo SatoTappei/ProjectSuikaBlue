@@ -7,12 +7,15 @@ namespace MiniGame
 {
     public class Enemy : ActorBase
     {
+        [Space(20)]
+        [SerializeField] Transform _model;
         [SerializeField] int _score = 100;
         [Header("移動速度に関する値")]
         [Tooltip(" 移動方向が完全に変わるまでの時間は 移動速度 と セルの大きさ に応じて調節する")]
         [SerializeField] float _dirChangeDuration = 3.0f;
         [SerializeField] float _moveSpeed = 1.5f;
 
+        AudioModule _audio;
         VectorFieldManager _vectorFieldManager;
         Vector3 _currentDir;
 
@@ -22,6 +25,12 @@ namespace MiniGame
         public void Init(VectorFieldManager vectorFieldManager)
         {
             _vectorFieldManager = vectorFieldManager;
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            TryGetComponent(out _audio);
         }
 
         protected override void Start()
@@ -34,6 +43,7 @@ namespace MiniGame
         void Update()
         {
             FollowVector();
+            LookAtDirection();
         }
 
         /// <summary>
@@ -50,6 +60,11 @@ namespace MiniGame
             transform.Translate(_currentDir.normalized * Time.deltaTime * _moveSpeed);
         }
 
+        void LookAtDirection()
+        {
+            _model.forward = _currentDir;
+        }
+
         void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(TagUtility.PlayerTag))
@@ -62,8 +77,15 @@ namespace MiniGame
 
         protected override void Defeated()
         {
+            // スケールを0に変更＆コライダーの無効化で画面から消す
+            // 1秒後に破棄する
+            transform.localScale = Vector3.zero;
+            GetComponent<Collider>().enabled = false;
+            Destroy(gameObject, 1.0f);
+
             MessageBroker.Default.Publish(new AddScoreMessage() { Score = _score });
-            Destroy(gameObject);
+
+            if (_audio != null) _audio.Play(AudioKey.SeBlood);
         }
     }
 }
