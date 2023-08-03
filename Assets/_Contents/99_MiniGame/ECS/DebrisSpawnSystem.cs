@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
-using Unity.Collections;
-using Unity.Burst;
 
 namespace MiniGameECS
 {
@@ -30,18 +27,29 @@ namespace MiniGameECS
             if (!SystemAPI.IsComponentEnabled<DebrisSpawnData>(spawner)) return;
 
             RefRO<DebrisConfigData> configData = SystemAPI.GetComponentRO<DebrisConfigData>(spawner);
-            RefRW<DebrisSpawnData> spawnData = SystemAPI.GetComponentRW<DebrisSpawnData>(spawner);
+            RefRO<DebrisSpawnData> spawnData = SystemAPI.GetComponentRO<DebrisSpawnData>(spawner);
 
             // 生成＆配置
             NativeArray<Entity> entities = state.EntityManager.Instantiate(configData.ValueRO.Prefab,
                 configData.ValueRO.Quantity, Allocator.Temp);
+            EntityCommandBuffer ecb = new(Allocator.Temp, PlaybackPolicy.MultiPlayback);
             foreach (Entity entity in entities)
             {
+                // 生成位置をセット
                 RefRW<LocalTransform> transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
                 transform.ValueRW.Position = spawnData.ValueRO.Pos;
-
-                // TODO:弾を飛ばす方向を弾側に持たせる必要がある。
+                // 飛ばすためのコンポーネントを追加
+                DebrisData debrisData = new()
+                {
+                    Dir = spawnData.ValueRO.Dir,
+                    Speed = configData.ValueRO.Speed,
+                    LifeTime = configData.ValueRO.LifeTime,
+                };
+                ecb.AddComponent(entity, debrisData);
             }
+
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
 
             // 次のフレームでも生成されるのを防ぐために無効化
             SystemAPI.SetComponentEnabled<DebrisSpawnData>(spawner, false);

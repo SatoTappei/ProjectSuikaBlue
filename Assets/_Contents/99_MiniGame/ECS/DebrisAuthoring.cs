@@ -7,6 +7,8 @@ namespace MiniGameECS
     {
         [SerializeField] GameObject _prefab;
         [SerializeField] int _quantity;
+        [SerializeField] float _speed;
+        [SerializeField] float _lifeTime;
 
         class Baker : Baker<DebrisAuthoring>
         {
@@ -16,6 +18,8 @@ namespace MiniGameECS
                 {
                     Prefab = GetEntity(authoring._prefab, TransformUsageFlags.Dynamic),
                     Quantity = authoring._quantity,
+                    Speed = authoring._speed,
+                    LifeTime = authoring._lifeTime,
                 };
                 DebrisSpawnData spawnData = new()
                 {

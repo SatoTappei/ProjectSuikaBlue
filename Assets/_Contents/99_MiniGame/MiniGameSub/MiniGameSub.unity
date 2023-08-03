@@ -168,4 +168,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _prefab: {fileID: 5607498483341450899, guid: 7d982b904b2b1f144ab7035e9bd781a9, type: 3}
-  _quantity: 1
+  _quantity: 100
+  _speed: 15
+  _lifeTime: 3
