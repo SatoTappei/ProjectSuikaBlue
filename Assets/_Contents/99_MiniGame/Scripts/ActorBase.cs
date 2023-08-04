@@ -37,16 +37,16 @@ namespace MiniGame
         /// 体力を減らしてUIに反映後、ダメージを受けたコールバックを呼ぶ
         /// 体力が0以下なら追加で撃破されたコールバックが呼ばれる
         /// </summary>
-        void IDamageable.Damage(int value)
+        void IDamageable.Damage(GameObject attacker, int value)
         {
             _currentHp -= value;
             _hpBar.Draw(_currentHp, MaxHp);
-            Damage(value);
+            Damaged(attacker, value);
 
             if (_currentHp <= 0) Defeated();
         }
 
-        protected virtual void Damage(int value) { }
+        protected virtual void Damaged(GameObject attacker, int value) { }
         protected virtual void Defeated() { }
     }
 }

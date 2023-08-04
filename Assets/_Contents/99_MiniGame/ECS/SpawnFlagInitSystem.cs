@@ -10,13 +10,12 @@ namespace MiniGameECS
     public partial struct SpawnFlagInitSystem : ISystem
     {
         // QueryはOnUpdateのタイミングで生成すると、OnCreateで作成すると大幅な高速化が出来る。
-        // というエラーが出力される
+        // という警告が出力される
         EntityQuery _query;
 
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<DebrisSpawnData>();
-
             _query = state.GetEntityQuery(typeof(DebrisSpawnData));
         }
 

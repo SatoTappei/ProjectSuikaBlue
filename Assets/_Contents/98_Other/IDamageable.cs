@@ -1,4 +1,7 @@
+using UnityEngine;
+
 public interface IDamageable
 {
-    void Damage(int value = 1);
+    /// <param name="attacker">UŒ‚‘¤:ƒ_ƒ[ƒW‚ğ—^‚¦‚½‘¤</param>
+    void Damage(GameObject attacker, int value = 1);
 }

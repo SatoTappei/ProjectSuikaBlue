@@ -18,6 +18,8 @@ namespace MiniGame
         Vector3 _dir;
         float _speed;
 
+        public Vector3 Forward => _model.forward;
+
         public void Init(PlayerBulletPool pool) => _pool = pool;
 
         void Awake()
@@ -52,7 +54,7 @@ namespace MiniGame
 
         void OnEnemyHit(Collider other)
         {
-            if (other.TryGetComponent(out IDamageable damageable)) damageable.Damage();
+            if (other.TryGetComponent(out IDamageable damageable)) damageable.Damage(gameObject);
 
             _pool.Return(this);
             ResetParams();

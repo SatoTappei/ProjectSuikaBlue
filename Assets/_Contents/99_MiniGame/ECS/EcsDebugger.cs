@@ -4,6 +4,14 @@ namespace MiniGameECS
 {
     public class EcsDebugger : MonoBehaviour
     {
+        Vector3[] _dirs =
+        {
+            Vector3.forward,
+            Vector3.back,
+            Vector3.right,
+            Vector3.left,
+        };
+
         void Update()
         {
             Unity.Mathematics.Random random = new();
@@ -13,7 +21,8 @@ namespace MiniGameECS
                 for (int i = 0; i < 1; i++)
                 {
                     Vector2 r = random.NextFloat2Direction();
-                    Vector3 dir = new Vector3(r.x, 0, r.y);
+                    //Vector3 dir = new Vector3(r.x, 0, r.y);
+                    Vector3 dir = _dirs[UnityEngine.Random.Range(0, _dirs.Length)];
                     MonoToEcsTransfer.Instance.AddData(Vector3.zero, dir, EntityType.Debris);
                 }
             }

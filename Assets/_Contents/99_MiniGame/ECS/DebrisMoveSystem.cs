@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
 
 namespace MiniGameECS
 {
@@ -40,10 +41,9 @@ namespace MiniGameECS
         {
             transform.Position += data.Dir * data.Speed * DeltaTime;
             data.LifeTime -= DeltaTime;
+            data.MagicValue -= DeltaTime;
 
-            // TODO: —Ç‚¢Š´‚¶‚É”ò‚ñ‚Å‚¢‚­Š´‚¶‚ÌŒvZ®‚É‚·‚é
-            //       ”j•Ğ1‚Â‚¸‚Â‚ÌˆÚ“®ˆ—‚È‚Ì‚Å‚±‚±‚¾‚¯˜M‚ê‚Î—Ç‚¢
-            float temp = data.Speed * Friction;
+            float temp = data.Speed * Friction * math.sin(data.MagicValue);
             data.Speed = temp < Threshold ? 0 : temp;
         }
     }
