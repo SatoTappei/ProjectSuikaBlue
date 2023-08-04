@@ -24,11 +24,15 @@ namespace MiniGameECS
         {
             // Prefabを持つConfigDataは唯一(にする必要がある)なのでこの方法で取得可能
             Entity spawner = SystemAPI.GetSingletonEntity<DebrisConfigData>();
-            // SpawnDataが無効の場合(生成フラグが立っていない)場合
-            if (!SystemAPI.IsComponentEnabled<DebrisSpawnData>(spawner)) return;
 
-            RefRO<DebrisConfigData> configData = SystemAPI.GetComponentRO<DebrisConfigData>(spawner);
+            RefRW<SpawnFlagData> flagData = SystemAPI.GetComponentRW<SpawnFlagData>(spawner);
+            if (!flagData.ValueRW.Flag) return;
+            // 次のフレームでも生成されるのを防ぐために無効化
+            flagData.ValueRW.Flag = false;
+            SystemAPI.SetComponent(spawner, flagData.ValueRW);
+
             RefRO<DebrisSpawnData> spawnData = SystemAPI.GetComponentRO<DebrisSpawnData>(spawner);
+            RefRO<DebrisConfigData> configData = SystemAPI.GetComponentRO<DebrisConfigData>(spawner);
 
             // 生成＆配置
             NativeArray<Entity> entities = state.EntityManager.Instantiate(configData.ValueRO.Prefab,
@@ -62,9 +66,6 @@ namespace MiniGameECS
 
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
-
-            // 次のフレームでも生成されるのを防ぐために無効化
-            SystemAPI.SetComponentEnabled<DebrisSpawnData>(spawner, false);
         }
 
         float3 GetRandomDirection(ref RandomData randomData, float diffusion)

@@ -16,10 +16,15 @@ namespace MiniGameECS
         public float LifeTimeVariation;
     }
 
-    public struct DebrisSpawnData : IComponentData, IEnableableComponent
+    public struct DebrisSpawnData : IComponentData
     {
         public float3 Pos;
         public float3 Dir;
+    }
+
+    public struct SpawnFlagData : IComponentData
+    {
+        public bool Flag;
     }
 
     public struct DebrisData : IComponentData

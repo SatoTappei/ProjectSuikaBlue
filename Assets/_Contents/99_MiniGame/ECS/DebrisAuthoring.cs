@@ -34,10 +34,12 @@ namespace MiniGameECS
                     Pos = default,
                     Dir = default,
                 };
+                SpawnFlagData flagData = new() { Flag = false };
 
                 Entity entity = GetEntity(TransformUsageFlags.None);
                 AddComponent(entity, configData);
                 AddComponent(entity, spawnData);
+                AddComponent(entity, flagData);
             }
         }
     }
