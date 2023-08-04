@@ -92,14 +92,14 @@ namespace MiniGame
         /// <summary>
         /// スケールを0に変更＆コライダーの無効化で画面から消し、1秒後に削除する
         /// </summary>
-        void Invalid()
+        protected override void Invalid()
         {
             transform.localScale = Vector3.zero;
             GetComponent<Collider>().enabled = false;
             Destroy(gameObject, 1.0f);
         }
 
-        void PlayDefeatedEffect()
+        protected override void PlayDefeatedEffect()
         {
             // 音
             if (_audio != null) _audio.Play(AudioKey.SeBlood);

@@ -894,8 +894,10 @@ MonoBehaviour:
   _turret: {fileID: 7199086304366442833}
   _bullet: {fileID: -7855480820195771554, guid: 4cddbf7a460fe9441863ccc6397051da,
     type: 3}
+  _defeatedPlayer: {fileID: 1396430234024781063, guid: 8c9fb08438d48b04f8eac34bea712d20,
+    type: 3}
   _bulletSpeed: 25
-  _fireRate: 0.5
+  _fireRate: 0.15
 --- !u!114 &6258724164968882385
 MonoBehaviour:
   m_ObjectHideFlags: 0

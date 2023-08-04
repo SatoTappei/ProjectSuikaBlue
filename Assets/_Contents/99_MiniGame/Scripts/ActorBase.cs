@@ -48,5 +48,7 @@ namespace MiniGame
 
         protected virtual void Damaged(GameObject attacker, int value) { }
         protected virtual void Defeated() { }
+        protected virtual void Invalid() { }
+        protected virtual void PlayDefeatedEffect() { }
     }
 }

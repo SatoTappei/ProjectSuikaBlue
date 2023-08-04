@@ -72,6 +72,7 @@ namespace MiniGameECS
         {
             float r = randomData.Random.NextFloat(-diffusion, diffusion);
             float3 dir = randomData.Random.NextFloat3Direction();
+            dir.y = 0;
             return dir * r;
         }
 

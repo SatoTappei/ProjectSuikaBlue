@@ -65,7 +65,9 @@ public class DebugGridVisualizer : MonoBehaviour
     void DrawDetectObstacleRay(GridData data)
     {
         Vector3 rayOrigin = data.GridOrigin + Vector3.up * data.ObstacleHeight;
+#if UNITY_EDITOR
         UnityEditor.Handles.Label(rayOrigin + Vector3.up, "è·äQï®Ray", _style);
+#endif
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(rayOrigin, Vector3.down * data.ObstacleHeight);
         Gizmos.DrawWireSphere(rayOrigin, 0.5f);
@@ -73,7 +75,9 @@ public class DebugGridVisualizer : MonoBehaviour
 
     void DrawCellIndexOnTGizmos(Cell cell, int i, int k)
     {
+#if UNITY_EDITOR
         UnityEditor.Handles.Label(cell.Pos, $"({i},{k})", _style);
+#endif
     }
 
     void DrawCellOnGizmos(Cell cell, float cellSize)

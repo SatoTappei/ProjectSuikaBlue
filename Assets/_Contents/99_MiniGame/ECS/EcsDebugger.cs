@@ -16,7 +16,7 @@ namespace MiniGameECS
         void Update()
         {
             Unity.Mathematics.Random random = new();
-            random.InitState((uint)UnityEngine.Random.Range(0, 10000));
+            random.InitState();
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 for (int i = 0; i < 1; i++)

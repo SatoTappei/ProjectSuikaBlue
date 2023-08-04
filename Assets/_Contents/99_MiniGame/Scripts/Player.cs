@@ -11,6 +11,7 @@ namespace MiniGame
         [SerializeField] Transform _muzzle;
         [SerializeField] Transform _turret;
         [SerializeField] PlayerBullet _bullet;
+        [SerializeField] GameObject _defeatedPlayer;
         [Header("弾速")]
         [SerializeField] float _bulletSpeed = 25.0f;
         [Header("発射速度"), Min(0.1f)]
@@ -92,14 +93,26 @@ namespace MiniGame
 
         protected override void Defeated()
         {
-            // スケールを0に変更＆コライダーの無効化で画面から消す
-            transform.localScale = Vector3.zero;
-            GetComponent<Collider>().enabled = false;
+            Invalid();
+            PlayDefeatedEffect();
 
             IsDefeated = true;
             MessageBroker.Default.Publish(new PlayerDefeatedMessage());
+        }
 
+        /// <summary>
+        /// スケールを0に変更＆コライダーの無効化で画面から消す
+        /// </summary>
+        protected override void Invalid()
+        {
+            transform.localScale = Vector3.zero;
+            GetComponent<Collider>().enabled = false;
+        }
+
+        protected override void PlayDefeatedEffect()
+        {
             if (_audio != null) _audio.Play(AudioKey.SeExplode);
+            Instantiate(_defeatedPlayer, transform.position, Quaternion.identity);
         }
     }
 }
