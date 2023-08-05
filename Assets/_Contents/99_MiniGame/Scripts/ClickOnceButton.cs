@@ -18,6 +18,9 @@ namespace MiniGame
             _button = GetComponent<Button>();
         }
 
+        public void Valid() => _button.gameObject.SetActive(true);
+        public void Invalid() => _button.gameObject.SetActive(false);
+
         /// <summary>
         /// ƒNƒŠƒbƒN‚³‚ê‚Ä‚µ‚Î‚ç‚­‚µ‚½‚çÁ‚¦‚é
         /// </summary>

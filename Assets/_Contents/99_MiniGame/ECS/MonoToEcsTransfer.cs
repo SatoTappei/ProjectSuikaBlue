@@ -5,7 +5,12 @@ namespace MiniGameECS
 {
     public enum EntityType
     {
-        Debris
+        // 演出用
+        Debris,
+        // 以下ダンジョンのタイル用
+        Grass,
+        Wall,
+        SpawnPoint,
     }
 
     public class MonoToEcsTransfer : MonoBehaviour
@@ -18,7 +23,8 @@ namespace MiniGameECS
         }
 
         public static MonoToEcsTransfer Instance { get; private set; }
-        Queue<Data> _queue = new();
+        Queue<Data> _debrisQueue = new();
+        Queue<Data> _tileQueue = new();
 
         void Awake()
         {
@@ -35,13 +41,11 @@ namespace MiniGameECS
         void OnDestroy()
         {
             // staticなのでキューのクリアが必要
-            _queue.Clear();
+            _debrisQueue.Clear();
+            _tileQueue.Clear();
         }
 
-        /// <summary>
-        /// MonoBehavior側で呼び出すメソッド
-        /// 生成用のデータをキューに詰めていく
-        /// </summary>
+        // MonoBehavior側で呼び出すメソッド
         public void AddData(Vector3 pos, Vector3 dir, EntityType type)
         {
             Data data = new Data
@@ -50,14 +54,19 @@ namespace MiniGameECS
                 Dir = dir,
                 Type = type,
             };
-            _queue.Enqueue(data);
+
+            if (type == EntityType.Debris)
+            {
+                _debrisQueue.Enqueue(data);
+            }
+            else
+            {
+                _tileQueue.Enqueue(data);
+            }
         }
 
-        /// <summary>
-        /// ECS側で呼び出すメソッド
-        /// 生成用のデータのキューから1つ取り出す
-        /// </summary>
-        /// <returns>データがある: true データがない: false</returns>
-        public bool TryGetData(out Data data) => _queue.TryDequeue(out data);
+        // ECS側で呼び出すメソッド
+        public bool TryGetDebrisData(out Data data) => _debrisQueue.TryDequeue(out data);
+        public bool TryGetTileData(out Data data) => _tileQueue.TryDequeue(out data);
     }
 }

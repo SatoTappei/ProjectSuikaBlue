@@ -421,6 +421,7 @@ GameObject:
   - component: {fileID: -6259517927695626084}
   - component: {fileID: 6258724164968882385}
   - component: {fileID: 3235741817719974884}
+  - component: {fileID: 7558676557516890264}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -889,13 +890,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f54813a165b9b446aa7966ea4ec02b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHp: 1
   _muzzle: {fileID: 1001802015138520211}
   _turret: {fileID: 7199086304366442833}
   _bullet: {fileID: -7855480820195771554, guid: 4cddbf7a460fe9441863ccc6397051da,
     type: 3}
-  _defeatedPlayer: {fileID: 1396430234024781063, guid: 8c9fb08438d48b04f8eac34bea712d20,
+  _defeatedPrefab: {fileID: 1396430234024781063, guid: 8c9fb08438d48b04f8eac34bea712d20,
     type: 3}
+  _damageable: {fileID: 7558676557516890264}
   _bulletSpeed: 25
   _fireRate: 0.15
 --- !u!114 &6258724164968882385
@@ -932,6 +933,20 @@ MonoBehaviour:
   - _key: 1
     _sources:
     - {fileID: 8149099942253333577}
+--- !u!114 &7558676557516890264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7336033224876686267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 993a02d366192ce43b712627b261a460, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _hpBar: {fileID: 6258724164968882385}
+  _maxHp: 2
 --- !u!1 &9205819622056193921
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Threading;
 using UniRx;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace MiniGame
 {
     [RequireComponent(typeof(GameOver))]
     public class GameManager : MonoBehaviour
     {
-        [SerializeField] DungeonBuilder _dungeonBuilder;
+        [SerializeField] WithEntityDungeonBuilder _dungeonBuilder;
         [SerializeField] VectorFieldManager _vectorFieldManager;
+        [SerializeField] PlayerSpawner _playerSpawner;
         [SerializeField] EnemySpawner _enemySpawner;
-        [SerializeField] GameObject _playerPrefab;
         [SerializeField] ClickOnceButton _startButton;
         [SerializeField] GameOver _gameOver;
 
@@ -23,43 +22,46 @@ namespace MiniGame
             StreamAsync(token).Forget();
         }
 
+        // シーンのリロードをするとECS側が対応させていないのでエラーが出る
         async UniTaskVoid StreamAsync(CancellationToken token)
         {
+            // ステージとプレイヤー生成
             _dungeonBuilder.Build();
-            GameObject player = SpawnPlayer();
+            Player player = _playerSpawner.Spawn(GetPlayerSpawnPos());
 
             // 生成されたダンジョンに合わせるので最低でも1フレーム待たないといけない。
             // タイトルボタンクリックまで待つ。
             await _startButton.ClickedAsync(token);
             _vectorFieldManager.CreateGrid();
             _vectorFieldManager.CreateVectorField(player.transform.position, FlowMode.Toward);
-            _enemySpawner.GenerateStart();
-            MessageBroker.Default.Publish(new InGameStartMessage());
 
-            // プレイヤーが撃破されたらがめおべら
-            await UniTask.WaitUntil(() => player.GetComponent<Player>().IsDefeated, cancellationToken: token);
-            _enemySpawner.GenerateStop();
-            MessageBroker.Default.Publish(new GameOverMessage());
+            while (true)
+            {
+                // ゲームスタート、敵の生成開始
+                MessageBroker.Default.Publish(new InGameStartMessage());
+                _enemySpawner.GenerateStart();
 
-            // リトライボタンがクリックされたらリトライ
-            await _gameOver.WaitForRetryAsync(token);
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                // プレイヤーが撃破されたらがめおべら
+                await UniTask.WaitUntil(() => player.IsDefeated, cancellationToken: token);
+                
+                // 敵の生成を止める
+                MessageBroker.Default.Publish(new GameOverMessage());
+                _enemySpawner.GenerateStop();
+
+                // リトライボタンがクリックされたら1フレーム待ってリトライ
+                await _gameOver.WaitForRetryAsync(token);
+                await UniTask.Yield();
+            }
         }
-        
-        /// <summary>
-        /// 生成したダンジョンから、指定した文字'@'に対応したタイルを辞書型から取得
-        /// その位置にプレイヤーを生成する
-        /// </summary>
-        /// <returns>生成したプレイヤー</returns>
-        GameObject SpawnPlayer()
+
+        Vector3 GetPlayerSpawnPos()
         {
             if (!_dungeonBuilder.TileDataDict.TryGetValue('@', out List<GameObject> value))
             {
                 throw new KeyNotFoundException("プレイヤーの沸くタイルが登録されていない: @");
             }
 
-            Vector3 spawnPos = value[0].transform.position;
-            return Instantiate(_playerPrefab, spawnPos, Quaternion.identity);
+            return value[0].transform.position;
         }
     }
 }

@@ -14,10 +14,18 @@ namespace MiniGame
 
         void Awake()
         {
-            AddScore(0);
+            ResetScore();
 
+            MessageBroker.Default.Receive<InGameStartMessage>()
+                .Subscribe(msg => ResetScore()).AddTo(this);
             MessageBroker.Default.Receive<AddScoreMessage>()
                 .Subscribe(msg => AddScore(msg.Score)).AddTo(this);
+        }
+
+        void ResetScore()
+        {
+            _currentScore = 0;
+            _text.text = _currentScore.ToString();
         }
 
         void AddScore(int score)

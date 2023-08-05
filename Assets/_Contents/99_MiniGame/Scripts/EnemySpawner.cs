@@ -26,14 +26,18 @@ namespace MiniGame
         }
 
         [SerializeField] LevelData[] _levelData;
-        [Header("生成した敵の親")]
-        [SerializeField] Transform _parent;
 
+        Transform _parent;
         Transform[] _spawnPoints;
         float _spawnTimer;
         float _levelTimer;
         int _currentLevel;
         bool _isValid;
+
+        void Awake()
+        {
+            _parent = new GameObject("EnemyParent").transform;
+        }
 
         void Update()
         {
@@ -46,7 +50,14 @@ namespace MiniGame
 
         // 以下2つのメソッドを外部から呼ぶことで生成開始/停止
         public void GenerateStart() { FindSpawnPoints(); _isValid = true; }
-        public void GenerateStop() => _isValid = false;
+        public void GenerateStop() { ResetLevel(); _isValid = false; }
+
+        void ResetLevel()
+        {
+            _spawnTimer = 0;
+            _levelTimer = 0;
+            _currentLevel = 0;
+        }
 
         /// <summary>
         /// 現在のレベルの間隔で一定間隔で敵を生成する

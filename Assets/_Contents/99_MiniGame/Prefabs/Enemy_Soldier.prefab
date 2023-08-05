@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 8252543099781720590}
   - component: {fileID: 656150918197005084}
   - component: {fileID: 7954773164955244505}
+  - component: {fileID: 1134214194335590607}
   m_Layer: 0
   m_Name: Enemy_Soldier
   m_TagString: Enemy
@@ -260,8 +261,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba79bb89ea8dc2747932475d471f9414, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHp: 5
   _model: {fileID: 9168375120354525708}
+  _damageable: {fileID: 1134214194335590607}
   _score: 100
   _dirChangeDuration: 3
   _moveSpeed: 1.5
@@ -294,6 +295,20 @@ MonoBehaviour:
   - _key: 0
     _sources:
     - {fileID: -7142848893584389435}
+--- !u!114 &1134214194335590607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973228899657892199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 993a02d366192ce43b712627b261a460, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _hpBar: {fileID: 656150918197005084}
+  _maxHp: 5
 --- !u!1 &1239350976526185230
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,7 +16,7 @@ namespace MiniGameECS
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<DebrisConfigData>();
-            state.RequireForUpdate<DebrisSpawnData>();
+            state.RequireForUpdate<SpawnData>();
         }
 
         [BurstCompile]
@@ -31,7 +31,7 @@ namespace MiniGameECS
             flagData.ValueRW.Flag = false;
             SystemAPI.SetComponent(spawner, flagData.ValueRW);
 
-            RefRO<DebrisSpawnData> spawnData = SystemAPI.GetComponentRO<DebrisSpawnData>(spawner);
+            RefRO<SpawnData> spawnData = SystemAPI.GetComponentRO<SpawnData>(spawner);
             RefRO<DebrisConfigData> configData = SystemAPI.GetComponentRO<DebrisConfigData>(spawner);
 
             // ê∂ê¨Åïîzíu

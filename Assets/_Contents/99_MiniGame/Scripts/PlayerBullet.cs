@@ -54,7 +54,7 @@ namespace MiniGame
 
         void OnEnemyHit(Collider other)
         {
-            if (other.TryGetComponent(out IDamageable damageable)) damageable.Damage(gameObject);
+            if (other.TryGetComponent(out IDamageable damageable)) damageable.Damage(1, gameObject);
 
             _pool.Return(this);
             ResetParams();

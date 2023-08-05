@@ -16,7 +16,14 @@ namespace MiniGameECS
         public float LifeTimeVariation;
     }
 
-    public struct DebrisSpawnData : IComponentData
+    public struct TileConfigData : IComponentData
+    {
+        public Entity GrassPrefab;
+        public Entity WallPrefab;
+        public Entity SpawnPointPrefab;
+    }
+
+    public struct SpawnData : IComponentData
     {
         public float3 Pos;
         public float3 Dir;
@@ -29,6 +36,9 @@ namespace MiniGameECS
 
     public struct DebrisData : IComponentData
     {
+        /// <summary>
+        /// 良い感じに飛ぶよう調節した値
+        /// </summary>
         public const float InitMagicValue = 2;
 
         public float3 Dir;
@@ -37,6 +47,10 @@ namespace MiniGameECS
         // 良い感じに飛ばすために使用する値
         public float MagicValue;
     }
+
+    public struct GrassTileTag : IComponentData { }
+    public struct WallTileTag : IComponentData { }
+    public struct SpawnPointTileTag : IComponentData { }
 
     public struct RandomData : IComponentData
     {

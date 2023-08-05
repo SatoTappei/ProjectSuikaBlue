@@ -1,14 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
-public class DefeatedPlayer : MonoBehaviour
+namespace MiniGame
 {
-    [SerializeField] GameObject _turret;
-
-    void Start()
+    public class DefeatedPlayer : MonoBehaviour
     {
-        _turret.TryGetComponent(out Rigidbody rb);
-        rb.AddForce(Vector3.up * 15.0f, ForceMode.Impulse);
+        [SerializeField] GameObject _turret;
+
+        void Awake()
+        {
+            MessageBroker.Default.Receive<InGameStartMessage>()
+                .Subscribe(_ => Destroy(gameObject)).AddTo(this);
+        }
+
+        void Start()
+        {
+            _turret.TryGetComponent(out Rigidbody rb);
+            rb.AddForce(Vector3.up * 15.0f, ForceMode.Impulse);
+        }
     }
 }

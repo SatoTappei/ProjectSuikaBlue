@@ -1,15 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UniRx;
 using MiniGameECS;
+using UniRx;
+using UniRx.Triggers;
+using UnityEngine;
 
 namespace MiniGame
 {
-    public class Enemy : ActorBase
+    [RequireComponent(typeof(Damageable))]
+    public class Enemy : MonoBehaviour
     {
-        [Space(20)]
         [SerializeField] Transform _model;
+        [SerializeField] Damageable _damageable;
+        [Header("撃破時スコア")]
         [SerializeField] int _score = 100;
         [Header("移動速度に関する値")]
         [Tooltip(" 移動方向が完全に変わるまでの時間は 移動速度 と セルの大きさ に応じて調節する")]
@@ -19,10 +20,6 @@ namespace MiniGame
         AudioModule _audio;
         VectorFieldManager _vectorFieldManager;
         Vector3 _currentDir;
-        /// <summary>
-        /// 最後に自身にダメージを与えた相手を保持しておく
-        /// </summary>
-        GameObject _lastAttacker;
 
         /// <summary>
         /// 生成した際に、生成側が必ず呼ぶ必要がある。コンストラクタの代わり
@@ -32,16 +29,22 @@ namespace MiniGame
             _vectorFieldManager = vectorFieldManager;
         }
 
-        protected override void Awake()
+        void Awake()
         {
-            base.Awake();
             TryGetComponent(out _audio);
+
+            // がめおべらになったら消える、スコアは入らない。
+            MessageBroker.Default.Receive<GameOverMessage>()
+                .Subscribe(_ => { Invalid(); PlayDefeatedEffect(gameObject); }).AddTo(this);
+
+            // 撃破された際のコールバックに登録/削除
+            _damageable.OnDefeated += Defeated;
+            this.OnDestroyAsObservable().Subscribe(_ => _damageable.OnDefeated -= Defeated);
         }
 
-        protected override void Start()
+        void Start()
         {
-            base.Start();
-            // 直接シーンに配置した場合は探してくる
+            // 本来はスポナーから生成されるが、直接シーンに配置した場合は探してくる
             _vectorFieldManager ??= FindFirstObjectByType<VectorFieldManager>();
         }
 
@@ -65,48 +68,41 @@ namespace MiniGame
             transform.Translate(_currentDir.normalized * Time.deltaTime * _moveSpeed);
         }
 
-        void LookAtDirection()
-        {
-            _model.forward = _currentDir;
-        }
+        void LookAtDirection() => _model.forward = _currentDir;
 
         void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(TagUtility.PlayerTag))
             {
-                if (other.TryGetComponent(out IDamageable damageable)) damageable.Damage(gameObject);
                 // プレイヤーと衝突した場合は自身も撃破される
-                Defeated();
+                other.GetComponent<IDamageable>().Damage(1, gameObject);
+                Defeated(gameObject);
             }
         }
 
-        protected override void Damaged(GameObject attacker, int _) => _lastAttacker = attacker;
-
-        protected override void Defeated()
+        void Defeated(GameObject attacker)
         {
             Invalid();
-            PlayDefeatedEffect();
+            PlayDefeatedEffect(attacker);
             MessageBroker.Default.Publish(new AddScoreMessage() { Score = _score });
         }
 
-        /// <summary>
-        /// スケールを0に変更＆コライダーの無効化で画面から消し、1秒後に削除する
-        /// </summary>
-        protected override void Invalid()
+        void Invalid()
         {
+            // スケールを0に変更＆コライダーの無効化で画面から消し、1秒後に削除する
             transform.localScale = Vector3.zero;
             GetComponent<Collider>().enabled = false;
             Destroy(gameObject, 1.0f);
         }
 
-        protected override void PlayDefeatedEffect()
+        void PlayDefeatedEffect(GameObject attacker)
         {
             // 音
             if (_audio != null) _audio.Play(AudioKey.SeBlood);
             
             Vector3 effectDir;
             // プレイヤーの弾に倒された場合は、弾の向いている方向
-            if (_lastAttacker != null && _lastAttacker.TryGetComponent(out PlayerBullet bullet))
+            if (attacker.TryGetComponent(out PlayerBullet bullet))
             {
                 effectDir = bullet.Forward;
             }

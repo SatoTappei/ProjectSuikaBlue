@@ -29,7 +29,7 @@ namespace MiniGameECS
                     SpeedVariation = authoring._speedVariation,
                     LifeTimeVariation = authoring._lifeTimeVariation,
                 };
-                DebrisSpawnData spawnData = new()
+                SpawnData spawnData = new()
                 {
                     Pos = default,
                     Dir = default,

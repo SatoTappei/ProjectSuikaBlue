@@ -13,9 +13,13 @@ namespace MiniGame
         [SerializeField] float _scorePanelTweenDuration = 1.0f;
         [SerializeField] Ease _ease;
 
-        void Awake()
+        Vector3 _scorePanelDefaultPos;
+
+        void Start()
         {
-            _retryButton.transform.localScale = Vector3.zero;
+            _scorePanelDefaultPos = _scorePanel.position;
+            ResetScorePos();
+            _retryButton.Invalid();
         }
 
         /// <summary>
@@ -23,14 +27,23 @@ namespace MiniGame
         /// </summary>
         public async UniTask WaitForRetryAsync(CancellationToken token)
         {
-            _retryButton.transform.localScale = Vector3.one;
+            // リトライボタン表示
+            _retryButton.Valid();
             // スコアUIのアニメーションはawaitする必要なし
-            DOTween.Sequence()
-                .Join(_scorePanel.DOLocalMove(Vector3.zero, _scorePanelTweenDuration).SetEase(_ease))
-                .Join(_scorePanel.DOScale(new Vector3(1.5f, 1.5f, 1), _scorePanelTweenDuration).SetEase(_ease))
-                .SetLink(gameObject);
+            Sequence sequence = DOTween.Sequence();
+            sequence.Join(_scorePanel.DOLocalMove(Vector3.zero, _scorePanelTweenDuration).SetEase(_ease));
+            sequence.Join(_scorePanel.DOScale(new Vector3(1.5f, 1.5f, 1), _scorePanelTweenDuration).SetEase(_ease));
+            sequence.SetLink(gameObject);
             
             if (await _retryButton.ClickedAsync(token).SuppressCancellationThrow()) return;
+            sequence.Kill();
+            ResetScorePos();
+        }
+
+        void ResetScorePos()
+        {
+            _scorePanel.position = _scorePanelDefaultPos;
+            _scorePanel.localScale = Vector3.one;
         }
     }
 }

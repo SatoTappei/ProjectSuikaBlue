@@ -1,17 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UniRx;
+using UniRx.Triggers;
+using UnityEngine;
 
 namespace MiniGame
 {
-    public class Player : ActorBase
+    [RequireComponent(typeof(Damageable))]
+    public class Player : MonoBehaviour
     {
-        [Space(20)]
         [SerializeField] Transform _muzzle;
         [SerializeField] Transform _turret;
         [SerializeField] PlayerBullet _bullet;
-        [SerializeField] GameObject _defeatedPlayer;
+        [SerializeField] GameObject _defeatedPrefab;
+        [SerializeField] Damageable _damageable;
         [Header("弾速")]
         [SerializeField] float _bulletSpeed = 25.0f;
         [Header("発射速度"), Min(0.1f)]
@@ -27,15 +27,20 @@ namespace MiniGame
         /// </summary>
         public bool IsDefeated { get; private set; }
 
-        protected override void Awake()
+        void Awake()
         {
-            base.Awake();
             TryGetComponent(out _audio);
             CreateBulletPool();
 
             // ゲーム開始で操作可能/ゲームオーバーで操作不可能
-            MessageBroker.Default.Receive<InGameStartMessage>().Subscribe(_ => _isValid = true).AddTo(this);
-            MessageBroker.Default.Receive<GameOverMessage>().Subscribe(_ => _isValid = false).AddTo(this);
+            MessageBroker.Default.Receive<InGameStartMessage>()
+                .Subscribe(_ => { _isValid = true; ResetStatus(); }).AddTo(this);
+            MessageBroker.Default.Receive<GameOverMessage>()
+                .Subscribe(_ => _isValid = false).AddTo(this);
+
+            // 撃破された際のコールバックに登録/削除
+            _damageable.OnDefeated += Defeated;
+            this.OnDestroyAsObservable().Subscribe(_ => _damageable.OnDefeated -= Defeated);
         }
 
         void Update()
@@ -50,6 +55,15 @@ namespace MiniGame
         }
 
         void CreateBulletPool()=> _bulletPool = new(_bullet, "PlayerBulletPool");
+
+        void ResetStatus()
+        {
+            // 最大体力にリセット
+            IsDefeated = false;
+            _damageable.ResetParams();
+            // 有効化
+            Valid();
+        }
 
         /// <summary>
         /// 砲塔をマウスの方向に向ける
@@ -91,28 +105,33 @@ namespace MiniGame
             if (_audio != null) _audio.Play(AudioKey.SeFire);
         }
 
-        protected override void Defeated()
+        void Defeated(GameObject _)
         {
             Invalid();
             PlayDefeatedEffect();
 
+            // 撃破されたフラグを立ててメッセージング
             IsDefeated = true;
             MessageBroker.Default.Publish(new PlayerDefeatedMessage());
         }
 
-        /// <summary>
-        /// スケールを0に変更＆コライダーの無効化で画面から消す
-        /// </summary>
-        protected override void Invalid()
+        void Valid()
         {
+            transform.localScale = Vector3.one;
+            GetComponent<Collider>().enabled = true;
+        }
+
+        void Invalid()
+        {
+            // スケールを0に変更＆コライダーの無効化で画面から消す
             transform.localScale = Vector3.zero;
             GetComponent<Collider>().enabled = false;
         }
 
-        protected override void PlayDefeatedEffect()
+        void PlayDefeatedEffect()
         {
             if (_audio != null) _audio.Play(AudioKey.SeExplode);
-            Instantiate(_defeatedPlayer, transform.position, Quaternion.identity);
+            Instantiate(_defeatedPrefab, transform.position, Quaternion.identity);
         }
     }
 }
