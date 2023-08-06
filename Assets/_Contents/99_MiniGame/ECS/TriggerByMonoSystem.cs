@@ -8,6 +8,8 @@ namespace MiniGameECS
     {
         protected override void OnUpdate()
         {
+            if (MonoToEcsTransfer.Instance == null) return;
+
             // 入力を受け取って生成位置/方向をセットする
             if(MonoToEcsTransfer.Instance.TryGetDebrisData(out MonoToEcsTransfer.Data debrisData))
             {
