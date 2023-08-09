@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Cell
+namespace Field
 {
     public class CellGizmosDrawer
     {

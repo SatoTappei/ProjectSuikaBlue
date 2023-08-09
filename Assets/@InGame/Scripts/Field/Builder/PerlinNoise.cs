@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace FieldBuild
+namespace Field
 {
     public class PerlinNoise : MonoBehaviour
     {

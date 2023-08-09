@@ -11,13 +11,12 @@ GameObject:
   - component: {fileID: 6027548584503592073}
   - component: {fileID: 7414727650022011301}
   - component: {fileID: 2418695346166913686}
-  - component: {fileID: 4741985755836474832}
   m_Layer: 0
   m_Name: Tile_Water
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6027548584503592073
 Transform:
@@ -84,15 +83,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &4741985755836474832
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2345265941344400288}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11800d07e592cc44285eb80528f71ecd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

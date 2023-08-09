@@ -1,32 +1,40 @@
 using UnityEngine;
 
-namespace FieldBuild
+namespace Field
 {
     [RequireComponent(typeof(PerlinNoise))]
-    [RequireComponent(typeof(Visualizer))]
+    [RequireComponent(typeof(TerrainGenerator))]
+    [RequireComponent(typeof(InitResourceSpawner))]
     public class FieldBuilder : MonoBehaviour
     {
         [SerializeField] int _width = 50;
         [SerializeField] int _height = 50;
+
+        // TODO:アドレッサブルを開放しないとリークするため一時的に
+        Cell[,] _field = new Cell[50,50];
 
         void Start()
         {
             Build();
         }
 
-        /// <summary>
-        /// ノイズ、生成、セルに設定 と計3回 幅*高さ のfor文を回しているので非効率
-        /// </summary>
         void Build()
         {
             // パーリンノイズ
             PerlinNoise perlinNoise = GetComponent<PerlinNoise>();
             float[,] grid = perlinNoise.Create(_height, _width);
             // 対応したオブジェクト生成
-            Visualizer visualizer = GetComponent<Visualizer>();
-            GameObject[,] field = visualizer.Instantiate(grid);
-            // セルに高さを設定
-            SetCellHeight(grid, field);
+            TerrainGenerator terrain = GetComponent<TerrainGenerator>();
+            _field = terrain.Create(grid);
+            // 初期資源を配置
+            InitResourceSpawner resource = GetComponent<InitResourceSpawner>();
+            resource.Spawn(_field);
+
+        }
+
+        void OnDestroy()
+        {
+            foreach (Cell cell in _field) cell.Release();
         }
 
         void SetCellHeight(float[,] grid, GameObject[,] field)

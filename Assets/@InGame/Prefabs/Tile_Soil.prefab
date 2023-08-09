@@ -11,13 +11,12 @@ GameObject:
   - component: {fileID: 7598221405964297749}
   - component: {fileID: 6575735691327307755}
   - component: {fileID: 2641649717571851776}
-  - component: {fileID: -4029650439967542054}
   m_Layer: 0
   m_Name: Tile_Soil
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7598221405964297749
 Transform:
@@ -84,15 +83,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-4029650439967542054
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6536161085835888693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11800d07e592cc44285eb80528f71ecd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

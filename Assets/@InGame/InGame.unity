@@ -333,6 +333,7 @@ GameObject:
   - component: {fileID: 1090166008}
   - component: {fileID: 1090166010}
   - component: {fileID: 1090166009}
+  - component: {fileID: 1090166011}
   m_Layer: 0
   m_Name: FieldBuilder
   m_TagString: Untagged
@@ -378,20 +379,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1090166006}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2275e0611e2472e4ebc0663daee87004, type: 3}
+  m_Script: {fileID: 11500000, guid: 0988ddbe5f2bcda419925ccc453d4ef4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _grass: {fileID: 4233725727185293150, guid: 7846f812e550360448cbda28f17dc768, type: 3}
+  _soil: {fileID: 6536161085835888693, guid: e29783180e6394240af17c8cf613edad, type: 3}
+  _water: {fileID: 2345265941344400288, guid: 4506534426e555247b5e192525a39227, type: 3}
+  _waterBorder: 0.35
+  _soilBorder: 0.43
   _grassMat1: {fileID: 2100000, guid: cbcf139d985e5474bbc41fc6dff288fa, type: 2}
   _grassMat2: {fileID: 2100000, guid: c39933e60e73205419d1f79a2af1fdac, type: 2}
   _soilMat1: {fileID: 2100000, guid: 72b766b419a4c0a4997cb53ae4ed670e, type: 2}
   _soilMat2: {fileID: 2100000, guid: 77a1e7f1cc3ff704788fc0e8e408e331, type: 2}
   _waterMat1: {fileID: 2100000, guid: d7e7d140f68e11f4cb6045c739cfdead, type: 2}
   _waterMat2: {fileID: 2100000, guid: f621a46f66e55e143902181cae2fba21, type: 2}
-  _grass: {fileID: 4233725727185293150, guid: 7846f812e550360448cbda28f17dc768, type: 3}
-  _soil: {fileID: 6536161085835888693, guid: e29783180e6394240af17c8cf613edad, type: 3}
-  _water: {fileID: 2345265941344400288, guid: 4506534426e555247b5e192525a39227, type: 3}
-  _waterBorder: 0.35
-  _soilBorder: 0.43
 --- !u!114 &1090166010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,6 +407,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scale: 0.08
   _seed: 262
+--- !u!114 &1090166011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090166006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de8cf72bc19b164438e08a1c481630f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _soilResources: 01000000
+  _grassResources: 0200000003000000
+  _spawnRate: 0.018
+  _seed: 109
 --- !u!1 &1673374891
 GameObject:
   m_ObjectHideFlags: 0
