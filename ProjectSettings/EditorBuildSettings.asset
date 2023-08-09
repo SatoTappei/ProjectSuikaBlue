@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/_Contents/99_MiniGame/MiniGame.unity
     guid: f8773fb23f4bc85429b09afdfad23dad
   - enabled: 0
-    path: Assets/_Contents/InGame.unity
+    path: Assets/_Contents/0_Botu/InGame.unity
     guid: b3cf2a86439d5eb449476e68622f9cb3
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 948968daf0cae104abcff5ca1dc1c8fc,
