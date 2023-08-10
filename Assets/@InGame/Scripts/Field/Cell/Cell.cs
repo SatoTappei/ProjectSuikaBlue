@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.AddressableAssets;
+using UniRx;
 
 namespace Field
 {
@@ -20,68 +20,40 @@ namespace Field
 
     public class Cell
     {
+        TileType _tileType;
+        ResourceType _resourceType;
+        Vector3 _pos;
+        int _height;
+
         public Cell(TileType type, Vector3 pos, float height)
         {
-            TileType = type;
-            Pos = pos;
+            _tileType = type;
+            _pos = pos;
             // パーリンノイズで得られたセルの高さが少数点以下なので1000倍して整数に成形する
-            Height = (int)(height * 1000);
+            _height = (int)(height * 1000);
         }
 
-        GameObject _resource;
-        
-        public ResourceType ResourceType { get; private set; }
-        public TileType TileType { get; }
-        public Vector3 Pos { get; }
-        public int Height { get; }
+        public TileType TileType => _tileType;
+        public Vector3 Pos => _pos;
+        public int Height => _height;
 
-        public void CreateResource(ResourceType type)
+        public ResourceType ResourceType
         {
-            ResourceType = type;
-            if (type != ResourceType.None) Instantiate(type);
-        }
-
-        async void Instantiate(ResourceType type)
-        {
-            string address = ResourceTypeToAddress(type);
-            _resource = await Addressables.InstantiateAsync(address).Task;
-            _resource.transform.position = Pos;
+            get { return _resourceType; }
+            set { _resourceType = value; SendResourceCreateMessage(_resourceType); }
         }
 
         /// <summary>
-        /// Addressableに登録したアドレスを返す
+        /// セルに資源を生成した際に、何をどの座標に生成したかのメッセージングを行う
         /// </summary>
-        /// <returns>Addressableに登録したアドレス</returns>
-        string ResourceTypeToAddress(ResourceType type)
+        void SendResourceCreateMessage(ResourceType type)
         {
-            if      (type == ResourceType.PalmTree) return "PalmTree";
-            else if (type == ResourceType.Tree)     return "Tree";
-            else if (type == ResourceType.Stone)    return "Stone";
-            else return string.Empty;
-        }
-
-        public void Release()
-        {
-            Debug.Log("解放");
-            if (_resource != null)
+            MessageBroker.Default.Publish(new CellResourceCreateMessage()
             {
-                Addressables.ReleaseInstance(_resource);
-            }
-            
+                Type = type,
+                Pos = Pos,
+            });
         }
-
-        //        /// <summary>
-        //        /// 
-        //        /// </summary>
-        //        void IHeightProvider.SetHeight(float height) => _height = (int)(height * 1000);
-
-        //#if UNITY_EDITOR
-        //        void OnDrawGizmos()
-        //        {
-        //            // 全セルに対して行うと非常に重いので普段はオフにしておくことを推奨
-        //            CellGizmosDrawer.DrawHeight(transform.position, _height);
-        //        }
-        //#endif
     }
 }
 

@@ -31,12 +31,12 @@ namespace Field
             if (cell.TileType == TileType.Soil)
             {
                 ResourceType type = _soilResources[random.NextInt(_soilResources.Length)];
-                cell.CreateResource(type);
+                cell.ResourceType = type;
             }
             else if (cell.TileType == TileType.Grass)
             {
                 ResourceType type = _grassResources[random.NextInt(_grassResources.Length)];
-                cell.CreateResource(type);
+                cell.ResourceType = type;
             }
         }
 

@@ -10,9 +10,6 @@ namespace Field
         [SerializeField] int _width = 50;
         [SerializeField] int _height = 50;
 
-        // TODO:アドレッサブルを開放しないとリークするため一時的に
-        Cell[,] _field = new Cell[50,50];
-
         void Start()
         {
             Build();
@@ -25,16 +22,11 @@ namespace Field
             float[,] grid = perlinNoise.Create(_height, _width);
             // 対応したオブジェクト生成
             TerrainGenerator terrain = GetComponent<TerrainGenerator>();
-            _field = terrain.Create(grid);
+            Cell[,] field = terrain.Create(grid);
             // 初期資源を配置
             InitResourceSpawner resource = GetComponent<InitResourceSpawner>();
-            resource.Spawn(_field);
+            resource.Spawn(field);
 
-        }
-
-        void OnDestroy()
-        {
-            foreach (Cell cell in _field) cell.Release();
         }
 
         void SetCellHeight(float[,] grid, GameObject[,] field)
