@@ -1,16 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Field;
+using Actor;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] FieldBuilder _fieldBuilder;
+    [SerializeField] InitKinpatsuSpawner _initKinpatsuSpawner;
+
     void Start()
     {
-        
+        Cell[,] field = _fieldBuilder.Build();
+        _initKinpatsuSpawner.Spawn(field);
     }
 
-    // Update is called once per frame
     void Update()
     {
         

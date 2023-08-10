@@ -18,10 +18,19 @@ namespace Field
         Stone,
     }
 
+    public enum ActorType
+    {
+        None,
+        Kinpatsu,
+        KinpatsuLeader,
+        Enemy,
+    }
+
     public class Cell
     {
         TileType _tileType;
         ResourceType _resourceType;
+        ActorType _actorType;
         Vector3 _pos;
         int _height;
 
@@ -36,11 +45,17 @@ namespace Field
         public TileType TileType => _tileType;
         public Vector3 Pos => _pos;
         public int Height => _height;
-
+        public bool IsWalkable => _tileType != TileType.Water && _resourceType == ResourceType.None;
+        
         public ResourceType ResourceType
         {
             get { return _resourceType; }
             set { _resourceType = value; SendResourceCreateMessage(_resourceType); }
+        }
+        public ActorType ActorType
+        {
+            get => _actorType;
+            set => _actorType = value;
         }
 
         /// <summary>

@@ -10,12 +10,7 @@ namespace Field
         [SerializeField] int _width = 50;
         [SerializeField] int _height = 50;
 
-        void Start()
-        {
-            Build();
-        }
-
-        void Build()
+        public Cell[,] Build()
         {
             // パーリンノイズ
             PerlinNoise perlinNoise = GetComponent<PerlinNoise>();
@@ -27,27 +22,7 @@ namespace Field
             InitResourceSpawner resource = GetComponent<InitResourceSpawner>();
             resource.Spawn(field);
 
-        }
-
-        void SetCellHeight(float[,] grid, GameObject[,] field)
-        {
-            for(int i = 0; i < field.GetLength(0); i++)
-            {
-                for(int k = 0; k < field.GetLength(1); k++)
-                {
-                    SetHeight(grid[i, k], field[i, k]);
-                }
-            }
-        }
-
-        void SetHeight(float height, GameObject cell)
-        {
-            if (!cell.TryGetComponent(out IHeightProvider holder))
-            {
-                string message = "セルの高さを設定するのに必要なIHeightProviderが実装されていない";
-                throw new System.NullReferenceException(message);
-            }
-            holder.SetHeight(height);
+            return field;
         }
     }
 }

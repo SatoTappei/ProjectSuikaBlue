@@ -592,7 +592,7 @@ GameObject:
   - component: {fileID: 3813120796897894460}
   - component: {fileID: 7927696784740155334}
   m_Layer: 0
-  m_Name: KadukiSailorSuit
+  m_Name: Actor_Kinpatsu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -65,7 +65,14 @@ namespace Field
             if(_prefabDict.TryGetValue(key,out GameObject value))
             {
                 GameObject go = Instantiate(value, pos, Quaternion.identity, _parent);
-                _objectDict.Add(pos, go);
+                if (_objectDict.ContainsKey(pos))
+                {
+                    _objectDict[pos] = go;
+                }
+                else
+                {
+                    _objectDict.Add(pos, go);
+                }
             }
             else
             {
