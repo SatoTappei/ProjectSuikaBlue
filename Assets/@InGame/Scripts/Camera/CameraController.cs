@@ -1,52 +1,55 @@
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
+namespace PSB.InGame
 {
-    [SerializeField] Transform _child;
-    [SerializeField] float _moveSpeed = 3.0f;
-    [SerializeField] int _zoomStep = 5;
-
-    Transform _transform;
-
-    void Awake()
+    public class CameraController : MonoBehaviour
     {
-        _transform = transform;
-    }
+        [SerializeField] Transform _child;
+        [SerializeField] float _moveSpeed = 3.0f;
+        [SerializeField] int _zoomStep = 5;
 
-    void Update()
-    {
-        (Vector2 move, float fov) input = Input();
-        Move(input.move);
-        Zoom(input.fov);
-    }
+        Transform _transform;
 
-    (Vector2 move, float fov) Input()
-    {
-        // 移動
-        Vector2 move = Vector2.zero;
-        if (UnityEngine.Input.GetKey(KeyCode.A)) move += Vector2.left;
-        if (UnityEngine.Input.GetKey(KeyCode.S)) move += Vector2.down;
-        if (UnityEngine.Input.GetKey(KeyCode.D)) move += Vector2.right;
-        if (UnityEngine.Input.GetKey(KeyCode.W)) move += Vector2.up;
-        
-        // ズーム
-        float fov;
-        fov = UnityEngine.Input.GetAxis("Mouse ScrollWheel");
+        void Awake()
+        {
+            _transform = transform;
+        }
 
-        return (move, fov);
-    }
+        void Update()
+        {
+            (Vector2 move, float fov) input = Input();
+            Move(input.move);
+            Zoom(input.fov);
+        }
 
-    void Move(Vector2 input)
-    {
-        input = input.normalized;
-        _transform.position += new Vector3(input.x, 0, input.y) * Time.deltaTime * _moveSpeed;
-    }
+        (Vector2 move, float fov) Input()
+        {
+            // 移動
+            Vector2 move = Vector2.zero;
+            if (UnityEngine.Input.GetKey(KeyCode.A)) move += Vector2.left;
+            if (UnityEngine.Input.GetKey(KeyCode.S)) move += Vector2.down;
+            if (UnityEngine.Input.GetKey(KeyCode.D)) move += Vector2.right;
+            if (UnityEngine.Input.GetKey(KeyCode.W)) move += Vector2.up;
 
-    void Zoom(float input)
-    {
-        Vector3 pos = _child.transform.position;
-        pos.y += input * -_zoomStep;
+            // ズーム
+            float fov;
+            fov = UnityEngine.Input.GetAxis("Mouse ScrollWheel");
 
-        _child.transform.position = pos;
+            return (move, fov);
+        }
+
+        void Move(Vector2 input)
+        {
+            input = input.normalized;
+            _transform.position += new Vector3(input.x, 0, input.y) * Time.deltaTime * _moveSpeed;
+        }
+
+        void Zoom(float input)
+        {
+            Vector3 pos = _child.transform.position;
+            pos.y += input * -_zoomStep;
+
+            _child.transform.position = pos;
+        }
     }
 }

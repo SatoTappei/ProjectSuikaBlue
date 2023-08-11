@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Actor
+namespace PSB.InGame
 {
     public enum ActorType
     {
@@ -27,7 +27,7 @@ namespace Actor
 
         public void Move()
         {
-            transform.Translate(Vector3.forward);
+            transform.Translate(Vector3.forward * Time.deltaTime);
         }
     }
 }

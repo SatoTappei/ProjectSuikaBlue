@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Field
+namespace PSB.InGame
 {
     public class TerrainGenerator : MonoBehaviour
     {
@@ -16,6 +16,8 @@ namespace Field
         [SerializeField] Material _soilMat2;
         [SerializeField] Material _waterMat1;
         [SerializeField] Material _waterMat2;
+        [Header("Fieldのレイヤー番号")]
+        [SerializeField] int _fieldLayerNum = 9;
 
         /// <summary>
         /// 生成したパーリンノイズのグリッドに対応したオブジェクトを生成する
@@ -25,13 +27,17 @@ namespace Field
         {
             Cell[,] field = new Cell[grid.GetLength(0), grid.GetLength(1)];
             // 親
-            Transform parent = new GameObject("Field").transform;
-            GameObject grassParent1 = CreateTileParent("GrassParent_1", parent);
-            GameObject grassParent2 = CreateTileParent("GrassParent_2", parent);
-            GameObject soilParent1 = CreateTileParent("SoilParent_1", parent);
-            GameObject soilParent2 = CreateTileParent("SoilParent_2", parent);
-            GameObject waterParent1 = CreateTileParent("WaterParent_1", parent);
-            GameObject waterParent2 = CreateTileParent("WaterParent_2", parent);
+            GameObject parent = new GameObject("Field");
+            parent.layer = _fieldLayerNum;
+            BoxCollider collider = parent.AddComponent<BoxCollider>();
+            collider.size = new Vector3(grid.GetLength(0), 1, grid.GetLength(1));
+            // タイルの親
+            GameObject grassParent1 = CreateTileParent("GrassParent_1", parent.transform);
+            GameObject grassParent2 = CreateTileParent("GrassParent_2", parent.transform);
+            GameObject soilParent1  = CreateTileParent("SoilParent_1",  parent.transform);
+            GameObject soilParent2  = CreateTileParent("SoilParent_2",  parent.transform);
+            GameObject waterParent1 = CreateTileParent("WaterParent_1", parent.transform);
+            GameObject waterParent2 = CreateTileParent("WaterParent_2", parent.transform);
 
             float h = (grid.GetLength(0) / 2) + (grid.GetLength(0) / 2 % 2 == 0 ? 0.5f : 0);
             float w = (grid.GetLength(1) / 2) + (grid.GetLength(1) / 2 % 2 == 0 ? 0.5f : 0);

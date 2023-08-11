@@ -1,8 +1,7 @@
 using UnityEngine;
 using UniRx;
-using Actor;
 
-namespace Field
+namespace PSB.InGame
 {
     public enum TileType
     {

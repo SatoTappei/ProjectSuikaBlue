@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Actor
+namespace PSB.InGame
 {
     /// <summary>
     /// 金髪/黒髪を生成するクラスはこのクラスを継承すること

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Actor
+namespace PSB.InGame
 {
     public class ActorController : MonoBehaviour
     {

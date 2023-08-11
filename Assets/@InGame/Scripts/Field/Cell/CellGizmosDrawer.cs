@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Field
+namespace PSB.InGame
 {
     public class CellGizmosDrawer
     {

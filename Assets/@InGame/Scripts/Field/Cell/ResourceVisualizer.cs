@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-namespace Field
+namespace PSB.InGame
 {
     public class ResourceVisualizer : MonoBehaviour
     {
