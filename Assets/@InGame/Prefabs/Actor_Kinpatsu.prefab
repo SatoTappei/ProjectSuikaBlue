@@ -591,6 +591,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3813120796897894460}
   - component: {fileID: 7927696784740155334}
+  - component: {fileID: -2571926374511651681}
   m_Layer: 0
   m_Name: Actor_Kinpatsu
   m_TagString: Untagged
@@ -636,6 +637,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-2571926374511651681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7272666755009121259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0f5265e07380949a00c308b6d21c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7474314334066899040
 GameObject:
   m_ObjectHideFlags: 0

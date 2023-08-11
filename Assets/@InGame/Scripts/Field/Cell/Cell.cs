@@ -1,5 +1,6 @@
 using UnityEngine;
 using UniRx;
+using Actor;
 
 namespace Field
 {
@@ -16,14 +17,6 @@ namespace Field
         PalmTree,
         Tree,
         Stone,
-    }
-
-    public enum ActorType
-    {
-        None,
-        Kinpatsu,
-        KinpatsuLeader,
-        Enemy,
     }
 
     public class Cell

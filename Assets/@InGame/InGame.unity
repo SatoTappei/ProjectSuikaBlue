@@ -324,7 +324,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &658191316
 GameObject:
@@ -406,6 +406,50 @@ MonoBehaviour:
   _child: {fileID: 658191317}
   _moveSpeed: 15
   _zoomStep: 10
+--- !u!1 &953902821
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 953902822}
+  - component: {fileID: 953902823}
+  m_Layer: 0
+  m_Name: ActorController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &953902822
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953902821}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &953902823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953902821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c22ce0f352401c641a042b653102d647, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1031378242
 GameObject:
   m_ObjectHideFlags: 0
@@ -766,9 +810,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 151dd444c4d6d3c488a22dc83f681be4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _leaderPrefab: {fileID: 5808584565365330062, guid: 96243288f9941634cb9a3a10c22b1b91,
+  _leaderPrefab: {fileID: -7217962237655503227, guid: 96243288f9941634cb9a3a10c22b1b91,
     type: 3}
-  _unitPrefab: {fileID: 7272666755009121259, guid: e0a087c9da918f044990add1616faab2,
+  _unitPrefab: {fileID: -2571926374511651681, guid: e0a087c9da918f044990add1616faab2,
     type: 3}
   _totalSpawn: 3
   _spawnHeight: 0.5

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Actor
 {
-    public class InitKinpatsuSpawner : MonoBehaviour
+    public class InitKinpatsuSpawner : ActorSpawner
     {
         /// <summary>
         /// 渦巻きループ用の時計回り方向
@@ -14,8 +14,8 @@ namespace Actor
             Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down,
         };
 
-        [SerializeField] GameObject _leaderPrefab;
-        [SerializeField] GameObject _unitPrefab;
+        [SerializeField] Actor _leaderPrefab;
+        [SerializeField] Actor _unitPrefab;
         [Range(2, 9)]
         [SerializeField] int _totalSpawn = 3;
         [SerializeField] float _spawnHeight = 1.0f;
@@ -75,10 +75,13 @@ namespace Actor
             {
                 Cell cell = temp.Dequeue();
                 // 最初にリーダーを生成し、その後に普通の金髪を生成する
-                GameObject prefab = m == 0 ? _leaderPrefab : _unitPrefab;
+                Actor prefab = m == 0 ? _leaderPrefab : _unitPrefab;
                 ActorType type = m == 0 ? ActorType.KinpatsuLeader : ActorType.Kinpatsu;
-                Instantiate(prefab, new Vector3(cell.Pos.x, _spawnHeight, cell.Pos.z), Quaternion.identity);
+                // セルに生成するキャラクターの情報をセット
                 cell.ActorType = type;
+                // キャラクターの生成
+                Vector3 pos = new Vector3(cell.Pos.x, _spawnHeight, cell.Pos.z);
+                InstantiateActor(prefab, pos, type);
             }
 
             temp.Clear();
