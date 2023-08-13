@@ -7,8 +7,8 @@ namespace PSB.InGame
         [SerializeField] ResourceType[] _soilResources;
         [SerializeField] ResourceType[] _grassResources;
         [Range(0, 1)]
-        [SerializeField] float _spawnRate = 0.5f;
-        [SerializeField] uint _seed;
+        [SerializeField] float _spawnRate = 0.018f;
+        [SerializeField] uint _seed = 109;
 
         public void Spawn(Cell[,] field)
         {

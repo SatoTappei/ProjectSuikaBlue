@@ -20,15 +20,26 @@ namespace PSB.InGame
 
         void OnClicked()
         {
+            Cell[,] field = _fieldManager.Field;
+            if (IsRaycastHitField(out Vector3 hitPoint))
+            {
+                Vector2Int index = WorldPosToGridIndex(hitPoint);
+                if (FieldUtility.IsWithinGrid(field, index))
+                {
+                    Cell cell = field[index.y, index.x];
+                    OnFieldClicked?.Invoke(cell);
+                }
+            }
+        } 
+
+        bool IsRaycastHitField(out Vector3 hitPoint)
+        {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out RaycastHit hit, RayDistance, _fieldLayer);
+            // Raycastがヒットした場合はその地点を、しなかった場合はVector3の初期値を代入する
+            hitPoint = hit.collider != null ? hit.point : Vector3.zero;
 
-            if (hit.collider != null)
-            {
-                Vector2Int index = WorldPosToGridIndex(hit.point);
-                Cell cell = _fieldManager.Field[index.y, index.x];
-                OnFieldClicked?.Invoke(cell);
-            }
+            return hit.collider != null;
         }
 
         /// <summary>
