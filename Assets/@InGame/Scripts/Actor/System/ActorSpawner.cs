@@ -10,20 +10,16 @@ namespace PSB.InGame
         static Transform _parent;
 
         /// <summary>
-        /// 生成して初期化メソッドを呼んで返す
-        /// 初期化時に親の遺伝子を子に渡す必要がある
+        /// 生成して親の遺伝子を子に渡す初期化メソッドを呼んで返す。
+        /// 第三引数ががnullの場合、遺伝子が無いので親無しになる。
         /// </summary>
         /// <returns>初期化済みのActor</returns>
-        protected Actor InstantiateActor(Actor prefab, Vector3 pos, int gene = Actor.DefaultGene)
+        protected Actor InstantiateActor(Actor prefab, Vector3 pos, uint? gene = null)
         {
-            _parent ??= new GameObject("ActorParent").transform;
+            if (_parent == null) _parent = new GameObject("ActorParent").transform;
 
             Actor actor = Instantiate(prefab, pos, Quaternion.identity, _parent);
-            actor.InitOnStart(gene);
-            
-            //if (_parent == null) _parent = new GameObject("ActorParent").transform;
-            
-            //actor.transform.SetParent(_parent);
+            actor.Init(gene);
 
             return actor;
         }

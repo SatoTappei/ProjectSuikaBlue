@@ -20,8 +20,8 @@ namespace PSB.InGame
         [SerializeField] float _deltaLifeSpan;
         [Range(0, 100)]
         [SerializeField] float _deltaBreedingRate;
-        [Range(0.1f, 2.0f)]
         [Header("最小/最大サイズ")]
+        [Range(0.1f, 2.0f)]
         [SerializeField] float _minSize = 0.5f;
         [Range(0.1f, 2.0f)]
         [SerializeField] float _maxSize = 1.5f;
@@ -34,5 +34,19 @@ namespace PSB.InGame
         public float DeltaBreedingRate => _deltaBreedingRate;
         public float MinSize => _minSize;
         public float MaxSize => _maxSize;
+        /// <summary>
+        /// 親が無い場合のデフォルトの遺伝子。カラーが白でサイズがほぼ1になる値
+        /// </summary>
+        public uint DefaultGene
+        {
+            get
+            {
+                // 最大/最小の値によってサイズが1になる値は変わるので
+                // リマップの公式を変形したものを用いて求める
+                uint size = (uint)((1 - _minSize) * byte.MaxValue / (_maxSize - _minSize));
+                // 上位24ビットが色、下位8ビットがサイズの部分
+                return 0xFFFFFF00 + size;
+            }
+        }
     }
 }

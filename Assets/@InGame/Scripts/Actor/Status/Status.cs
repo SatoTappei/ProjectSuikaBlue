@@ -35,9 +35,9 @@ namespace PSB.InGame
         /// <summary>
         /// 8ビット区切りの遺伝子(カラーR カラーG カラーB サイズ)
         /// </summary>
-        int _gene;
+        uint _gene;
 
-        public Status(StatusBase statusBase, int gene = 0)
+        public Status(StatusBase statusBase, uint gene = 0)
         {
             _base = statusBase;
 
@@ -59,21 +59,19 @@ namespace PSB.InGame
         public byte ColorR => (byte)(_gene >> 24 & 0xFF);
         public byte ColorG => (byte)(_gene >> 16 & 0xFF);
         public byte ColorB => (byte)(_gene >> 8 & 0xFF);
-        public Color32 Color => new Color32(ColorR, ColorG, ColorB, 1);
-        public Vector3 Size => GeneToSize();
+        public Color32 Color => new Color32(ColorR, ColorG, ColorB, 255);
+        public float Size => GeneToSize();
 
         /// <summary>
         /// 遺伝子のうちサイズに適用する8ビットのみを取り出して変換する
         /// </summary>
         /// <returns>LocalScale</returns>
-        Vector3 GeneToSize()
+        float GeneToSize()
         {
             // 0~255
             float f = _gene & 0xFF;
             // fを最小/最大サイズの範囲にリマップ
-            float mappedSize = (f - 0) * (_base.MaxSize - _base.MinSize) / (byte.MaxValue - byte.MinValue) + _base.MinSize;
-
-            return Vector3.one * mappedSize;
+            return (f - 0) * (_base.MaxSize - _base.MinSize) / (byte.MaxValue - byte.MinValue) + _base.MinSize;
         }
     }
 

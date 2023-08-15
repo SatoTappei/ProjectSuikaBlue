@@ -6,6 +6,9 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace PSB.InGame
 {
+    // Addressablesを用いてローカルでデータの読み込みを行っているが
+    // 必要に応じてネットからデータを引っ張るクラスに改造可能
+
     public class StatusBaseHolder
     {
         // シングルトン

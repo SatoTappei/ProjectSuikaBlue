@@ -591,8 +591,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3813120796897894460}
   - component: {fileID: 7927696784740155334}
-  - component: {fileID: -2571926374511651681}
   - component: {fileID: 3697286503333623935}
+  - component: {fileID: -2571926374511651681}
   - component: {fileID: 22364937460868933}
   m_Layer: 0
   m_Name: Actor_Kinpatsu
@@ -639,19 +639,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &-2571926374511651681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7272666755009121259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e0f5265e07380949a00c308b6d21c75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _type: 1
 --- !u!135 &3697286503333623935
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -673,6 +660,21 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &-2571926374511651681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7272666755009121259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0f5265e07380949a00c308b6d21c75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spawner: {fileID: 22364937460868933}
+  _type: 1
+  _model: {fileID: 3535252017480752486}
 --- !u!114 &22364937460868933
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -14,33 +14,22 @@ namespace PSB.InGame
     [RequireComponent(typeof(ChildSpawner))]
     public class Actor : MonoBehaviour, IReadOnlyParams
     {
-        /// <summary>
-        /// 親が無い場合のデフォルトの遺伝子
-        /// カラーが白、サイズが1になる値
-        /// </summary>
-        public const int DefaultGene = 1;
-
         public static event UnityAction<Actor> OnSpawned;
-
-        static StatusBaseHolder _holder;
 
         // インスペクタで割り当てない
         // 基準となる値 + 親から遺伝した値
         // 生成自体はスポナーが行う。その際に遺伝した値を渡したい。
         // 遺伝した値はランダムなのでSOやインスペクタから渡さない。
 
+        [SerializeField] ChildSpawner _spawner;
         // StatusBaseの取得やController側での制御に必要なので個体毎にデータを持つ
         [SerializeField] ActorType _type;
-
-        ChildSpawner _spawner;
+        [Header("3Dモデルのメッシュのオブジェクト")]
+        [SerializeField] Transform _model;
 
         Status _status;
-        //[SerializeField] Param _food;
-        //[SerializeField] Param _water;
-        //[SerializeField] Param _hp;
-        //[SerializeField] Param _lifeSpan;
-        //[SerializeField] Param _breedingRate;
-
+        bool _initialized;
+        
         public ActorType Type => _type;
         // UI側が読み取る用
         float IReadOnlyParams.Food => /*_food.Percentage*/1;
@@ -49,34 +38,41 @@ namespace PSB.InGame
 
         /// <summary>
         /// ステータスの設定、Controller側で制御するためのコールバックの呼び出し
-        /// 外部からデータを取得するのでStartのタイミングで呼ぶ必要がある
+        /// 遺伝子がnullの場合は親無しなのでデフォルトの遺伝子を使用する
         /// </summary>
-        public void InitOnStart(int gene) 
+        public void Init(uint? gene = null) 
         {
-            // SOを取得、各種データを読み込む
-            //_holder ??= FindFirstObjectByType<StatusBaseHolder>();
+            // 種類と遺伝子からステータスを初期化
+            StatusBase statusBase = StatusBaseHolder.Get(_type);
+            gene ??= statusBase.DefaultGene;
+            _status = new(statusBase, (uint)gene);
+            
+            // 遺伝子を個体に反映
+            ApplyInheritedSize(_status.Size);
+            ApplyInheritedColor(_status.Color);
 
-            OnSpawned?.Invoke(this); // 登録汁には自身のタイプが必要
-            Debug.Log("Init");
-        }
+            OnSpawned?.Invoke(this);
 
-        void Awake()
-        {
-            GetComponent<ChildSpawner>();
-            Debug.Log("Awake");
+            // もう一度このメソッドを呼んで初期化しないようにフラグを立てる
+            _initialized = true;
         }
 
         void Start()
         {
-            //// SOを取得、各種データを読み込む
-            //_holder ??= FindFirstObjectByType<StatusBaseHolder>();
+            // 直接シーンに配置した場合などスポナーを経由しない場合用
+            // 外部からデータを取得するのでStartのタイミングで呼ぶ必要がある
+            if (!_initialized) Init();
         }
 
-        void OnDestroy()
+        void ApplyInheritedSize(float size)
         {
-            // いずれか1つでもDestoryしたタイミングで、参照がnullになってしまうので、
-            // 他のインスタンスでぬるりが出るので注意。
-            _holder = null;
+            Debug.Log(size);
+            _model.transform.localScale *= size;
+        }
+
+        void ApplyInheritedColor(Color32 color)
+        {
+            Debug.Log(color);
         }
 
         public void Move()
