@@ -11,14 +11,19 @@ namespace PSB.InGame
 
         /// <summary>
         /// 生成して初期化メソッドを呼んで返す
+        /// 初期化時に親の遺伝子を子に渡す必要がある
         /// </summary>
         /// <returns>初期化済みのActor</returns>
-        protected Actor InstantiateActor(Actor prefab, Vector3 pos, ActorType type)
+        protected Actor InstantiateActor(Actor prefab, Vector3 pos, int gene = Actor.DefaultGene)
         {
-            Actor actor = Instantiate(prefab, pos, Quaternion.identity);
-            if (_parent == null) _parent = new GameObject("ActorParent").transform;
-            actor.transform.SetParent(_parent);
-            actor.Init(type);
+            _parent ??= new GameObject("ActorParent").transform;
+
+            Actor actor = Instantiate(prefab, pos, Quaternion.identity, _parent);
+            actor.InitOnStart(gene);
+            
+            //if (_parent == null) _parent = new GameObject("ActorParent").transform;
+            
+            //actor.transform.SetParent(_parent);
 
             return actor;
         }

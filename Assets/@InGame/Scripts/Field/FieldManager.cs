@@ -9,6 +9,8 @@ namespace PSB.InGame
         public static FieldManager Instance { get; private set; }
 
         [SerializeField] FieldBuilder _builder;
+        [Header("Startのタイミングで生成する")]
+        [SerializeField] bool _buildOnStart;
 
         Cell[,] _field;
         Bresenham _bresenham;
@@ -36,7 +38,17 @@ namespace PSB.InGame
 
         void Start()
         {
-            // ★:とりあえず生成しておく
+            if (_buildOnStart && _field == null)
+            {
+                Create();
+            }
+        }
+
+        /// <summary>
+        /// GameManagerから呼び出してFieldを生成する
+        /// </summary>
+        public void Create()
+        {
             _field = _builder.Build();
             _bresenham = new(_field);
         }

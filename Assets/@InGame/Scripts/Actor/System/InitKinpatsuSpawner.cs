@@ -75,12 +75,9 @@ namespace PSB.InGame
                 Cell cell = temp.Dequeue();
                 // 最初にリーダーを生成し、その後に普通の金髪を生成する
                 Actor prefab = m == 0 ? _leaderPrefab : _unitPrefab;
-                ActorType type = m == 0 ? ActorType.KinpatsuLeader : ActorType.Kinpatsu;
-                // セルに生成するキャラクターの情報をセット
-                cell.ActorType = type;
                 // キャラクターの生成
                 Vector3 pos = new Vector3(cell.Pos.x, _spawnHeight, cell.Pos.z);
-                InstantiateActor(prefab, pos, type);
+                InstantiateActor(prefab, pos);
             }
 
             temp.Clear();
