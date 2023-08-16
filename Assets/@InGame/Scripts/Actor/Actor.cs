@@ -11,68 +11,60 @@ namespace PSB.InGame
         Kurokami,
     }
 
+    /// <summary>
+    /// スポナーから生成され、Controllerによって操作される。
+    /// 単体で動作することを考慮していないのでシーン上に直に配置しても機能しない。
+    /// </summary>
     [RequireComponent(typeof(ChildSpawner))]
+    [RequireComponent(typeof(InitializeProcess))]
     public class Actor : MonoBehaviour, IReadOnlyParams
     {
         public static event UnityAction<Actor> OnSpawned;
 
-        // インスペクタで割り当てない
-        // 基準となる値 + 親から遺伝した値
-        // 生成自体はスポナーが行う。その際に遺伝した値を渡したい。
-        // 遺伝した値はランダムなのでSOやインスペクタから渡さない。
-
         [SerializeField] ChildSpawner _spawner;
+        [SerializeField] InitializeProcess _initProcess;
         // StatusBaseの取得やController側での制御に必要なので個体毎にデータを持つ
         [SerializeField] ActorType _type;
-        [Header("3Dモデルのメッシュのオブジェクト")]
-        [SerializeField] Transform _model;
 
         Status _status;
         bool _initialized;
-        
+
         public ActorType Type => _type;
-        // UI側が読み取る用
-        float IReadOnlyParams.Food => /*_food.Percentage*/1;
-        float IReadOnlyParams.Water => /*_water.Percentage*/1;
-        float IReadOnlyParams.HP => /*_hp.Percentage*/1;
+        // UI側が読み取る用。初期化前に読み取った場合は仮の値として1を返す。
+        float IReadOnlyParams.Food         => _initialized ? _status.Food.Percentage : 1;
+        float IReadOnlyParams.Water        => _initialized ? _status.Water.Percentage : 1;
+        float IReadOnlyParams.HP           => _initialized ? _status.Hp.Percentage : 1;
+        float IReadOnlyParams.LifeSpan     => _initialized ? _status.LifeSpan.Percentage : 1;
+        float IReadOnlyParams.BreedingRate => _initialized ? _status.BreedingRate.Percentage : 1;
 
         /// <summary>
-        /// ステータスの設定、Controller側で制御するためのコールバックの呼び出し
-        /// 遺伝子がnullの場合は親無しなのでデフォルトの遺伝子を使用する
+        /// スポナーが生成のタイミングで呼ぶ初期化処理
         /// </summary>
         public void Init(uint? gene = null) 
         {
-            // 種類と遺伝子からステータスを初期化
-            StatusBase statusBase = StatusBaseHolder.Get(_type);
-            gene ??= statusBase.DefaultGene;
-            _status = new(statusBase, (uint)gene);
-            
-            // 遺伝子を個体に反映
-            ApplyInheritedSize(_status.Size);
-            ApplyInheritedColor(_status.Color);
+            // 初期化完了後、各種ステータスの値を参照できる。
+            _status = _initProcess.Execute(gene, _type);
+            _initialized = true;
 
             OnSpawned?.Invoke(this);
-
-            // もう一度このメソッドを呼んで初期化しないようにフラグを立てる
-            _initialized = true;
         }
 
-        void Start()
+        public void StepParams()
         {
-            // 直接シーンに配置した場合などスポナーを経由しない場合用
-            // 外部からデータを取得するのでStartのタイミングで呼ぶ必要がある
-            if (!_initialized) Init();
-        }
-
-        void ApplyInheritedSize(float size)
-        {
-            Debug.Log(size);
-            _model.transform.localScale *= size;
-        }
-
-        void ApplyInheritedColor(Color32 color)
-        {
-            Debug.Log(color);
+            _status.StepFood();
+            _status.StepWater();
+            _status.StepLifeSpan();
+           
+            // 食料と水分が0以下なら体力を減らす
+            if (_status.Food.IsBelowZero && _status.Water.IsBelowZero)
+            {
+                _status.StepHp();
+            }
+            // 体力が一定以上なら繁殖率が増加する
+            if (_status.IsBreedingRateIncrease)
+            {
+                _status.StepBreedingRate();
+            }
         }
 
         public void Move()
@@ -80,15 +72,6 @@ namespace PSB.InGame
             transform.Translate(Vector3.forward * Time.deltaTime);
         }
     }
-
-    // ★:現在の問題点
-    //    キャラクターはスポナーから生成される。生成したタイミングでキャラクターのInitメソッドを呼ぶ。
-    //    生成されたキャラクターはStateBaseをGameManagerから取得してくる。
-    
-    //    以下が現在の問題点
-    //    ・自身のStatusBaseを取得するタイミングがStart()なので、Initとは別タイミングになってしまう。
-    //    ・キャラクターはstaticでGameManagerの参照を持っているのでいずれかのキャラをDestroyするとnullが代入され、全体でぬるりが出る。
-    //    ・遺伝子の引継ぎについて。スポナーから生成しているので遺伝子をスポナーに渡す->その遺伝子をInitでキャラクターに渡すしかない。
 
     // 水分: 時間経過で減る、飲んで回復
     // 食料: 時間経過で減る、食べて回復

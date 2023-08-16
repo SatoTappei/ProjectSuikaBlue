@@ -7,7 +7,7 @@ namespace PSB.InGame
     {
         Actor _kinpatsuLeader;
         LinkedList<Actor> _kinpatsuList = new();
-        LinkedList<Actor> _enemyList = new();
+        LinkedList<Actor> _kurokamiList = new();
 
         void Awake()
         {
@@ -23,20 +23,20 @@ namespace PSB.InGame
         {
             if (_kinpatsuLeader != null)
             {
-                _kinpatsuLeader.Move();
+                _kinpatsuLeader.StepParams();
             }
             if (_kinpatsuList.Count > 0)
             {
                 foreach (Actor kinpatsu in _kinpatsuList)
                 {
-                    kinpatsu.Move();
+                    kinpatsu.StepParams();
                 }
             }
-            if (_enemyList.Count > 0)
+            if (_kurokamiList.Count > 0)
             {
-                foreach (Actor enemy in _enemyList)
+                foreach (Actor enemy in _kurokamiList)
                 {
-                    enemy.Move();
+                    enemy.StepParams();
                 }
             }
         }
@@ -45,7 +45,7 @@ namespace PSB.InGame
         {
             if      (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
             else if (actor.Type == ActorType.Kinpatsu)       _kinpatsuList.AddLast(actor);
-            else if (actor.Type == ActorType.Kurokami)          _enemyList.AddLast(actor);
+            else if (actor.Type == ActorType.Kurokami)       _kurokamiList.AddLast(actor);
             else
             {
                 string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;

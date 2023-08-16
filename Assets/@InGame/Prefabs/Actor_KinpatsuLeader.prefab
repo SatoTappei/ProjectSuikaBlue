@@ -689,6 +689,7 @@ GameObject:
   - component: {fileID: -3381462402728402027}
   - component: {fileID: -7217962237655503227}
   - component: {fileID: 695757485481010036}
+  - component: {fileID: 7595595460644980730}
   m_Layer: 0
   m_Name: Actor_KinpatsuLeader
   m_TagString: Untagged
@@ -768,8 +769,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawner: {fileID: 695757485481010036}
+  _initProcess: {fileID: 7595595460644980730}
   _type: 2
-  _model: {fileID: 891717654162315294}
 --- !u!114 &695757485481010036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -782,6 +783,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eae4e9dcdf6d4b84d94ed009d20f47b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7595595460644980730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5808584565365330062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9791e82d116fdfd4c882a2a173876487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _model: {fileID: 6341189882735349027}
+  _renderer: {fileID: 8432965103918870714}
 --- !u!1 &6006379884439928557
 GameObject:
   m_ObjectHideFlags: 0

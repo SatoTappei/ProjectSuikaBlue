@@ -144,6 +144,7 @@ GameObject:
   - component: {fileID: -6634015528067429273}
   - component: {fileID: -5418917306538156249}
   - component: {fileID: 8399500678186104503}
+  - component: {fileID: 267966663395748789}
   m_Layer: 0
   m_Name: Actor_Kurokami
   m_TagString: Untagged
@@ -223,8 +224,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawner: {fileID: 8399500678186104503}
+  _initProcess: {fileID: 267966663395748789}
   _type: 3
-  _model: {fileID: 8157654629027130002}
 --- !u!114 &8399500678186104503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +238,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eae4e9dcdf6d4b84d94ed009d20f47b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &267966663395748789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1047158312991229558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9791e82d116fdfd4c882a2a173876487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _model: {fileID: 6023412952329286949}
+  _renderer: {fileID: 8823516395768788015}
 --- !u!1 &1182150608547089291
 GameObject:
   m_ObjectHideFlags: 0

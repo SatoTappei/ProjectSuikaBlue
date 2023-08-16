@@ -14,6 +14,8 @@ namespace PSB.InGame
         [SerializeField] Transform _foodBar;
         [SerializeField] Transform _waterBar;
         [SerializeField] Transform _hpBar;
+        [SerializeField] Transform _lifeSpanBar;
+        [SerializeField] Transform _breedingRateBar;
 
         Camera _mainCamera;
         IReadOnlyParams _actor;
@@ -65,9 +67,11 @@ namespace PSB.InGame
 
         void SyncParamsToUI()
         {
-            _foodBar.localScale = new Vector3(_actor.Food, 1, 1);
-            _waterBar.localScale = new Vector3(_actor.Water, 1, 1);
-            _hpBar.localScale = new Vector3(_actor.HP, 1, 1);
+            _foodBar.localScale         = new Vector3(_actor.Food, 1, 1);
+            _waterBar.localScale        = new Vector3(_actor.Water, 1, 1);
+            _hpBar.localScale           = new Vector3(_actor.HP, 1, 1);
+            _lifeSpanBar.localScale     = new Vector3(_actor.LifeSpan, 1, 1);
+            _breedingRateBar.localScale = new Vector3(_actor.BreedingRate, 1, 1);
         }
     }
 }
