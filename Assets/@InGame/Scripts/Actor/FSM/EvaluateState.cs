@@ -2,9 +2,9 @@ namespace PSB.InGame
 {
     public class EvaluateState : BaseState
     {
-        BlackBoard _blackBoard;
+        IBlackBoardForState _blackBoard;
 
-        public EvaluateState(BlackBoard blackBoard) : base(StateType.Evaluate)
+        public EvaluateState(IBlackBoardForState blackBoard) : base(StateType.Evaluate)
         {
             _blackBoard = blackBoard;
         }
@@ -19,9 +19,9 @@ namespace PSB.InGame
 
         protected override void Stay()
         {
-            // 黒板に書き込まれた状態に遷移する？
-            // 黒板には値のみが書かれている、メソッドは無い。
-
+            // 黒板に書き込まれたステートが、Actor側の評価で決定した次のステート
+            BaseState state = _blackBoard.NextState;
+            TryChangeState(state);
             
             Log();
         }

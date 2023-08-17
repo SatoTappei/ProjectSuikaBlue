@@ -3,20 +3,30 @@ using UnityEngine;
 
 namespace PSB.InGame
 {
-    public class BlackBoard : MonoBehaviour
+    // 現状ものびを継承している必要はないのだが
+    // 後々インスペクタから割り当てる必要があるようになるかもしれないのでものびを継承している
+
+    [DefaultExecutionOrder(-1)]
+    public class BlackBoard : MonoBehaviour, IBlackBoardForActor, IBlackBoardForState
     {
-        Dictionary<ActionType, BaseState> _actionStateDict;
+        [SerializeField] float _speed;
+
+        Dictionary<ActionType, BaseState> _stateDict;
         // 評価は対応する行動が無い特別な状態なので別途保持する
         EvaluateState _evaluateState;
+        ActionType _nextAction;
 
-        // ステート側が読み取る
-        public BaseState NextState => TryGetActionState(NextAction);
-        public BaseState EvaluateState => _evaluateState;
-        // Actor側から書き込む
-        public ActionType NextAction;
+        BaseState IBlackBoardForState.NextState => TryGetActionState(_nextAction);
+        BaseState IBlackBoardForState.EvaluateState => _evaluateState;
+        Transform IMovable.Transform => transform;
+        float IMovable.Speed => _speed;
+
+        BaseState IBlackBoardForActor.InitState => _evaluateState;
+        ActionType IBlackBoardForActor.NextAction { set => _nextAction = value; }
 
         void Awake()
         {
+            _nextAction = ActionType.SearchFood; // <- ここを弄ってデバッグ、既定値はNone
             CreateState();
         }
 
@@ -24,15 +34,16 @@ namespace PSB.InGame
         {
             _evaluateState = new(this);
 
-            _actionStateDict = new(4);
-            _actionStateDict.Add(ActionType.SearchFood, new SearchFoodState(this));
+            _stateDict = new(4);
+            _stateDict.Add(ActionType.SearchFood, new SearchFoodState(this));
+            _stateDict.Add(ActionType.None, new IdleState(this));
         }
 
         BaseState TryGetActionState(ActionType type)
         {
-            if (_actionStateDict.ContainsKey(type))
+            if (_stateDict.ContainsKey(type))
             {
-                return _actionStateDict[type];
+                return _stateDict[type];
             }
             else
             {

@@ -13,6 +13,7 @@ namespace PSB.InGame
         [SerializeField] bool _buildOnStart;
 
         Cell[,] _field;
+        Dictionary<ResourceType, List<Cell>> _resourceCellDict = new();
         Bresenham _bresenham;
 
         public Cell[,] Field
@@ -50,14 +51,52 @@ namespace PSB.InGame
         public void Create()
         {
             _field = _builder.Build();
+            CategorizeCell(_field);
             _bresenham = new(_field);
         }
 
         void OnDestroy()
         {
             _field = null;
+            _resourceCellDict = null;
             _bresenham = null;
             Instance = null;
+        }
+
+        void CategorizeCell(Cell[,] field)
+        {
+            foreach(Cell cell in field)
+            {
+                if (cell.ResourceType == ResourceType.None) continue;
+
+                if (!_resourceCellDict.ContainsKey(cell.ResourceType))
+                {
+                    _resourceCellDict.Add(cell.ResourceType, new());
+                }
+
+                _resourceCellDict[cell.ResourceType].Add(cell);
+            }
+        }
+
+        /// <summary>
+        /// 資源に対応したセルを全て返す。セルが無い場合はリストを作成し返すのでnullを返すことが無い。
+        /// </summary>
+        /// <returns>セルが1個以上:true 0個:false</returns>
+        public bool TryGetResourceCells(ResourceType type, out List<Cell> list)
+        {
+            ThrowIfFieldIsNull();
+
+            if (_resourceCellDict.ContainsKey(type))
+            {
+                list = _resourceCellDict[type];
+                list ??= new();
+                return list.Count > 0;
+            }
+            else
+            {
+                throw new KeyNotFoundException("この資源のセルが登録されていない: " + type);
+            }
+
         }
 
         public bool TryGetCell(in Vector3 pos, out Cell cell)

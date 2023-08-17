@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
+using System;
+using System.Buffers;
 
 namespace PSB.InGame
 {
@@ -26,11 +28,12 @@ namespace PSB.InGame
         [SerializeField] ChildSpawner _spawner;
         [SerializeField] InitializeProcess _initProcess;
         [SerializeField] ActionEvaluator _evaluator;
-        [SerializeField] BlackBoard _blackBoard;
         // StatusBaseの取得やController側での制御に必要なので個体毎にデータを持つ
         [SerializeField] ActorType _type;
 
+        IBlackBoardForActor _blackBoard;
         Status _status;
+        BaseState _currentState;
         bool _initialized;
 
         public ActorType Type => _type;
@@ -50,9 +53,16 @@ namespace PSB.InGame
             _status = _initProcess.Execute(gene, _type);
             _initialized = true;
 
+            // FSMの準備。評価ステートを初期状態のステートとする。
+            _blackBoard = GetComponent<BlackBoard>();
+            _currentState = _blackBoard.InitState;
+
             OnSpawned?.Invoke(this);
         }
 
+        /// <summary>
+        /// 毎フレーム呼び出され、呼び出されるたびにパラメータを1フレーム分だけ変化させる
+        /// </summary>
         public void StepParams()
         {
             _status.StepFood();
@@ -72,23 +82,45 @@ namespace PSB.InGame
         }
 
         /// <summary>
-        /// 自身のステータスを元に次に行う行動を評価する
+        /// 毎フレーム呼び出され、呼び出されるたびに現在のステートを1フレーム分だけ更新する
         /// </summary>
-        /// <returns>各行動の評価値の配列</returns>
-        public float[] Evaluate()
+        public void StepAction()
         {
-            return _evaluator.Evaluate(_status);
-        }
-
-        public void Move()
-        {
-            //transform.Translate(Vector3.forward * Time.deltaTime);
+            _currentState = _currentState.Update();
         }
 
         /// <summary>
-        /// 評価値を元にController側で選択した行動を黒板に書き込む
+        /// 自身のステータスを元に次に行う行動を評価する
         /// </summary>
-        public void WriteSelectedAction(ActionType action)
+        /// <returns>各行動の評価値の配列</returns>
+        //public float[] Evaluate()
+        //{
+        //    return _evaluator.Evaluate(_status);
+        //}
+
+        public void Evaluate()
+        {
+            // ダミーを作って呼び出す
+            int length = Utility.GetEnumLength<ActionType>() - 1;
+            float[] buffer = ArrayPool<float>.Shared.Rent(length);
+            float[] dummy = buffer.AsSpan(0, length).ToArray();
+
+            Evaluate(dummy);
+
+            ArrayPool<float>.Shared.Return(buffer);
+        }
+
+        public void Evaluate(float[] leaderEvaluate)
+        {
+            // リーダーの各行動への評価との合算で選択する
+            float[] myEvaluate = _evaluator.Evaluate(_status);
+            ActionType action = ActionEvaluator.SelectMax(myEvaluate, leaderEvaluate);
+
+            // 黒板に書き込み
+            WriteSelectedAction(action);
+        }
+
+        void WriteSelectedAction(ActionType action)
         {
             _blackBoard.NextAction = action;
         }

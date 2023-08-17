@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Linq;
 
 namespace PSB.InGame
 {
@@ -9,6 +10,7 @@ namespace PSB.InGame
         Senility,    // 寿命
         Attack,      // 攻撃
         Escape,      // 逃げる
+        Gather,      // 集合
         Breed,       // 繁殖
         SearchFood,  // 食料を探す
         SearchWater, // 水を探す
@@ -53,8 +55,9 @@ namespace PSB.InGame
                 _evaluate[(int)ActionType.Senility] = EvaluateUtility.Dead;
             }
 
-            // 敵に対して攻撃。体力と自身のサイズを元に決める
-            // 逃げる
+            // TODO:敵に対して攻撃。体力と自身のサイズを元に決める
+            // TODO:逃げる
+            // TODO:集合(実際にはリーダーが群れを見て選択する項目なので0で大丈夫？)
 
             // 繁殖
             if (status.BreedingReady)
@@ -77,6 +80,36 @@ namespace PSB.InGame
             _evaluate[(int)ActionType.Wander] = Mathf.Clamp01(wander);
 
             return _evaluate;
+        }
+
+        public static ActionType SelectMax(float[] myEvaluate, float[] leaderEvaluate)
+        {
+            if (myEvaluate.Length != leaderEvaluate.Length)
+            {
+                string msg = "評価値の配列の長さが違う: " + myEvaluate.Length + " " + leaderEvaluate.Length;
+                throw new System.ArgumentException(msg);
+            }
+
+            float max = -1;
+            int index = -1;
+            for (int i = 0; i < myEvaluate.Length; i++)
+            {
+                myEvaluate[i] += leaderEvaluate[i];
+                if (myEvaluate[i] > max)
+                {
+                    max = myEvaluate[i];
+                    index = i;
+                }
+            }
+
+            ActionType type = (ActionType)index;
+
+            if (type == ActionType.None)
+            {
+                throw new Exception("評価値を計算した結果、Noneが一番高いのはおかしい");
+            }
+
+            return type;
         }
     }
 }

@@ -692,6 +692,7 @@ GameObject:
   - component: {fileID: 695757485481010036}
   - component: {fileID: 7595595460644980730}
   - component: {fileID: 1909985011055004908}
+  - component: {fileID: 3726161481995434465}
   m_Layer: 0
   m_Name: Actor_KinpatsuLeader
   m_TagString: Untagged
@@ -784,7 +785,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _spawner: {fileID: 695757485481010036}
   _initProcess: {fileID: 7595595460644980730}
-  _evaluator: {fileID: 0}
+  _evaluator: {fileID: 1909985011055004908}
+  _blackBoard: {fileID: 3726161481995434465}
   _type: 2
 --- !u!114 &695757485481010036
 MonoBehaviour:
@@ -938,6 +940,19 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3726161481995434465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5808584565365330062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e510a604b4792634dba2854e2c97b762, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NextAction: 0
 --- !u!1 &6006379884439928557
 GameObject:
   m_ObjectHideFlags: 0

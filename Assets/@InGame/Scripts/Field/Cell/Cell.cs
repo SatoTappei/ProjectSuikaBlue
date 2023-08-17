@@ -38,7 +38,8 @@ namespace PSB.InGame
         public Vector3 Pos => _pos;
         public int Height => _height;
         public bool IsWalkable => _tileType != TileType.Water && _resourceType == ResourceType.None;
-        
+        public bool IsEmpty => IsWalkable && _actorType == ActorType.None;
+
         public ResourceType ResourceType
         {
             get { return _resourceType; }

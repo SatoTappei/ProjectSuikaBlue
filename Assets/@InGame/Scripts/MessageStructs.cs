@@ -10,4 +10,12 @@ namespace PSB.InGame
         public ResourceType Type { get; set; }
         public Vector3 Pos { get; set; }
     }
+
+    /// <summary>
+    /// 生成するタイミングで送信される
+    /// </summary>
+    public struct KurokamiSpawnMessage
+    {
+        public Vector3 Pos { get; set; }
+    }
 }

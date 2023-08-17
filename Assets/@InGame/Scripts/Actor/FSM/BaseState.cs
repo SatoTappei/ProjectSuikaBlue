@@ -5,6 +5,7 @@ namespace PSB.InGame
     public enum StateType
     {
         Base,
+        Idle,
         Evaluate,
         SearchFood,
         // ‚±‚Ì—ñ‹“Œ^‚¢‚éH

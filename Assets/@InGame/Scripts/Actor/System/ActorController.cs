@@ -1,10 +1,16 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
+using UniRx;
 
 namespace PSB.InGame
 {
     public class ActorController : MonoBehaviour
     {
+        [SerializeField] int _spawnRadius = 5;
+
+        Leader _leader;
         Actor _kinpatsuLeader;
         LinkedList<Actor> _kinpatsuList = new();
         LinkedList<Actor> _kurokamiList = new();
@@ -21,23 +27,52 @@ namespace PSB.InGame
 
         void Update()
         {
+            // 自動でターンが進むターンベースと考えればLogicが書きやすいかもしれない
+
+            if (Input.GetKeyDown(KeyCode.Space)) TrySpawnKurokami();
+
+            ForEachAll(actor => actor.StepParams());
+            ForEachAll(actor => actor.StepAction());
+        }
+
+        /// <summary>
+        /// リーダーの位置を中心に一定間隔離れた位置に生成する
+        /// </summary>
+        /// <returns>生成した:true 生成できなかった:false</returns>
+        bool TrySpawnKurokami()
+        {
+            if (_kinpatsuLeader == null) return false;
+          
+            Vector3 spawnPos = _kinpatsuLeader.transform.position;
+            foreach (Vector2Int dir in Utility.EightDirections.OrderBy(_ => System.Guid.NewGuid()))
+            {
+                Vector3 pos = spawnPos + new Vector3(dir.x, 0, dir.y) * _spawnRadius;
+
+                // セルが取得出来た。セルが海以外、資源なし、キャラがいない場合は生成可能
+                if (!FieldManager.Instance.TryGetCell(pos, out Cell cell)) continue;
+                if (!cell.IsEmpty) continue;
+
+                MessageBroker.Default.Publish(new KurokamiSpawnMessage() { Pos = cell.Pos });
+                return true;
+            }
+
+            return false;
+        }
+
+        void ForEachAll(UnityAction<Actor> action)
+        {
             if (_kinpatsuLeader != null)
             {
-                _kinpatsuLeader.StepParams();
+                action.Invoke(_kinpatsuLeader);
             }
-            if (_kinpatsuList.Count > 0)
+
+            foreach (Actor kinpatsu in _kinpatsuList)
             {
-                foreach (Actor kinpatsu in _kinpatsuList)
-                {
-                    kinpatsu.StepParams();
-                }
+                action.Invoke(kinpatsu);
             }
-            if (_kurokamiList.Count > 0)
+            foreach (Actor kurokami in _kurokamiList)
             {
-                foreach (Actor enemy in _kurokamiList)
-                {
-                    enemy.StepParams();
-                }
+                action.Invoke(kurokami);
             }
         }
 
