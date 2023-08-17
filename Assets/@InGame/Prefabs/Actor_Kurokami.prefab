@@ -145,6 +145,7 @@ GameObject:
   - component: {fileID: -5418917306538156249}
   - component: {fileID: 8399500678186104503}
   - component: {fileID: 267966663395748789}
+  - component: {fileID: 3495464551794824962}
   m_Layer: 0
   m_Name: Actor_Kurokami
   m_TagString: Untagged
@@ -225,6 +226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _spawner: {fileID: 8399500678186104503}
   _initProcess: {fileID: 267966663395748789}
+  _evaluator: {fileID: 0}
   _type: 3
 --- !u!114 &8399500678186104503
 MonoBehaviour:
@@ -252,6 +254,132 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _model: {fileID: 6023412952329286949}
   _renderer: {fileID: 8823516395768788015}
+--- !u!114 &3495464551794824962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1047158312991229558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30773140e96df954995543f9ab3a8771, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _breedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _foodCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.00000076182187
+      value: 0.9999967
+      inSlope: 0.011336273
+      outSlope: 0.011336273
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.20833273
+    - serializedVersion: 3
+      time: 0.5
+      value: 0
+      inSlope: 0.026773242
+      outSlope: 0.026773242
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.6928212
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.39314288
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _waterCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.6666667
+    - serializedVersion: 3
+      time: 0.5
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.40833336
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _wanderCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0.1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1182150608547089291
 GameObject:
   m_ObjectHideFlags: 0

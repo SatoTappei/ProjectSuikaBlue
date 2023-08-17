@@ -33,8 +33,6 @@ namespace PSB.InGame
 
         // 繁殖するのに必要な繁殖率の閾値
         const float BreedingThreshold = 0.7f;
-        // 繁殖率を補正する値
-        const float BreedingFactor = 10.0f;
         // 繁殖率が増加するために必要な閾値
         const float BreedingHpThreshold = 0.8f;
 
@@ -76,10 +74,6 @@ namespace PSB.InGame
         /// 繁殖可能かどうか
         /// </summary>
         public bool BreedingReady => BreedingRate.Percentage >= BreedingThreshold;
-        /// <summary>
-        /// 繁殖するかどうか。補正値によって補正されている
-        /// </summary>
-        public bool IsBreeding => Random.value > (BreedingRate.Percentage / BreedingFactor);
         /// <summary>
         /// 繁殖率が増加するかどうか
         /// </summary>

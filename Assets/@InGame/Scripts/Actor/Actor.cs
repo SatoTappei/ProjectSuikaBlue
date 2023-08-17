@@ -17,12 +17,16 @@ namespace PSB.InGame
     /// </summary>
     [RequireComponent(typeof(ChildSpawner))]
     [RequireComponent(typeof(InitializeProcess))]
+    [RequireComponent(typeof(ActionEvaluator))]
+    [RequireComponent(typeof(BlackBoard))]
     public class Actor : MonoBehaviour, IReadOnlyParams
     {
         public static event UnityAction<Actor> OnSpawned;
 
         [SerializeField] ChildSpawner _spawner;
         [SerializeField] InitializeProcess _initProcess;
+        [SerializeField] ActionEvaluator _evaluator;
+        [SerializeField] BlackBoard _blackBoard;
         // StatusBaseの取得やController側での制御に必要なので個体毎にデータを持つ
         [SerializeField] ActorType _type;
 
@@ -67,11 +71,34 @@ namespace PSB.InGame
             }
         }
 
+        /// <summary>
+        /// 自身のステータスを元に次に行う行動を評価する
+        /// </summary>
+        /// <returns>各行動の評価値の配列</returns>
+        public float[] Evaluate()
+        {
+            return _evaluator.Evaluate(_status);
+        }
+
         public void Move()
         {
-            transform.Translate(Vector3.forward * Time.deltaTime);
+            //transform.Translate(Vector3.forward * Time.deltaTime);
+        }
+
+        /// <summary>
+        /// 評価値を元にController側で選択した行動を黒板に書き込む
+        /// </summary>
+        public void WriteSelectedAction(ActionType action)
+        {
+            _blackBoard.NextAction = action;
         }
     }
+
+    // ステートマシンはどうする？
+    // 評価 -> 行動 ->
+    // タイミングについて。
+    // 評価 -> 書き込むは同一フレームで行う。
+    // TODO:書き込むまでは出来た。次はどう呼び出してステートを実行するか
 
     // 水分: 時間経過で減る、飲んで回復
     // 食料: 時間経過で減る、食べて回復

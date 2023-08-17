@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PSB.InGame
 {
-    public class Utility
+    public static class Utility
     {
         /// <summary>
         /// 周囲八近傍を指定する用の方向の配列
