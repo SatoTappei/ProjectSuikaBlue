@@ -53,28 +53,6 @@ namespace PSB.InGame
                 case Stage.Move: MoveStage(); break;
                 case Stage.Eat:  EatStage();  break;
             }
-
-
-
-            
-
-
-            
-            // それ以外の場合はチェックしない
-
-
-            //if (!CheckNextCell())
-            //{
-            //    Debug.Log("到着");
-            //    TryChangeState(_blackBoard.EvaluateState);
-            //    return;
-            //}
-
-            //Move();
-
-            // 向かう
-            // 食べる
-            // 評価ステートに遷移
         }
 
         bool TryPathfinding()
@@ -90,8 +68,6 @@ namespace PSB.InGame
                 {
                     if (FieldManager.Instance.TryGetPath(pos, food.Pos, out _path)) // <- ｱﾔｼｲ
                     {
-                        Debug.Log("経路あり");
-                        DebugVisualize();
                         return true;
                     }
                 }
@@ -137,10 +113,16 @@ namespace PSB.InGame
         /// </summary>
         void EatStage()
         {
+            _blackBoard.OnEatFoodInvoke(1);
             EatFood();
-        }
 
-        
+            // ステータスを変更する
+            //  黒板にステータスへの参照を持たせる？ただし、ステータスはものびを継承していない。
+            //  デリゲートの利用？
+            //  メッセージングの場合は、クラス全体に送信されてしまうが、他の個体と連携が取れる？
+            // 体力をどれくらい回復するのか？
+            // 食料や水には回復量を設定し、その値だけ回復する
+        }
 
         /// <summary>
         /// 現在のセルの位置を自身の位置で更新する。

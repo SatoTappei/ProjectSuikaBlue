@@ -57,6 +57,10 @@ namespace PSB.InGame
             _blackBoard = GetComponent<BlackBoard>();
             _currentState = _blackBoard.InitState;
 
+            // 食べる/飲むステートがステータスを変化させるように登録する
+            _blackBoard.OnEatFoodRegister(v => _status.Food.Value += v);
+            _blackBoard.OnDrinkWaterRegister(v => _status.Water.Value += v);
+
             OnSpawned?.Invoke(this);
         }
 

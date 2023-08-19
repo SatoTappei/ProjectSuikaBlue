@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace PSB.InGame
 {
@@ -7,7 +8,7 @@ namespace PSB.InGame
     // 後々インスペクタから割り当てる必要があるようになるかもしれないのでものびを継承している
 
     [DefaultExecutionOrder(-1)]
-    public class BlackBoard : MonoBehaviour, IBlackBoardForActor, IBlackBoardForState
+    public class BlackBoard : MonoBehaviour, IBlackBoardForActor, IBlackBoardForState 
     {
         [SerializeField] float _speed;
 
@@ -24,10 +25,20 @@ namespace PSB.InGame
         BaseState IBlackBoardForActor.InitState => _evaluateState;
         ActionType IBlackBoardForActor.NextAction { set => _nextAction = value; }
 
+        // 食べる/飲む度に呼び出される。引数には回復量が渡される
+        event UnityAction<float> OnEatFood;
+        event UnityAction<float> OnDrinkWater;
+
         void Awake()
         {
             _nextAction = ActionType.SearchFood; // <- ここを弄ってデバッグ、既定値はNone
             CreateState();
+        }
+
+        void OnDisable()
+        {
+            OnEatFood = null;
+            OnDrinkWater = null;
         }
 
         void CreateState()
@@ -50,5 +61,11 @@ namespace PSB.InGame
                 throw new KeyNotFoundException("遷移先のステートが存在しない: " + type);
             }
         }
+
+        void IStatusRegister.OnEatFoodRegister(UnityAction<float> action) => OnEatFood += action;
+        void IStatusRegister.OnDrinkWaterRegister(UnityAction<float> action) => OnDrinkWater += action;
+
+        void IStatusInvoker.OnEatFoodInvoke(float value) => OnEatFood.Invoke(value);
+        void IStatusInvoker.OnDrinkWaterInvoke(float value) => OnDrinkWater.Invoke(value);
     }
 }
