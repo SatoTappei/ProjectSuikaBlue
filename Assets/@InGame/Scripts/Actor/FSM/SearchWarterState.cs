@@ -4,19 +4,21 @@ using UnityEngine;
 
 namespace PSB.InGame
 {
+    // 資源のほぼコピペ
+
     /// <summary>
     /// 水のセルまで移動し、設定された効果値だけステータスの水の値を徐々に回復する。
     /// ステータスのパラメータが効果値を上回っていても、効果値分の回復処理が実行される
     /// </summary>
-    public class SearchFoodState : BaseState
+    public class SearchWarterState : BaseState
     {
-        const int EffectValue = 100; // このステートで回復する食料の値
+        const int EffectValue = 100; // このステートで回復する水の値
         const int EffectDelta = 100; // 実際にはDeltaTimeとの乗算で回復する
 
         enum Stage
         {
             Move,
-            Eat,
+            Drink,
         }
 
         Stage _stage;
@@ -32,7 +34,7 @@ namespace PSB.InGame
 
         bool OnNextCell => _actor.position == _nextCellPos;
 
-        public SearchFoodState(IBlackBoardForState blackBoard) : base(StateType.SearchFood)
+        public SearchWarterState(IBlackBoardForState blackBoard) : base(StateType.SearchWarter)
         {
             _blackBoard = blackBoard;
             _actor = _blackBoard.Transform;
@@ -60,7 +62,7 @@ namespace PSB.InGame
             switch (_stage)
             {
                 case Stage.Move: MoveStage(); break;
-                case Stage.Eat:  EatStage();  break;
+                case Stage.Drink: DrinkStage(); break;
             }
         }
 
@@ -69,7 +71,7 @@ namespace PSB.InGame
             _path.Clear();
 
             // 食料のセルがあるか調べる
-            if (FieldManager.Instance.TryGetResourceCells(ResourceType.Tree, out List<Cell> cellList))
+            if (FieldManager.Instance.TryGetResourceCells(ResourceType.Warter, out List<Cell> cellList))
             {
                 // 食料のセルを近い順に経路探索
                 Vector3 pos = _actor.position;
@@ -105,8 +107,8 @@ namespace PSB.InGame
                     // 経路の途中のセルの場合の処理
                 }
                 else
-                {                 
-                    _stage = Stage.Eat; // 食べる状態へ
+                {
+                    _stage = Stage.Drink; // 飲む状態へ
                 }
             }
             else
@@ -118,7 +120,7 @@ namespace PSB.InGame
         /// <summary>
         /// 食料を食べる
         /// </summary>
-        void EatStage()
+        void DrinkStage()
         {
             if (!StepEatProgress()) { ToEvaluateState(); return; }
         }
@@ -132,7 +134,7 @@ namespace PSB.InGame
         {
             _currentCellPos = _actor.position;
 
-            if(_path.TryPop(out _nextCellPos))
+            if (_path.TryPop(out _nextCellPos))
             {
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 _nextCellPos.y = _actor.position.y;
@@ -159,7 +161,7 @@ namespace PSB.InGame
         {
             float value = Time.deltaTime * EffectDelta;
             _effectProgress += value;
-            _blackBoard.OnEatFoodInvoke(value); // 値の更新
+            _blackBoard.OnDrinkWaterInvoke(value); // 値の更新
 
             return _effectProgress <= EffectValue;
         }

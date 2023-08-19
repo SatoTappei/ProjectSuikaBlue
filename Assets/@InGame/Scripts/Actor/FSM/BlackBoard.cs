@@ -31,7 +31,7 @@ namespace PSB.InGame
 
         void Awake()
         {
-            _nextAction = ActionType.SearchFood; // <- ここを弄ってデバッグ、既定値はNone
+            _nextAction = ActionType.None; // <- ここを弄ってデバッグ、既定値はNone
             CreateState();
         }
 
@@ -47,6 +47,7 @@ namespace PSB.InGame
 
             _stateDict = new(4);
             _stateDict.Add(ActionType.SearchFood, new SearchFoodState(this));
+            _stateDict.Add(ActionType.SearchWater, new SearchWarterState(this));
             _stateDict.Add(ActionType.None, new IdleState(this));
         }
 

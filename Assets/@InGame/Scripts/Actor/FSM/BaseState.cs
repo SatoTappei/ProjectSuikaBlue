@@ -8,7 +8,7 @@ namespace PSB.InGame
         Idle,
         Evaluate,
         SearchFood,
-        // ‚±‚Ì—ñ‹“Œ^‚¢‚éH
+        SearchWarter,
     }
 
     public abstract class BaseState

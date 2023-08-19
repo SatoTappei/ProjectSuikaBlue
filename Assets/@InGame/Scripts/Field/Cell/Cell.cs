@@ -16,6 +16,7 @@ namespace PSB.InGame
         PalmTree,
         Tree,
         Stone,
+        Warter,
     }
 
     public class Cell
