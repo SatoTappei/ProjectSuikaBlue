@@ -786,7 +786,6 @@ MonoBehaviour:
   _spawner: {fileID: 695757485481010036}
   _initProcess: {fileID: 7595595460644980730}
   _evaluator: {fileID: 1909985011055004908}
-  _blackBoard: {fileID: 3726161481995434465}
   _type: 2
 --- !u!114 &695757485481010036
 MonoBehaviour:
@@ -952,7 +951,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e510a604b4792634dba2854e2c97b762, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NextAction: 0
+  _speed: 1
 --- !u!1 &6006379884439928557
 GameObject:
   m_ObjectHideFlags: 0

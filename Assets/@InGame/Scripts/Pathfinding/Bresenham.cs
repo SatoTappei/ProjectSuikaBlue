@@ -42,7 +42,7 @@ namespace PSB.InGame
 
             path = new(longSide);
             int fraction = longSide / 2; // –{—ˆ‚ÍœZ‚ğg—p‚µ‚È‚¢‚±‚Æ‚Å‚‘¬‰»‚ğ}‚é
-            for (int i = 1; i <= longSide; i++)
+            for (int i = 1; i < longSide; i++)
             {
                 fraction += shortSide;
                 if (fraction > longSide)

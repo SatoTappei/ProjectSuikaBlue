@@ -116,6 +116,11 @@ namespace PSB.InGame
             }
         }
 
+        /// <summary>
+        /// 開始地点もしくは目的地にグリッド外を指定した場合はPathがnullになる。
+        /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
+        /// </summary>
+        /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
         public bool TryGetPath(in Vector3 startPos, in Vector3 goalPos, out Stack<Vector3> path)
         {
             Vector2Int startIndex = WorldPosToGridIndex(startPos);
@@ -123,6 +128,11 @@ namespace PSB.InGame
             return TryGetPath(startIndex, goalIndex, out path);
         }
 
+        /// <summary>
+        /// 開始地点もしくは目的地にグリッド外を指定した場合はPathがnullになる。
+        /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
+        /// </summary>
+        /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
         public bool TryGetPath(Vector2Int startIndex, Vector2Int goalIndex, out Stack<Vector3> path)
         {
             bool hasStart = FieldUtility.IsWithinGrid(_field, startIndex);
@@ -130,10 +140,10 @@ namespace PSB.InGame
 
             if (hasStart && hasGoal)
             {
-                _bresenham.TryGetPath(startIndex, goalIndex, out Stack<Vector2Int> indexes);
+                bool isGoal = _bresenham.TryGetPath(startIndex, goalIndex, out Stack<Vector2Int> indexes);
                 path = CreatePath(indexes);
 
-                return true;
+                return isGoal;
             }
             else
             {
@@ -171,6 +181,7 @@ namespace PSB.InGame
 
         /// <summary>
         /// ワールド座標に対応したグリッドの添え字を返す
+        /// Y座標を無視して計算する
         /// </summary>
         Vector2Int WorldPosToGridIndex(in Vector3 pos)
         {
