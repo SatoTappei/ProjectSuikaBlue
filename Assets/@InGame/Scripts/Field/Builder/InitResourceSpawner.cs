@@ -19,6 +19,8 @@ namespace PSB.InGame
                 {
                     // 確率で資源を配置
                     if (random.NextFloat() <= _spawnRate) CellResourceSpawn(field[i, k], random);
+                    // 水資源を配置
+                    if (field[i, k].TileType == TileType.Water) field[i, k].ResourceType = ResourceType.Water;
                 }
             }
         }

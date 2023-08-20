@@ -62,6 +62,8 @@ namespace PSB.InGame
 
         void Instantiate(ResourceType key, Vector3 pos)
         {
+            if (!_prefabDict.ContainsKey(key)) return;
+
             if(_prefabDict.TryGetValue(key,out GameObject value))
             {
                 GameObject go = Instantiate(value, pos, Quaternion.identity, _parent);

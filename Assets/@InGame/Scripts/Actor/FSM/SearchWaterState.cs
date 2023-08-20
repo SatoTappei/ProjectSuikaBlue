@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace PSB.InGame
 {
-    // 資源のほぼコピペ
+    // 食料のほぼコピペ
 
     /// <summary>
     /// 水のセルまで移動し、設定された効果値だけステータスの水の値を徐々に回復する。
     /// ステータスのパラメータが効果値を上回っていても、効果値分の回復処理が実行される
     /// </summary>
-    public class SearchWarterState : BaseState
+    public class SearchWaterState : BaseState
     {
         const int EffectValue = 100; // このステートで回復する水の値
         const int EffectDelta = 100; // 実際にはDeltaTimeとの乗算で回復する
@@ -29,12 +29,13 @@ namespace PSB.InGame
         Vector3 _nextCellPos;
         float _lerpProgress;
         float _effectProgress;
+        float _speedModify = 1;
         // 食料のセルがあり、食料までの経路が存在するかどうかのフラグ
         bool _hasPath;
 
         bool OnNextCell => _actor.position == _nextCellPos;
 
-        public SearchWarterState(IBlackBoardForState blackBoard) : base(StateType.SearchWarter)
+        public SearchWaterState(IBlackBoardForState blackBoard) : base(StateType.SearchWarter)
         {
             _blackBoard = blackBoard;
             _actor = _blackBoard.Transform;
@@ -58,7 +59,7 @@ namespace PSB.InGame
         {
             // 経路が無いので評価ステートに遷移
             if (!_hasPath) { ToEvaluateState(); return; }
-
+            
             switch (_stage)
             {
                 case Stage.Move: MoveStage(); break;
@@ -71,7 +72,7 @@ namespace PSB.InGame
             _path.Clear();
 
             // 食料のセルがあるか調べる
-            if (FieldManager.Instance.TryGetResourceCells(ResourceType.Warter, out List<Cell> cellList))
+            if (FieldManager.Instance.TryGetResourceCells(ResourceType.Water, out List<Cell> cellList))
             {
                 // 食料のセルを近い順に経路探索
                 Vector3 pos = _actor.position;
@@ -118,7 +119,7 @@ namespace PSB.InGame
         }
 
         /// <summary>
-        /// 食料を食べる
+        /// 水を飲む
         /// </summary>
         void DrinkStage()
         {
@@ -138,7 +139,9 @@ namespace PSB.InGame
             {
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 _nextCellPos.y = _actor.position.y;
+                Modify();
                 _lerpProgress = 0;
+                
                 return true;
             }
 
@@ -149,7 +152,7 @@ namespace PSB.InGame
 
         void Move()
         {
-            _lerpProgress += Time.deltaTime * _blackBoard.Speed;
+            _lerpProgress += Time.deltaTime * _blackBoard.Speed * _speedModify;
             _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
         }
 
@@ -164,6 +167,17 @@ namespace PSB.InGame
             _blackBoard.OnDrinkWaterInvoke(value); // 値の更新
 
             return _effectProgress <= EffectValue;
+        }
+
+        /// <summary>
+        /// 斜め移動の速度を補正する
+        /// </summary>
+        void Modify()
+        {
+            bool dx = Mathf.Approximately(_currentCellPos.x, _nextCellPos.x);
+            bool dz = Mathf.Approximately(_currentCellPos.z, _nextCellPos.z);
+
+            _speedModify = (dx || dz) ? 1 : 0.7f;
         }
     }
 }

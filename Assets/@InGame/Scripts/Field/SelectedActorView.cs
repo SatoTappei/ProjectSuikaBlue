@@ -11,6 +11,7 @@ namespace PSB.InGame
         [Header("ëÄçÏÇ∑ÇÈUI")]
         [SerializeField] Transform _root;
         [SerializeField] Image _icon;
+        [SerializeField] Text _actionNameText;
         [SerializeField] Transform _foodBar;
         [SerializeField] Transform _waterBar;
         [SerializeField] Transform _hpBar;
@@ -67,6 +68,7 @@ namespace PSB.InGame
 
         void SyncParamsToUI()
         {
+            _actionNameText.text = _actor.ActionName;
             _foodBar.localScale         = new Vector3(_actor.Food, 1, 1);
             _waterBar.localScale        = new Vector3(_actor.Water, 1, 1);
             _hpBar.localScale           = new Vector3(_actor.HP, 1, 1);

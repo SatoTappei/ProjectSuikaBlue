@@ -15,7 +15,7 @@ namespace PSB.InGame
 
         [SerializeField] Actor _leaderPrefab;
         [SerializeField] Actor _unitPrefab;
-        [Range(2, 9)]
+        [Range(1, 9)]
         [SerializeField] int _totalSpawn = 3;
         [SerializeField] float _spawnHeight = 1.0f;
 

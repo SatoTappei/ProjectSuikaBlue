@@ -6,7 +6,7 @@ namespace PSB.InGame
     public interface IBlackBoardForActor : IStatusRegister
     {
         BaseState InitState { get; }
-        ActionType NextAction { set; }
+        ActionType NextAction { get; set; }
     }
 
     public interface IBlackBoardForState : IMovable , IStatusInvoker

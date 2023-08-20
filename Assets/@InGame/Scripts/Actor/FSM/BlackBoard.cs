@@ -23,7 +23,7 @@ namespace PSB.InGame
         float IMovable.Speed => _speed;
 
         BaseState IBlackBoardForActor.InitState => _evaluateState;
-        ActionType IBlackBoardForActor.NextAction { set => _nextAction = value; }
+        ActionType IBlackBoardForActor.NextAction { get => _nextAction; set => _nextAction = value; }
 
         // 食べる/飲む度に呼び出される。引数には回復量が渡される
         event UnityAction<float> OnEatFood;
@@ -31,7 +31,7 @@ namespace PSB.InGame
 
         void Awake()
         {
-            _nextAction = ActionType.None; // <- ここを弄ってデバッグ、既定値はNone
+            _nextAction = ActionType.SearchFood; // <- ここを弄ってデバッグ、既定値はNone
             CreateState();
         }
 
@@ -47,8 +47,10 @@ namespace PSB.InGame
 
             _stateDict = new(4);
             _stateDict.Add(ActionType.SearchFood, new SearchFoodState(this));
-            _stateDict.Add(ActionType.SearchWater, new SearchWarterState(this));
+            _stateDict.Add(ActionType.SearchWater, new SearchWaterState(this));
             _stateDict.Add(ActionType.None, new IdleState(this));
+            _stateDict.Add(ActionType.Wander, new WanderState(this));
+            _stateDict.Add(ActionType.Breed, new BreedState(this));
         }
 
         BaseState TryGetActionState(ActionType type)

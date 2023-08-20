@@ -9,6 +9,8 @@ namespace PSB.InGame
         Evaluate,
         SearchFood,
         SearchWarter,
+        Wander,
+        Breed,
     }
 
     public abstract class BaseState

@@ -73,7 +73,7 @@ namespace PSB.InGame
                 {
                     _resourceCellDict.Add(cell.ResourceType, new());
                 }
-
+                
                 _resourceCellDict[cell.ResourceType].Add(cell);
             }
         }
@@ -183,7 +183,7 @@ namespace PSB.InGame
         /// ワールド座標に対応したグリッドの添え字を返す
         /// Y座標を無視して計算する
         /// </summary>
-        Vector2Int WorldPosToGridIndex(in Vector3 pos)
+        public Vector2Int WorldPosToGridIndex(in Vector3 pos)
         {
             // グリッドの前後左右
             float forwardZ = _field[0, 0].Pos.z;

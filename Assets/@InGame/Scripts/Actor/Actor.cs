@@ -43,6 +43,7 @@ namespace PSB.InGame
         float IReadOnlyParams.HP           => _initialized ? _status.Hp.Percentage : 1;
         float IReadOnlyParams.LifeSpan     => _initialized ? _status.LifeSpan.Percentage : 1;
         float IReadOnlyParams.BreedingRate => _initialized ? _status.BreedingRate.Percentage : 1;
+        string IReadOnlyParams.ActionName  => _initialized ? _blackBoard.NextAction.ToString() : string.Empty;
 
         /// <summary>
         /// スポナーが生成のタイミングで呼ぶ初期化処理
@@ -129,6 +130,12 @@ namespace PSB.InGame
             _blackBoard.NextAction = action;
         }
     }
+
+    // 一定間隔で評価 or 毎フレーム評価
+    //  ステートの更新タイミングはセルの上にいる時
+    //  毎フレーム評価しても大丈夫？なはず
+    //  リーダーからの命令はどうする？ステートの更新タイミングは一定間隔なので、
+    //   1フレームだけの命令の送信は正常に動かない可能性がある。
 
     // ステートマシンはどうする？
     // 評価 -> 行動 ->

@@ -32,6 +32,7 @@ namespace PSB.InGame
             if (Input.GetKeyDown(KeyCode.Space)) TrySpawnKurokami();
 
             ForEachAll(actor => actor.StepParams());
+            ForEachAll(actor => actor.Evaluate()); // <- テストで毎フレーム評価する
             ForEachAll(actor => actor.StepAction());
         }
 

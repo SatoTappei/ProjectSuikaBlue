@@ -27,6 +27,7 @@ namespace PSB.InGame
         Vector3 _nextCellPos;
         float _lerpProgress;
         float _effectProgress;
+        float _speedModify = 1;
         // 食料のセルがあり、食料までの経路が存在するかどうかのフラグ
         bool _hasPath;
 
@@ -136,7 +137,9 @@ namespace PSB.InGame
             {
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 _nextCellPos.y = _actor.position.y;
+                Modify();
                 _lerpProgress = 0;
+
                 return true;
             }
 
@@ -147,7 +150,7 @@ namespace PSB.InGame
 
         void Move()
         {
-            _lerpProgress += Time.deltaTime * _blackBoard.Speed;
+            _lerpProgress += Time.deltaTime * _blackBoard.Speed * _speedModify;
             _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
         }
 
@@ -162,6 +165,17 @@ namespace PSB.InGame
             _blackBoard.OnEatFoodInvoke(value); // 値の更新
 
             return _effectProgress <= EffectValue;
+        }
+
+        /// <summary>
+        /// 斜め移動の速度を補正する
+        /// </summary>
+        void Modify()
+        {
+            bool dx = Mathf.Approximately(_currentCellPos.x, _nextCellPos.x);
+            bool dz = Mathf.Approximately(_currentCellPos.z, _nextCellPos.z);
+
+            _speedModify = (dx || dz) ? 1 : 0.7f;
         }
     }
 }
