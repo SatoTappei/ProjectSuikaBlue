@@ -4,6 +4,11 @@ using UnityEngine;
 
 namespace PSB.InGame
 {
+    public interface IReadOnlyBreedingParam
+    {
+        uint Gene { get; }
+    }
+
     public enum Sex
     {
         None,
@@ -11,13 +16,32 @@ namespace PSB.InGame
         Female,
     }
 
+    /// <summary>
+    /// 繁殖は以下の流れで行う
+    /// 1.ステートに遷移時、繁殖待機のメッセージを送信する
+    /// 2.繁殖マネージャ側が繁殖待機の個体同士に経路があるか調べ、マッチングさせる。
+    /// 3.マッチングした場合はこのステートが性別とパートナーのメッセージを受信する。
+    /// 4.経路探索 <- 必要？
+    /// </summary>
     public class BreedState : BaseState
     {
+        // この時間をオーバーした場合は強制的に評価ステートに遷移する
+        const float TimeOut = 30.0f;
+
         IBlackBoardForState _blackBoard;
         Transform _actor;
+        Stack<Vector3> _path = new();
+        Vector3 _currentCellPos;
+        Vector3 _nextCellPos;
+        float _lerpProgress;
+        float _speedModify = 1;
+        float _timer;
+        // マッチング用
         Transform _partner;
         Sex _sex;
-        Stack<Vector3> _path = new();
+
+        bool HasPath => _path != null;
+        bool OnNextCell => _actor.position == _nextCellPos;
         // マッチングした際にメッセージを受信してtrueになる
         bool IsMatching => _partner != null && _sex != Sex.None;
 
@@ -29,7 +53,8 @@ namespace PSB.InGame
 
         protected override void Enter()
         {
-            SubscribeMatchingMessage();
+            _timer = 0;
+            SubscribeReceiveMessage();
             SendMessage();
         }
 
@@ -40,23 +65,33 @@ namespace PSB.InGame
 
         protected override void Stay()
         {
-            // 番は2体の繁殖がいないと成立しない。
-            // Enterのタイミングでメッセージングするが、そのタイミングで番がいない場合、パートナーと性別のデータが来ない。
-            // ので、Stayのタイミングでパートナーと性別のデータが来ているか調べる必要がる。
-
+            // タイマーを進める。時間切れの場合は評価ステートに遷移
+            if (!StepTimer()) ToEvaluateState();
+            // マッチングしているかチェック
             if (!IsMatching) return;
+            // 経路があるかチェック
+            if (!HasPath) return;
 
-            MatchingLog();
+            MatchingLog(); // デバッグ用ログ表示
 
-            if (_blackBoard.Sex == Sex.Male)
+            if (_sex == Sex.Male)
             {
-                //// メスの所まで移動する
-                //Vector3 femalePos = _blackBoard.Partner.GetComponent<IBlackBoardForState>().Transform.position;
-                //// メスまでの経路
-                //FieldManager.Instance.TryGetPath(_actor.position, femalePos, out _path);
-
+                if (OnNextCell)
+                {
+                    Debug.Log("ﾋﾟﾀｯ");
+                    if (!TryStepNextCell())
+                    {
+                        // 番の雌にサインを送信し、受信した雌が出産の処理を実行する
+                        SendPartnerSign();
+                    }
+                }
+                else
+                {
+                    Debug.Log("ﾄｺﾄｺ");
+                    Move();
+                }
             }
-            else if (_blackBoard.Sex == Sex.Female)
+            else if (_sex == Sex.Female)
             {
                 // その場で待機
                 // 
@@ -81,36 +116,26 @@ namespace PSB.InGame
             // 経路が無い場合はどうなる？
             // 時間経過                      時間経過
             // 評価ステートに遷移            子供を生成 -> 評価ステートに遷移
-
-            // とりあえずすぐ評価ステートに遷移させる。
-            //ToEvaluateState();
-
-            // 近場の他の個体を探す
-            //  どこかが個体のリストを保持している必要がある
-            // 隣のセルまで移動する
-            //  繁殖相手も繁殖ステートに遷移する必要がある。
-            //  どうやって相手に伝えるか
-            //  メッセージング
-            //   攻めがメッセージを送信する ステート内で送信する
-            //   受けがメッセージを受信する
-            //   受けがメッセージを送信する
-            //   攻めがメッセージを受信する
-            //  メッセージの受信 -> リーダーの評価 -> 個体の評価 の順
-            //  繁殖状態(受け)と繁殖状態(攻め)がある？
-            //   受け:待つ
-            //   攻め:受けに向けて移動
-            //   受け:繁殖率0に
-            //   攻め:繁殖率0に
-            //   受け:スポナーから生成
-
-            //  案:疑似的な雄雌を付ける?
-
-            // 繁殖
         }
 
-        void SubscribeMatchingMessage()
+        /// <summary>
+        /// タイマーを進める
+        /// </summary>
+        /// <returns>時間内:true 時間切れ:false</returns>
+        bool StepTimer()
         {
-            MessageBroker.Default.Receive<MatchingMessage>().Subscribe(ReceiveMessage).AddTo(_actor);
+            _timer += Time.deltaTime;
+            return _timer < TimeOut;
+        }
+
+        void SubscribeReceiveMessage()
+        {
+            MessageBroker.Default.Receive<MatchingMessage>()
+                .Where(msg => msg.ID == _actor.GetInstanceID())
+                .Subscribe(MatchingComplete).AddTo(_actor);
+            MessageBroker.Default.Receive<BreedingPartnerMessage>()
+                .Where(msg => msg.ID == _actor.GetInstanceID())
+                .Subscribe(PartnerSign).AddTo(_actor);
         }
 
         void SendMessage()
@@ -123,20 +148,89 @@ namespace PSB.InGame
             MessageBroker.Default.Publish(new CancelBreedingMessage() { Actor = _actor });
         }
 
-        void ReceiveMessage(MatchingMessage msg)
+        void SendPartnerSign()
         {
-            if (msg.ID == _actor.GetInstanceID())
-            {
-                _sex = msg.Sex;
-                _partner = msg.Partner;
-            }
+            MessageBroker.Default.Publish(new BreedingPartnerMessage() { ID = _actor.GetInstanceID() });
+        }
+
+        void MatchingComplete(MatchingMessage msg)
+        {
+            // マッチング情報のセット
+            _sex = msg.Sex;
+            _partner = msg.Partner;
+            // 経路探索
+            bool hasPath = TryPathfinding();
+            if (!hasPath) throw new System.NullReferenceException("繁殖ステートのパートナーへの経路がnull");
+            
+            TryStepNextCell();
+        }
+
+        void PartnerSign(BreedingPartnerMessage msg)
+        {
+            // 産む処理の実行
+            uint gene = _partner.GetComponent<IReadOnlyBreedingParam>().Gene;
+            _blackBoard.OnBreedingInvoke(gene);
         }
 
         void ToEvaluateState() => TryChangeState(_blackBoard.EvaluateState);
 
+        bool TryPathfinding()
+        {
+            return FieldManager.Instance.TryGetPath(_actor.position, _partner.position, out _path);
+        }
+
+        /// <summary>
+        /// 現在のセルの位置を自身の位置で更新する。
+        /// 次のセルの位置をあれば次のセルの位置、なければ自身の位置で更新する。
+        /// </summary>
+        /// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
+        bool TryStepNextCell()
+        {
+            _currentCellPos = _actor.position;
+
+            if (_path.TryPop(out _nextCellPos))
+            {
+                // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
+                _nextCellPos.y = _actor.position.y;
+                Modify();
+                Look();
+                _lerpProgress = 0;
+
+                return true;
+            }
+
+            _nextCellPos = _actor.position;
+
+            return false;
+        }
+
+        void Look()
+        {
+            Vector3 dir = _nextCellPos - _currentCellPos;
+            _blackBoard.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
+        }
+
+        /// <summary>
+        /// 斜め移動の速度を補正する
+        /// </summary>
+        void Modify()
+        {
+            bool dx = Mathf.Approximately(_currentCellPos.x, _nextCellPos.x);
+            bool dz = Mathf.Approximately(_currentCellPos.z, _nextCellPos.z);
+
+            _speedModify = (dx || dz) ? 1 : 0.7f;
+        }
+
+        void Move()
+        {
+            _lerpProgress += Time.deltaTime * _blackBoard.Speed * _speedModify;
+            _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
+        }
+
+        // デバッグ用
         void MatchingLog()
         {
-            Debug.Log($"マッチング {_actor.name} と {_partner.name} 自身の性別:{_sex}");
+            Debug.Log($"マッチング 自身:{_actor.name} と 相手:{_partner.name} 自身の性別:{_sex}");
         }
     }
 }

@@ -44,4 +44,12 @@ namespace PSB.InGame
         public Transform Partner { get; set; }
         public Sex Sex { get; set; }
     }
+
+    /// <summary>
+    /// 繁殖の際、番へ送信/受信されるメッセージ
+    /// </summary>
+    public struct BreedingPartnerMessage
+    {
+        public int ID { get; set; }
+    }
 }

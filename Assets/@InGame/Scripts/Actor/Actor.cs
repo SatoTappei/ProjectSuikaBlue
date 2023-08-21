@@ -21,7 +21,7 @@ namespace PSB.InGame
     [RequireComponent(typeof(InitializeProcess))]
     [RequireComponent(typeof(ActionEvaluator))]
     [RequireComponent(typeof(BlackBoard))]
-    public class Actor : MonoBehaviour, IReadOnlyParams
+    public class Actor : MonoBehaviour, IReadOnlyParams, IReadOnlyBreedingParam
     {
         public static event UnityAction<Actor> OnSpawned;
 
@@ -44,6 +44,8 @@ namespace PSB.InGame
         float IReadOnlyParams.LifeSpan     => _initialized ? _status.LifeSpan.Percentage : 1;
         float IReadOnlyParams.BreedingRate => _initialized ? _status.BreedingRate.Percentage : 1;
         string IReadOnlyParams.ActionName  => _initialized ? _blackBoard.NextAction.ToString() : string.Empty;
+        // 繁殖ステートが読み取る用。
+        uint IReadOnlyBreedingParam.Gene => _status.Gene;
 
         /// <summary>
         /// スポナーが生成のタイミングで呼ぶ初期化処理
@@ -61,6 +63,9 @@ namespace PSB.InGame
             // 食べる/飲むステートがステータスを変化させるように登録する
             _blackBoard.OnEatFoodRegister(v => _status.Food.Value += v);
             _blackBoard.OnDrinkWaterRegister(v => _status.Water.Value += v);
+
+            // 繁殖ステートが繁殖するように登録する
+            _blackBoard.OnBreedingRegister(gene => Debug.Log("仮の繁殖処理: " + gene));
 
             OnSpawned?.Invoke(this);
         }
@@ -92,12 +97,6 @@ namespace PSB.InGame
         public void StepAction()
         {
             _currentState = _currentState.Update();
-        }
-
-        public void Matching(Actor partner, Sex sex)
-        {
-            _blackBoard.Partner = partner;
-            _blackBoard.Sex = sex;
         }
 
         public void Evaluate()

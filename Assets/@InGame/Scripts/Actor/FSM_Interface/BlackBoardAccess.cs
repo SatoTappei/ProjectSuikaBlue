@@ -3,29 +3,16 @@ using UnityEngine.Events;
 
 namespace PSB.InGame
 {
-    public interface IBlackBoardForActor : IBreedMatching, IStatusRegister 
+    public interface IBlackBoardForActor : IBreedingRegister, IStatusRegister 
     {
         BaseState InitState { get; }
         ActionType NextAction { get; set; }
     }
 
-    public interface IBlackBoardForState : IBreedable, IMovable, IStatusInvoker
+    public interface IBlackBoardForState : IBreedingInvoker, IMovable, IStatusInvoker
     {
         BaseState NextState { get; }
         BaseState EvaluateState { get; }
-    }
-
-    public interface IBreedMatching
-    {
-        Actor Partner { set; }
-        Sex Sex { set; }
-    }
-
-    public interface IBreedable
-    {
-        ActorType ActorType { get; }
-        Actor Partner { get; }
-        Sex Sex { get; }
     }
 
     public interface IMovable
@@ -45,5 +32,15 @@ namespace PSB.InGame
     {
         void OnEatFoodInvoke(float value);
         void OnDrinkWaterInvoke(float value);
+    }
+
+    public interface IBreedingRegister
+    {
+        void OnBreedingRegister(UnityAction<uint> action);
+    }
+
+    public interface IBreedingInvoker
+    {
+        void OnBreedingInvoke(uint value);
     }
 }

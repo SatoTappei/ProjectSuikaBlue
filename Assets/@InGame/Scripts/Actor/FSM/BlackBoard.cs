@@ -15,30 +15,25 @@ namespace PSB.InGame
         [SerializeField] Transform _model;
 
         ActionType _nextAction;
-        Sex _sex;
         Dictionary<ActionType, BaseState> _stateDict;
         Transform _transform;
-        Actor _partner;
         // 評価は対応する行動が無い特別な状態なので別途保持する
         EvaluateState _evaluateState;
-
-        BaseState IBlackBoardForState.NextState => TryGetActionState(_nextAction);
-        BaseState IBlackBoardForState.EvaluateState => _evaluateState;
-        BaseState IBlackBoardForActor.InitState => _evaluateState;
-        ActionType IBlackBoardForActor.NextAction { get => _nextAction; set => _nextAction = value; }
-
-        ActorType IBreedable.ActorType => _actorType;
-        Sex IBreedable.Sex => _sex;
-        Sex IBreedMatching.Sex { set => _sex = value; }
-        Actor IBreedable.Partner => _partner;
-        Actor IBreedMatching.Partner { set => _partner = value; }
-        Transform IMovable.Transform => _transform ??= transform;
-        Transform IMovable.Model => _model;
-        float IMovable.Speed => _speed;
-
         // 食べる/飲む度に呼び出される。引数には回復量が渡される
         event UnityAction<float> OnEatFood;
         event UnityAction<float> OnDrinkWater;
+        // 雌が子供を産むタイミングで呼び出される。引数には番の遺伝子が渡される
+        event UnityAction<uint> OnBreeding;
+
+        BaseState IBlackBoardForState.NextState => TryGetActionState(_nextAction);
+        BaseState IBlackBoardForState.EvaluateState => _evaluateState;
+        
+        BaseState IBlackBoardForActor.InitState => _evaluateState;
+        ActionType IBlackBoardForActor.NextAction { get => _nextAction; set => _nextAction = value; }
+
+        Transform IMovable.Transform => _transform ??= transform;
+        Transform IMovable.Model => _model;
+        float IMovable.Speed => _speed;
 
         void Awake()
         {
@@ -50,6 +45,7 @@ namespace PSB.InGame
         {
             OnEatFood = null;
             OnDrinkWater = null;
+            OnBreeding = null;
         }
 
         void CreateState()
@@ -79,7 +75,11 @@ namespace PSB.InGame
         void IStatusRegister.OnEatFoodRegister(UnityAction<float> action) => OnEatFood += action;
         void IStatusRegister.OnDrinkWaterRegister(UnityAction<float> action) => OnDrinkWater += action;
 
+        void IBreedingRegister.OnBreedingRegister(UnityAction<uint> action) => OnBreeding += action; // <- これをActorに実装する
+
         void IStatusInvoker.OnEatFoodInvoke(float value) => OnEatFood.Invoke(value);
         void IStatusInvoker.OnDrinkWaterInvoke(float value) => OnDrinkWater.Invoke(value);
+
+        void IBreedingInvoker.OnBreedingInvoke(uint value) => OnBreeding.Invoke(value);
     }
 }

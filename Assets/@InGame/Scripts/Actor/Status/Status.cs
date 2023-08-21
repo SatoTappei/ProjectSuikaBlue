@@ -41,7 +41,7 @@ namespace PSB.InGame
         /// <summary>
         /// 8ビット区切りの遺伝子(カラーR カラーG カラーB サイズ)
         /// </summary>
-        uint _gene;
+        readonly uint _gene;
 
         public Status(StatusBase statusBase, uint gene = 0)
         {
@@ -65,6 +65,7 @@ namespace PSB.InGame
         public Param LifeSpan;
         public Param BreedingRate;
         // 遺伝子
+        public uint Gene => _gene;
         public byte ColorR => (byte)(_gene >> 24 & 0xFF);
         public byte ColorG => (byte)(_gene >> 16 & 0xFF);
         public byte ColorB => (byte)(_gene >> 8 & 0xFF);
