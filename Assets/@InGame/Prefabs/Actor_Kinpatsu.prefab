@@ -492,7 +492,7 @@ GameObject:
   - component: {fileID: 9161171025703916459}
   - component: {fileID: 1944416678927653220}
   m_Layer: 0
-  m_Name: Mesh_KadukiSailorSuit
+  m_Name: Renderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -843,7 +843,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e510a604b4792634dba2854e2c97b762, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _actorType: 1
   _speed: 1
+  _model: {fileID: 3535252017480752486}
 --- !u!1 &7474314334066899040
 GameObject:
   m_ObjectHideFlags: 0
@@ -981,7 +983,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3535252017480752486}
   m_Layer: 0
-  m_Name: Armature
+  m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

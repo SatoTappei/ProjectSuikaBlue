@@ -5,6 +5,8 @@ namespace PSB.InGame
 {
     public static class Utility
     {
+        const string CharTable = "abcdefghijklmnopqrstuvwxyz1234567890";
+
         /// <summary>
         /// 周囲八近傍を指定する用の方向の配列
         /// </summary>
@@ -25,5 +27,21 @@ namespace PSB.InGame
         /// </summary>
         /// <returns>要素数</returns>
         public static int GetEnumLength<T>() where T : Enum => Enum.GetValues(typeof(T)).Length;
+
+        /// <summary>
+        /// ランダムな文字列を取得
+        /// </summary>
+        /// <returns>length文字のa~zもしくは1~9 で構成された文字列</returns>
+        public static string GetRandomString(int length = 8)
+        {
+            string s = string.Empty;
+            for(int i = 0; i < length; i++)
+            {
+                int r = UnityEngine.Random.Range(0, CharTable.Length);
+                s += CharTable[r];
+            }
+
+            return s;
+        }
     }
 }

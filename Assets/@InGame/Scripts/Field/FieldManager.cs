@@ -116,6 +116,15 @@ namespace PSB.InGame
             }
         }
 
+        public bool TryGetCell(Vector2Int index, out Cell cell)
+        {
+            ThrowIfFieldIsNull();
+            
+            bool isWithin = FieldUtility.IsWithinGrid(_field, index);
+            cell = isWithin ? _field[index.y, index.x] : null;            
+            return isWithin;
+        }
+
         /// <summary>
         /// 開始地点もしくは目的地にグリッド外を指定した場合はPathがnullになる。
         /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。

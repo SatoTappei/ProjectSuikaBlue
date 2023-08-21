@@ -20,6 +20,8 @@ namespace PSB.InGame
 
             Actor actor = Instantiate(prefab, pos, Quaternion.identity, _parent);
             actor.Init(gene);
+            // ƒ‰ƒ“ƒ_ƒ€‚È–¼‘O
+            actor.gameObject.name = Utility.GetRandomString();
 
             return actor;
         }

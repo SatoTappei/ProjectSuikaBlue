@@ -11,7 +11,7 @@ namespace UtilityAIReference
         {
             Debug.Log("食事中");
             //npc.stats.hunger -= 1;
-            // TODO:所持金が減る処理、食べたら金が減ってお腹が満たされる
+            // 所持金が減る処理、食べたら金が減ってお腹が満たされる
 
             npc.OnFinishedAction();
         }

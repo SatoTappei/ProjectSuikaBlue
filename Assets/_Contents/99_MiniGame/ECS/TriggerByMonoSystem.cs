@@ -26,7 +26,7 @@ namespace MiniGameECS
             }
 
             // 生成するべきタイルが無いかチェック
-            // TODO:タイルのスポナーシステムを作ってそちらに処理を移したい
+            // タイルのスポナーシステムを作ってそちらに処理を移したい
             while (MonoToEcsTransfer.Instance.TryGetTileData(out MonoToEcsTransfer.Data tileData))
             {
                 SystemAPI.TryGetSingleton(out TileConfigData tileConfigData);

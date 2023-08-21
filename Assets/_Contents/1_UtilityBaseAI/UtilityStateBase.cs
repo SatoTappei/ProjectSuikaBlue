@@ -79,7 +79,7 @@ public abstract class UtilityStateBase
     /// </summary>
     bool TryChangeState()
     {
-        // TODO: ここで黒板にある状態のリストから、同じく黒板にある
+        // ここで黒板にある状態のリストから、同じく黒板にある
         //       選択された次の状態を指定しないといけないのが気持ち悪い。
         UtilityStateBase next = BlackBoard[BlackBoard.SelectedStateType];
         

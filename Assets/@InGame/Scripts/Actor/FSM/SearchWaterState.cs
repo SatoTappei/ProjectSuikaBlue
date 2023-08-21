@@ -140,6 +140,7 @@ namespace PSB.InGame
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 _nextCellPos.y = _actor.position.y;
                 Modify();
+                Look();
                 _lerpProgress = 0;
                 
                 return true;
@@ -148,6 +149,12 @@ namespace PSB.InGame
             _nextCellPos = _actor.position;
 
             return false;
+        }
+
+        void Look()
+        {
+            Vector3 dir = _nextCellPos - _currentCellPos;
+            _blackBoard.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
         }
 
         void Move()

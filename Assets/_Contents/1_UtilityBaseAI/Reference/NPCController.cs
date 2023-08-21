@@ -51,7 +51,7 @@ namespace UtilityAIReference
             }
 
             Debug.Log("資源取得");
-            // TODO: インベントリに取得した資源を格納する処理
+            // インベントリに取得した資源を格納する処理
 
             OnFinishedAction();
         }
@@ -67,7 +67,7 @@ namespace UtilityAIReference
             }
 
             Debug.Log("睡眠回復");
-            // TODO: 食事をしたのでエネルギーが回復する処理
+            // : 食事をしたのでエネルギーが回復する処理
 
             OnFinishedAction();
         }

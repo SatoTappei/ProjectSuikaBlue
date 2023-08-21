@@ -94,14 +94,11 @@ namespace PSB.InGame
             _currentState = _currentState.Update();
         }
 
-        /// <summary>
-        /// 自身のステータスを元に次に行う行動を評価する
-        /// </summary>
-        /// <returns>各行動の評価値の配列</returns>
-        //public float[] Evaluate()
-        //{
-        //    return _evaluator.Evaluate(_status);
-        //}
+        public void Matching(Actor partner, Sex sex)
+        {
+            _blackBoard.Partner = partner;
+            _blackBoard.Sex = sex;
+        }
 
         public void Evaluate()
         {
@@ -141,7 +138,6 @@ namespace PSB.InGame
     // 評価 -> 行動 ->
     // タイミングについて。
     // 評価 -> 書き込むは同一フレームで行う。
-    // TODO:書き込むまでは出来た。次はどう呼び出してステートを実行するか
 
     // 水分: 時間経過で減る、飲んで回復
     // 食料: 時間経過で減る、食べて回復

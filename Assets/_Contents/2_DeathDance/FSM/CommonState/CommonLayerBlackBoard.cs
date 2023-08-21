@@ -18,7 +18,7 @@ public class VisibleTargetData
     VisibleTargetType _type;
     Vector3 _pos;
     float _time;
-    // TODO:脅威度/優先度 があると良い？
+    // :脅威度/優先度 があると良い？
 
     public VisibleTargetData(VisibleTargetType type, in Vector3 pos, float time)
     {

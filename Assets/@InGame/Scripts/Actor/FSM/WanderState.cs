@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace PSB.InGame
@@ -11,7 +10,6 @@ namespace PSB.InGame
     {
         IBlackBoardForState _blackBoard;
         Transform _actor;
-        Stack<Vector3> _path;
         Vector3 _currentCellPos;
         Vector3 _nextCellPos;
         float _lerpProgress;
@@ -23,7 +21,6 @@ namespace PSB.InGame
         {
             _blackBoard = blackBoard;
             _actor = blackBoard.Transform;
-            _path = new();
         }
 
         protected override void Enter()
@@ -31,8 +28,9 @@ namespace PSB.InGame
             _lerpProgress = 0;
 
             // 正常なら8方向囲まれた位置に存在することが無い
-            TryPathfinding();
-            TryStepNextCell();
+            SetTargetCell();
+            Modify();
+            Look();
         }
 
         protected override void Exit()
@@ -52,50 +50,30 @@ namespace PSB.InGame
             }
         }
 
-        bool TryPathfinding()
+        bool SetTargetCell()
         {
-            _path.Clear();
+            _currentCellPos = _actor.position;
 
             // 周囲8マスのランダムなセルに移動する
             Vector3 pos = _blackBoard.Transform.position;
             Vector2Int index = FieldManager.Instance.WorldPosToGridIndex(pos);
             foreach (Vector2Int dir in Utility.EightDirections.OrderBy(_ => System.Guid.NewGuid()))
             {
-                Vector2Int neighbourIndex = index + dir;
-                if (FieldManager.Instance.TryGetPath(index, neighbourIndex, out _path))
+                if (FieldManager.Instance.TryGetCell(index + dir, out Cell cell))
                 {
+                    if (!cell.IsWalkable) continue;
+
+                    // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
+                    _nextCellPos = cell.Pos;
+                    _nextCellPos.y = _actor.position.y;
                     return true;
                 }
             }
-
+            
             return false;
         }
 
         void ToEvaluateState() => TryChangeState(_blackBoard.EvaluateState);
-
-        /// <summary>
-        /// 現在のセルの位置を自身の位置で更新する。
-        /// 次のセルの位置をあれば次のセルの位置、なければ自身の位置で更新する。
-        /// </summary>
-        /// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
-        bool TryStepNextCell()
-        {
-            _currentCellPos = _actor.position;
-
-            if (_path.TryPop(out _nextCellPos))
-            {
-                // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
-                _nextCellPos.y = _actor.position.y;
-                Modify();
-                _lerpProgress = 0;
-
-                return true;
-            }
-
-            _nextCellPos = _actor.position;
-
-            return false;
-        }
 
         void Move()
         {
@@ -112,6 +90,12 @@ namespace PSB.InGame
             bool dz = Mathf.Approximately(_currentCellPos.z, _nextCellPos.z);
 
             _speedModify = (dx || dz) ? 1 : 0.7f;
+        }
+
+        void Look()
+        {
+            Vector3 dir = _nextCellPos - _currentCellPos;
+            _blackBoard.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
         }
     }
 }

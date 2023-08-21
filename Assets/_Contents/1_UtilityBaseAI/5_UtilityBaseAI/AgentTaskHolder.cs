@@ -5,7 +5,7 @@ namespace UtilityBaseAI
 {
     public class AgentTaskHolder
     {
-        // TODO: 追加順が必要ない場合はHashSetに変更する
+        // : 追加順が必要ない場合はHashSetに変更する
         List<ActionType> _taskList = new(4);
         /// <summary>
         /// TaskListに含まれているかをチェックするためのフラグの配列
