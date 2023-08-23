@@ -15,6 +15,8 @@ namespace PSB.InGame
         LinkedList<Actor> _kinpatsuList = new();
         LinkedList<Actor> _kurokamiList = new();
 
+        Queue<Actor> _tempQueue = new();
+
         void Awake()
         {
             Actor.OnSpawned += AddActor;
@@ -27,6 +29,8 @@ namespace PSB.InGame
 
         void Update()
         {
+            AddFromTemp();
+
             // 自動でターンが進むターンベースと考えればLogicが書きやすいかもしれない
 
             if (Input.GetKeyDown(KeyCode.Space)) TrySpawnKurokami();
@@ -79,13 +83,31 @@ namespace PSB.InGame
 
         void AddActor(Actor actor)
         {
-            if      (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
-            else if (actor.Type == ActorType.Kinpatsu)       _kinpatsuList.AddLast(actor);
-            else if (actor.Type == ActorType.Kurokami)       _kurokamiList.AddLast(actor);
-            else
+            _tempQueue.Enqueue(actor);
+            //if      (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
+            //else if (actor.Type == ActorType.Kinpatsu)       _kinpatsuList.AddLast(actor);
+            //else if (actor.Type == ActorType.Kurokami)       _kurokamiList.AddLast(actor);
+            //else
+            //{
+            //    string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;
+            //    throw new System.ArgumentException(msg);
+            //}
+        }
+
+        void AddFromTemp()
+        {
+            while (_tempQueue.Count > 0)
             {
-                string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;
-                throw new System.ArgumentException(msg);
+                Actor actor = _tempQueue.Dequeue();
+
+                if (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
+                else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.AddLast(actor);
+                else if (actor.Type == ActorType.Kurokami) _kurokamiList.AddLast(actor);
+                else
+                {
+                    string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;
+                    throw new System.ArgumentException(msg);
+                }
             }
         }
     }

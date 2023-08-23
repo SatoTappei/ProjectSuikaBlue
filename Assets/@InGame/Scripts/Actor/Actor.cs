@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UniRx;
 using System;
 using System.Buffers;
 
@@ -17,7 +18,6 @@ namespace PSB.InGame
     /// スポナーから生成され、Controllerによって操作される。
     /// 単体で動作することを考慮していないのでシーン上に直に配置しても機能しない。
     /// </summary>
-    [RequireComponent(typeof(ChildSpawner))]
     [RequireComponent(typeof(InitializeProcess))]
     [RequireComponent(typeof(ActionEvaluator))]
     [RequireComponent(typeof(BlackBoard))]
@@ -25,7 +25,6 @@ namespace PSB.InGame
     {
         public static event UnityAction<Actor> OnSpawned;
 
-        [SerializeField] ChildSpawner _spawner;
         [SerializeField] InitializeProcess _initProcess;
         [SerializeField] ActionEvaluator _evaluator;
         // StatusBaseの取得やController側での制御に必要なので個体毎にデータを持つ
@@ -34,16 +33,18 @@ namespace PSB.InGame
         IBlackBoardForActor _blackBoard;
         Status _status;
         BaseState _currentState;
+        string _name;
         bool _initialized;
 
         public ActorType Type => _type;
-        // UI側が読み取る用。初期化前に読み取った場合は仮の値として1を返す。
+        // 読み取る用。初期化前に読み取った場合は仮の値として1を返す。
         float IReadOnlyParams.Food         => _initialized ? _status.Food.Percentage : 1;
         float IReadOnlyParams.Water        => _initialized ? _status.Water.Percentage : 1;
         float IReadOnlyParams.HP           => _initialized ? _status.Hp.Percentage : 1;
         float IReadOnlyParams.LifeSpan     => _initialized ? _status.LifeSpan.Percentage : 1;
         float IReadOnlyParams.BreedingRate => _initialized ? _status.BreedingRate.Percentage : 1;
-        string IReadOnlyParams.ActionName  => _initialized ? _blackBoard.NextAction.ToString() : string.Empty;
+        string IReadOnlyEvaluate.ActionName => _initialized ? _blackBoard.NextAction.ToString() : string.Empty;
+        string IReadOnlyObjectInfo.Name => _initialized ? _name ??= gameObject.name : string.Empty;
         // 繁殖ステートが読み取る用。
         uint IReadOnlyBreedingParam.Gene => _status.Gene;
 
@@ -64,8 +65,10 @@ namespace PSB.InGame
             _blackBoard.OnEatFoodRegister(v => _status.Food.Value += v);
             _blackBoard.OnDrinkWaterRegister(v => _status.Water.Value += v);
 
-            // 繁殖ステートが繁殖するように登録する
-            _blackBoard.OnBreedingRegister(gene => Debug.Log("仮の繁殖処理: " + gene));
+            // 繁殖ステートが自身が雄/雌の時に行う処理をそれぞれ登録する
+            _blackBoard.OnFemaleBreedingRegister(SendSpawnChildMessage);
+            _blackBoard.OnFemaleBreedingRegister(_ => _status.BreedingRate.Value = 0);
+            _blackBoard.OnMaleBreedingRegister(() => _status.BreedingRate.Value = 0);
 
             OnSpawned?.Invoke(this);
         }
@@ -118,12 +121,18 @@ namespace PSB.InGame
             ActionType action = ActionEvaluator.SelectMax(myEvaluate, leaderEvaluate);
 
             // 黒板に書き込み
-            WriteSelectedAction(action);
+            _blackBoard.NextAction = action;
         }
 
-        void WriteSelectedAction(ActionType action)
+        void SendSpawnChildMessage(uint gene)
         {
-            _blackBoard.NextAction = action;
+            MessageBroker.Default.Publish(new SpawnChildMessage 
+            {
+                Gene1 = gene,
+                Gene2 = _status.Gene,
+                Params = this,
+                Pos = transform.position, // 自身の位置に生成する
+            });
         }
     }
 

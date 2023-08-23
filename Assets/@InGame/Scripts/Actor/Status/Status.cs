@@ -105,10 +105,16 @@ namespace PSB.InGame
             Debug.Log($"食:{Food.Value} 水:{Water.Value} 体:{Hp.Value} " +
                 $"寿:{LifeSpan.Value} 繁{BreedingRate.Value}");
         }
+        
         public void Log2()
         {
             Debug.Log($"食:{Food.Percentage} 水:{Water.Percentage} 体:{Hp.Percentage} " +
                 $"寿:{LifeSpan.Percentage} 繁{BreedingRate.Percentage}");
+        }
+
+        public void GeneLog()
+        {
+            Debug.Log($"色:{ColorR},{ColorG},{ColorB} サイズ:{Size}");
         }
     }
 }

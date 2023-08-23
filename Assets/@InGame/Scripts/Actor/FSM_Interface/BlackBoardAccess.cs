@@ -36,11 +36,13 @@ namespace PSB.InGame
 
     public interface IBreedingRegister
     {
-        void OnBreedingRegister(UnityAction<uint> action);
+        void OnMaleBreedingRegister(UnityAction action);
+        void OnFemaleBreedingRegister(UnityAction<uint> action);
     }
 
     public interface IBreedingInvoker
     {
-        void OnBreedingInvoke(uint value);
+        void OnMaleBreedingInvoke();
+        void OnFemaleBreedingInvoke(uint value);
     }
 }

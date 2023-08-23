@@ -52,4 +52,16 @@ namespace PSB.InGame
     {
         public int ID { get; set; }
     }
+
+    /// <summary>
+    /// 繁殖ステートで子を生成するタイミングでコールバックから送信される
+    /// 子を生成するクラスが受信する
+    /// </summary>
+    public class SpawnChildMessage
+    {
+        public uint Gene1 { get; set; }
+        public uint Gene2 { get; set; }
+        public IReadOnlyParams Params { get; set; }
+        public Vector3 Pos { get; set; }
+    }
 }

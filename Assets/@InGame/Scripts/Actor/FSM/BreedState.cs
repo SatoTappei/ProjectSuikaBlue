@@ -82,7 +82,8 @@ namespace PSB.InGame
                     if (!TryStepNextCell())
                     {
                         // 番の雌にサインを送信し、受信した雌が出産の処理を実行する
-                        SendPartnerSign();
+                        OnArrivalNeighbourPertner();
+                        ToEvaluateState();
                     }
                 }
                 else
@@ -148,9 +149,12 @@ namespace PSB.InGame
             MessageBroker.Default.Publish(new CancelBreedingMessage() { Actor = _actor });
         }
 
-        void SendPartnerSign()
+        void OnArrivalNeighbourPertner()
         {
-            MessageBroker.Default.Publish(new BreedingPartnerMessage() { ID = _actor.GetInstanceID() });
+            // 雌に産ませる
+            MessageBroker.Default.Publish(new BreedingPartnerMessage() { ID = _partner.GetInstanceID() });
+            // 登録された繁殖率を0にする処理を実行
+            _blackBoard.OnMaleBreedingInvoke();
         }
 
         void MatchingComplete(MatchingMessage msg)
@@ -169,7 +173,10 @@ namespace PSB.InGame
         {
             // 産む処理の実行
             uint gene = _partner.GetComponent<IReadOnlyBreedingParam>().Gene;
-            _blackBoard.OnBreedingInvoke(gene);
+            _blackBoard.OnFemaleBreedingInvoke(gene);
+            
+            // 評価ステートに遷移
+            ToEvaluateState();
         }
 
         void ToEvaluateState() => TryChangeState(_blackBoard.EvaluateState);

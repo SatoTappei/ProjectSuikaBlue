@@ -23,7 +23,9 @@ namespace PSB.InGame
         event UnityAction<float> OnEatFood;
         event UnityAction<float> OnDrinkWater;
         // 雌が子供を産むタイミングで呼び出される。引数には番の遺伝子が渡される
-        event UnityAction<uint> OnBreeding;
+        event UnityAction<uint> OnFemaleBreeding;
+        // 雄が雌に産ませるタイミングで呼び出される。引数には番の遺伝子が渡される
+        event UnityAction OnMaleBreeding;
 
         BaseState IBlackBoardForState.NextState => TryGetActionState(_nextAction);
         BaseState IBlackBoardForState.EvaluateState => _evaluateState;
@@ -45,7 +47,8 @@ namespace PSB.InGame
         {
             OnEatFood = null;
             OnDrinkWater = null;
-            OnBreeding = null;
+            OnFemaleBreeding = null;
+            OnMaleBreeding = null;
         }
 
         void CreateState()
@@ -75,11 +78,13 @@ namespace PSB.InGame
         void IStatusRegister.OnEatFoodRegister(UnityAction<float> action) => OnEatFood += action;
         void IStatusRegister.OnDrinkWaterRegister(UnityAction<float> action) => OnDrinkWater += action;
 
-        void IBreedingRegister.OnBreedingRegister(UnityAction<uint> action) => OnBreeding += action; // <- これをActorに実装する
+        void IBreedingRegister.OnFemaleBreedingRegister(UnityAction<uint> action) => OnFemaleBreeding += action;
+        void IBreedingRegister.OnMaleBreedingRegister(UnityAction action) => OnMaleBreeding += action;
 
         void IStatusInvoker.OnEatFoodInvoke(float value) => OnEatFood.Invoke(value);
         void IStatusInvoker.OnDrinkWaterInvoke(float value) => OnDrinkWater.Invoke(value);
 
-        void IBreedingInvoker.OnBreedingInvoke(uint value) => OnBreeding.Invoke(value);
+        void IBreedingInvoker.OnFemaleBreedingInvoke(uint value) => OnFemaleBreeding.Invoke(value);
+        void IBreedingInvoker.OnMaleBreedingInvoke() => OnMaleBreeding.Invoke();
     }
 }
