@@ -11,7 +11,7 @@ namespace MiniGameECS
             if (MonoToEcsTransfer.Instance == null) return;
 
             // 入力を受け取って生成位置/方向をセットする
-            if(MonoToEcsTransfer.Instance.TryGetDebrisData(out MonoToEcsTransfer.Data debrisData))
+            if (MonoToEcsTransfer.Instance.TryGetDebrisData(out MonoToEcsTransfer.Data debrisData))
             {
                 // Prefabを持つConfigDataは唯一(にする必要がある)なのでこの方法で取得可能
                 Entity spawner = SystemAPI.GetSingletonEntity<DebrisConfigData>(); // <- InvalidOperationException: GetSingleton() requires that exactly one entity exists that matches this query, but there are 0.
@@ -25,12 +25,12 @@ namespace MiniGameECS
                 SystemAPI.SetComponent(spawner, spawnData.ValueRW);
             }
 
+            if (!SystemAPI.TryGetSingleton(out TileConfigData tileConfigData)) return;
+
             // 生成するべきタイルが無いかチェック
             // タイルのスポナーシステムを作ってそちらに処理を移したい
             while (MonoToEcsTransfer.Instance.TryGetTileData(out MonoToEcsTransfer.Data tileData))
             {
-                SystemAPI.TryGetSingleton(out TileConfigData tileConfigData);
-
                 // 対応するEntityを設定
                 Entity prefab;
                 if (tileData.Type == EntityType.Grass) prefab = tileConfigData.GrassPrefab;

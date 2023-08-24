@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace PSB.InGame
 {
+#if UNITY_EDITOR
     public class CellGizmosDrawer
     {
         // ƒVƒ“ƒOƒ‹ƒgƒ“
@@ -25,4 +26,5 @@ namespace PSB.InGame
             UnityEditor.Handles.Label(pos, height.ToString(), Instance._style);
         }
     }
+#endif
 }

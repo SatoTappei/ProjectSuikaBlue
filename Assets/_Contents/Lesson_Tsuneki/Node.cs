@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TreeStruct
@@ -79,47 +77,60 @@ namespace TreeStruct
         }
 
         /// <summary>
-        /// 自分とその後ろのノードを昇順にソートする
+        /// 自分とその前後ノードを昇順にソートする
         /// </summary>
         public void Sort()
         {
             Node current = this;
             Node first = null;
-            while (true)
-            {
-                Node min = this;
-                while (current.Next != null)
-                {
-                    if (current.Value < min.Value) min = current;
-                    current = current.Next;
-                }
 
-                if (first == null) first = min;
-                else if (first.Value == min.Value) break;
-                
-                min.Remove();
-                Add(min);
+            // バブルソート?
+
+            // 先頭まで移動
+            while (current.Prev != null) current = Prev;
+            // 比較して交換
+            if (current.Value > current.Next.Value)
+            {
+                //Swap(current, current.Next);
             }
         }
 
-        public static void Swap(Node nodeA, Node nodeB)
+        public void Swap(Node target)
         {
             // 指定したノードと位置を交換する
             // 子を指定することも可能、その場合は自身の子は着いて来ない。
-            Node tempPrev = nodeA.Prev;
-            Node tempNext = nodeA.Next;
-            Node tempChild = nodeA.Child;
-            Node tempParent = nodeA.Parent;
+            Node tempPrev = Prev;
+            Node tempNext = Next;
+            Node tempChild = Child;
+            Node tempParent = Parent;
 
-            nodeA.Prev = nodeB.Prev;
-            nodeA.Next = nodeB.Next;
-            nodeA.Child = nodeB.Child;
-            nodeA.Parent = nodeB.Parent;
+            if (Prev != null) Prev.Next = target;
+            if (Next != null) Next.Prev = target;
+            if (Child != null) Child.Parent = target;
+            //if (Parent != null) Parent.Child = target;
+            if (Parent != null)
+            {
+                if (Parent.Child == this) Parent.Child = target;
+            }
 
-            nodeB.Prev = tempPrev;
-            nodeB.Next = tempNext;
-            nodeB.Child = tempChild;
-            nodeB.Parent = tempParent;
+            if (target.Prev != null) target.Prev.Next = this;
+            if (target.Next != null) target.Next.Prev = this;
+            if (target.Child != null) target.Child.Parent = this;
+            //if (target.Parent != null) target.Parent.Child = this;
+            if (target.Parent != null)
+            {
+                if (target.Parent.Child == target) target.Parent.Child = this;
+            }
+
+            Prev = target.Prev;
+            Next = target.Next;
+            Child = target.Child;
+            Parent = target.Parent;
+
+            target.Prev = tempPrev;
+            target.Next = tempNext;
+            target.Child = tempChild;
+            target.Parent = tempParent;
         }
 
         public void Log()

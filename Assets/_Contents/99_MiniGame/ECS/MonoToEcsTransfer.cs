@@ -40,7 +40,6 @@ namespace MiniGameECS
 
         void OnDestroy()
         {
-            // staticなのでキューのクリアが必要
             _debrisQueue.Clear();
             _tileQueue.Clear();
         }
@@ -54,7 +53,7 @@ namespace MiniGameECS
                 Dir = dir,
                 Type = type,
             };
-
+            
             if (type == EntityType.Debris)
             {
                 _debrisQueue.Enqueue(data);

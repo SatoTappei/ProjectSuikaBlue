@@ -647,7 +647,6 @@ MonoBehaviour:
     _timeLimit: 15
     _interval: 2
     _concurrentSpawn: 2
-  _parent: {fileID: 0}
 --- !u!1 &607512997
 GameObject:
   m_ObjectHideFlags: 0

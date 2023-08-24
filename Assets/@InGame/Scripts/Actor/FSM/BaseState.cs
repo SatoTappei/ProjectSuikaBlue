@@ -11,6 +11,8 @@ namespace PSB.InGame
         SearchWarter,
         Wander,
         Breed,
+        Killed,
+        Senility,
     }
 
     public abstract class BaseState
@@ -71,12 +73,12 @@ namespace PSB.InGame
         {
             if (_stage == Stage.Enter)
             {
-                Debug.LogWarning("Enter()が呼ばれる前にステートを遷移することは不可能: 遷移先: " + nextState);
+                Debug.LogWarning($"Enter()が呼ばれる前にステートを遷移することは不可能: {Type} 遷移先: {nextState}");
                 return false;
             }
             else if (_stage == Stage.Exit)
             {
-                Debug.LogWarning("既に別のステートに遷移する処理が呼ばれています: 遷移先: " + nextState);
+                Debug.LogWarning($"既に別のステートに遷移する処理が呼ばれています: {Type} 遷移先: {nextState}");
                 return false;
             }
 

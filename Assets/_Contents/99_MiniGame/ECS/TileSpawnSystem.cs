@@ -8,10 +8,10 @@ namespace MiniGameECS
 {
     public partial struct TileSpawnSystem : ISystem
     {
-        [BurstCompile]
-        public void OnUpdate(ref SystemState state)
-        {
+        //[BurstCompile]
+        //public void OnUpdate(ref SystemState state)
+        //{
 
-        }
+        //}
     }
 }

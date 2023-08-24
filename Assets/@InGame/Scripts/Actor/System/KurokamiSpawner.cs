@@ -10,14 +10,14 @@ namespace PSB.InGame
 
         void Awake()
         {
-            MessageBroker.Default.Receive<KurokamiSpawnMessage>().Subscribe(msg => 
-            {
-                Spawn(msg.Pos);
-            }).AddTo(this);
+            MessageBroker.Default.Receive<KurokamiSpawnMessage>()
+                .Subscribe(msg => Spawn(msg.Pos)).AddTo(this);
         }
 
         void Spawn(Vector3 pos)
         {
+            if (!Check()) return;
+
             pos += Vector3.up * _spawnHeight;
             // TODO:ñ{óàÇÕçïîØÇ‡à‚ì`éqÇìnÇ∑
             InstantiateActor(_prefab, pos);

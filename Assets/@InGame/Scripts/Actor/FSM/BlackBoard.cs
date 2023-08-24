@@ -61,6 +61,8 @@ namespace PSB.InGame
             _stateDict.Add(ActionType.None, new IdleState(this));
             _stateDict.Add(ActionType.Wander, new WanderState(this));
             _stateDict.Add(ActionType.Breed, new BreedState(this));
+            _stateDict.Add(ActionType.Killed, new KilledState(this));
+            _stateDict.Add(ActionType.Senility, new SenilityState(this));
         }
 
         BaseState TryGetActionState(ActionType type)

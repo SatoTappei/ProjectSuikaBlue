@@ -12,14 +12,17 @@ namespace PSB.InGame
         [SerializeField] float _mutationProb = 0.05f;
         [Header("突然変異した際の振れ幅の倍率")]
         [SerializeField] byte _mutationMag = 3;
+        [Header("生成時の音")]
+        [SerializeField] AudioSource _normalSource;
+        [SerializeField] AudioSource _mutationSource;
+        [Header("生成時のパーティクル")]
+        [SerializeField] GameObject _particle;
+        [SerializeField] float _height = 0.6f;
 
-        bool IsMutation => Random.value < _mutationProb;
         // 突然変異時は 振れ幅の最大値 * 定数倍 だけ変化させる
         byte MutationValue => (byte)(_randomRange * _mutationMag);
         // 通常時は振れ幅のうちランダムな値だけ変化させる
         byte RandomValue => (byte)Random.Range(0, _randomRange + 1);
-        // 通常の振れ幅からランダムな値、確率で突然変異の値を返す
-        byte RandomVariation => IsMutation ? MutationValue : RandomValue;
 
         void Awake()
         {
@@ -38,8 +41,14 @@ namespace PSB.InGame
         /// </summary>
         void Execute(SpawnChildMessage msg)
         {
+            // 最大数に達していたら生成しない
+            if (!Check()) return;
+
             uint childGene = CalcChildGene(msg);
             InstantiateActor(_prefab, msg.Pos, childGene);
+
+            // パーティクル生成
+            Particle(msg.Pos);
         }
 
         uint CalcChildGene(SpawnChildMessage msg)
@@ -57,9 +66,12 @@ namespace PSB.InGame
             byte gene1B = (byte)(gene1 >> 8 & 0xFF);
             byte gene2B = (byte)(gene2 >> 8 & 0xFF);
 
+            // 突然変異したか
+            bool isMutation = Random.value < _mutationProb;
+
             // サイズの設定。平均を取る + 一定確率で突然変異
             int tempSize = (gene1Size + gene2Size) / 2;
-            tempSize += RandomVariation * Sign(paramsRO);
+            tempSize += (isMutation ? MutationValue : RandomValue) * Sign(paramsRO);
             // byteのサイズにクランプ
             byte size = Clamp(tempSize);
 
@@ -67,12 +79,16 @@ namespace PSB.InGame
             int tempR = Random.Range(0, 2) == 0 ? gene1R : gene2R;
             int tempG = Random.Range(0, 2) == 0 ? gene1G : gene2G;
             int tempB = Random.Range(0, 2) == 0 ? gene1B : gene2B;
-            tempR += RandomVariation * Sign(paramsRO);
-            tempG += RandomVariation * Sign(paramsRO);
-            tempB += RandomVariation * Sign(paramsRO);
+            tempR -= (isMutation ? MutationValue : RandomValue) * Sign(paramsRO);
+            tempG -= (isMutation ? MutationValue : RandomValue) * Sign(paramsRO);
+            tempB -= (isMutation ? MutationValue : RandomValue) * Sign(paramsRO);
             byte r = Clamp(tempR);
             byte g = Clamp(tempG);
             byte b = Clamp(tempB);
+
+            // 音の再生
+            if (isMutation) _mutationSource.Play();
+            else _normalSource.Play();
 
             return (uint)(r << 24 | g << 16 | b << 8 | size);
         }
@@ -115,6 +131,13 @@ namespace PSB.InGame
             float size = (f - 0) * (sizeMax - sizeMin) / (byte.MaxValue - byte.MinValue) + sizeMin;
 
             Debug.Log($"R:{colorR} G:{colorG} B:{colorB} サイズ:{size}");
+        }
+
+        void Particle(Vector3 pos, float lifeTime = 3.0f)
+        {
+            GameObject particle = Instantiate(_particle);
+            particle.transform.position = new Vector3(pos.x, _height, pos.z);
+            Destroy(particle, lifeTime);
         }
     }
 }

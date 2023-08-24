@@ -35,9 +35,13 @@ namespace TreeStruct
             node6.AddChild(node8);
             node6.AddChild(node9);
 
-            node8.Remove();
+            // Removeまで完了
+            // Swapは1度だけ、同じ階層のみ可能
 
-            // SwapとSortを作る
+            // ノード1をノード4と交換する処理を呼ぶと
+            // ノード1が消える = ノード1の位置に4が上書きされる
+
+            //root.Sort();
 
             Visualize(root, Vector2.zero);
         }

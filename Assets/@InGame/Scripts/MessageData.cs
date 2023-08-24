@@ -64,4 +64,13 @@ namespace PSB.InGame
         public IReadOnlyParams Params { get; set; }
         public Vector3 Pos { get; set; }
     }
+
+    /// <summary>
+    /// キャラクターが死んだ際に各キャラクターから送信される
+    /// </summary>
+    public struct ActorDeathMessage
+    {
+        public Vector3 Pos { get; set; }
+        public ActionType Type { get; set; }
+    }
 }
