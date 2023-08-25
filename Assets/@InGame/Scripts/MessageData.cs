@@ -92,4 +92,12 @@ namespace PSB.InGame
     {
         public AudioKey Key { get; set; }
     }
+
+    /// <summary>
+    /// 各種イベントのログを表示する際に任意のクラスから送信される
+    /// </summary>
+    public struct EventLogMessage
+    {
+        public string Message { get; set; }
+    }
 }
