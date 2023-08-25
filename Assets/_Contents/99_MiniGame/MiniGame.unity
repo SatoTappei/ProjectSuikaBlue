@@ -679,7 +679,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _parent: {fileID: 1664424584}
   _buildMode: 0
-  _blueprint: {fileID: 4900000, guid: 85d699b057cc80c499ed9e883e37db3d, type: 3}
+  _blueprint: {fileID: 4900000, guid: 3f072d86fc57d4a4eaa2967f426e4923, type: 3}
 --- !u!4 &607512999
 Transform:
   m_ObjectHideFlags: 0

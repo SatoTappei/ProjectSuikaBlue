@@ -67,10 +67,29 @@ namespace PSB.InGame
 
     /// <summary>
     /// キャラクターが死んだ際に各キャラクターから送信される
+    /// 生成をカウントするスポナーと、エフェクトを表示させるためのエフェクターが受信する
     /// </summary>
     public struct ActorDeathMessage
     {
         public Vector3 Pos { get; set; }
         public ActionType Type { get; set; }
+    }
+
+    /// <summary>
+    /// キャラクターが生成された際にスポナーから送信される
+    /// エフェクトを表示させるためのエフェクターが受信する
+    /// 各キャラクターが自身を操作する側に登録する処理とは別なので注意
+    /// </summary>
+    public struct ActorSpawnMessage
+    {
+        public Vector3 Pos { get; set; }
+    }
+
+    /// <summary>
+    /// 音を再生する際に送信する
+    /// </summary>
+    public struct PlayAudioMessage
+    {
+        public AudioKey Key { get; set; }
     }
 }

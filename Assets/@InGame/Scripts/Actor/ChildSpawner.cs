@@ -12,12 +12,6 @@ namespace PSB.InGame
         [SerializeField] float _mutationProb = 0.05f;
         [Header("突然変異した際の振れ幅の倍率")]
         [SerializeField] byte _mutationMag = 3;
-        [Header("生成時の音")]
-        [SerializeField] AudioSource _normalSource;
-        [SerializeField] AudioSource _mutationSource;
-        [Header("生成時のパーティクル")]
-        [SerializeField] GameObject _particle;
-        [SerializeField] float _height = 0.6f;
 
         // 突然変異時は 振れ幅の最大値 * 定数倍 だけ変化させる
         byte MutationValue => (byte)(_randomRange * _mutationMag);
@@ -47,8 +41,8 @@ namespace PSB.InGame
             uint childGene = CalcChildGene(msg);
             InstantiateActor(_prefab, msg.Pos, childGene);
 
-            // パーティクル生成
-            Particle(msg.Pos);
+            // キャラクターを生成したメッセージを送信する
+            SendMessage(msg);
         }
 
         uint CalcChildGene(SpawnChildMessage msg)
@@ -87,8 +81,7 @@ namespace PSB.InGame
             byte b = Clamp(tempB);
 
             // 音の再生
-            if (isMutation) _mutationSource.Play();
-            else _normalSource.Play();
+            AudioManager.PlayAudio(isMutation ? AudioKey.BreedingMutationSE : AudioKey.BreedingSE);
 
             return (uint)(r << 24 | g << 16 | b << 8 | size);
         }
@@ -119,6 +112,12 @@ namespace PSB.InGame
 
         byte Clamp(int value) => (byte)Mathf.Clamp(value, byte.MinValue, byte.MaxValue);
 
+        void SendMessage(SpawnChildMessage msg)
+        {
+            MessageBroker.Default.Publish(new ActorSpawnMessage() { Pos = msg.Pos });
+        }
+
+        // デバッグ用
         void Log(uint gene, float sizeMax = 1.5f, float sizeMin = 0.5f)
         {
             byte colorR = (byte)(gene >> 24 & 0xFF);
@@ -131,13 +130,6 @@ namespace PSB.InGame
             float size = (f - 0) * (sizeMax - sizeMin) / (byte.MaxValue - byte.MinValue) + sizeMin;
 
             Debug.Log($"R:{colorR} G:{colorG} B:{colorB} サイズ:{size}");
-        }
-
-        void Particle(Vector3 pos, float lifeTime = 3.0f)
-        {
-            GameObject particle = Instantiate(_particle);
-            particle.transform.position = new Vector3(pos.x, _height, pos.z);
-            Destroy(particle, lifeTime);
         }
     }
 }

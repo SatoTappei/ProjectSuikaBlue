@@ -13,7 +13,7 @@ public interface IReadOnlyParams : IReadOnlyEvaluate, IReadOnlyObjectInfo
 
 public interface IReadOnlyEvaluate
 {
-    string ActionName { get; }
+    string StateName { get; }
 }
 
 public interface IReadOnlyObjectInfo

@@ -7,7 +7,7 @@ namespace PSB.InGame
     {
         IBlackBoardForState _blackBoard;
 
-        public SenilityState(IBlackBoardForState blackBoard) : base(StateType.Killed)
+        public SenilityState(IBlackBoardForState blackBoard) : base(StateType.Senility)
         {
             _blackBoard = blackBoard;
         }

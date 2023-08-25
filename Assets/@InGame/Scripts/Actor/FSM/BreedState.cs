@@ -44,6 +44,8 @@ namespace PSB.InGame
         bool OnNextCell => _actor.position == _nextCellPos;
         // マッチングした際にメッセージを受信してtrueになる
         bool IsMatching => _partner != null && _sex != Sex.None;
+        bool IsDeath => _blackBoard.NextState.Type == StateType.Killed || 
+                        _blackBoard.NextState.Type == StateType.Senility;
 
         public BreedState(IBlackBoardForState blackBoard) : base(StateType.Breed)
         {
@@ -68,7 +70,9 @@ namespace PSB.InGame
         protected override void Stay()
         {
             // タイマーを進める。時間切れの場合は評価ステートに遷移
-            if (!StepTimer()) ToEvaluateState();
+            if (!StepTimer()) { ToEvaluateState(); return; }
+            // マッチングしていない状態で死んだ場合はセル上にいるので死亡ステートに遷移して大丈夫
+            if (!IsMatching && IsDeath) { ToEvaluateState(); return; }
             // マッチングしているかチェック
             if (!IsMatching) return;
             // 経路があるかチェック
@@ -78,6 +82,8 @@ namespace PSB.InGame
             {
                 if (OnNextCell)
                 {
+                    if (IsDeath) { ToEvaluateState(); return; }
+
                     if (!TryStepNextCell())
                     {
                         // 番の雌にサインを送信し、受信した雌が出産の処理を実行する
@@ -92,7 +98,7 @@ namespace PSB.InGame
             }
             else if (_sex == Sex.Female)
             {
-                // その場で待機
+                // 雌はその場で待機、メッセージを受信したら出産
             }
         }
 
@@ -108,12 +114,19 @@ namespace PSB.InGame
 
         void SubscribeReceiveMessage()
         {
+            // マッチングした
             MessageBroker.Default.Receive<MatchingMessage>()
                 .Where(msg => msg.ID == _actor.GetInstanceID())
                 .Subscribe(MatchingComplete).AddTo(_actor);
+            // パートナーからのサイン
             MessageBroker.Default.Receive<BreedingPartnerMessage>()
                 .Where(msg => msg.ID == _actor.GetInstanceID())
                 .Subscribe(PartnerSign).AddTo(_actor);
+            // パートナーがマッチングをキャンセルした
+            MessageBroker.Default.Receive<CancelBreedingMessage>()
+                .Where(_ => _partner != null)
+                .Where(msg => msg.Actor == _partner)
+                .Subscribe(MatchingCancel).AddTo(_actor);
         }
 
         void SendMessage()
@@ -144,6 +157,11 @@ namespace PSB.InGame
             if (!hasPath) throw new System.NullReferenceException("繁殖ステートのパートナーへの経路がnull");
             
             TryStepNextCell();
+        }
+
+        void MatchingCancel(CancelBreedingMessage _)
+        {
+            ToEvaluateState();
         }
 
         void PartnerSign(BreedingPartnerMessage msg)

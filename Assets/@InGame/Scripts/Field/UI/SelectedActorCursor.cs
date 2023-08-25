@@ -8,8 +8,6 @@ namespace PSB.InGame
         const float Height = 0.01f;
 
         [SerializeField] GameObject _prefab;
-        [Header("クリック音再生機能搭載")]
-        [SerializeField] AudioSource _audioSource;
 
         Transform _cursor;
 
@@ -26,7 +24,7 @@ namespace PSB.InGame
             _cursor.localPosition = new Vector3(0, Height, 0);
 
             // クリック音の再生
-            _audioSource.Play();
+            AudioManager.PlayAudio(AudioKey.ClickSE);
         }
 
         protected override void OnDeselected()

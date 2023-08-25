@@ -7,9 +7,19 @@ namespace PSB.InGame
     /// </summary>
     public class ActorSpawner : MonoBehaviour
     {
-        const int Max = 5;
+        const int Max = 50;
         static int _count;
         static Transform _parent;
+
+        void Awake()
+        {
+            ReceiveMessage();
+        }
+
+        void ReceiveMessage()
+        {
+            ActorDeathReceiver receiver = new(_ => _count--, gameObject);
+        }
 
         /// <summary>
         /// 生成して親の遺伝子を子に渡す初期化メソッドを呼んで返す。

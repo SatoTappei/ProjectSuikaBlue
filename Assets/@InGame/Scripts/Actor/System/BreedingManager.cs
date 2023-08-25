@@ -1,12 +1,19 @@
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UniRx;
 
 namespace PSB.InGame
 {
     public class BreedingManager : MonoBehaviour
     {
+#if UNITY_EDITOR
+        [Header("デバッグ用")]
+        [SerializeField] Text _debugText;
+        [SerializeField] bool _isDebug;
+#endif
+
         List<Actor> _actorList = new();
 
         void Awake()
@@ -21,6 +28,10 @@ namespace PSB.InGame
                 Matching();
                 Shuffle();
             }
+
+#if UNITY_EDITOR
+            if(_isDebug) DebugPrint();
+#endif
         }
 
         void SubscribeBreedMessage()
@@ -78,6 +89,17 @@ namespace PSB.InGame
         {
             Actor actor = msg.Actor.GetComponent<Actor>();
             _actorList.Remove(actor);
+        }
+
+        void DebugPrint()
+        {
+            string str = "";
+            foreach (Actor a in _actorList)
+            {
+                str += a.name;
+                str += "\n";
+            }
+            _debugText.text = str;
         }
     }
 }
