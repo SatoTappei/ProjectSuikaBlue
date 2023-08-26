@@ -596,6 +596,7 @@ GameObject:
   - component: {fileID: 3667265685422876516}
   - component: {fileID: 3698948374210367776}
   - component: {fileID: 3730319621309008667}
+  - component: {fileID: 8131503257345141834}
   m_Layer: 0
   m_Name: Actor_Kinpatsu
   m_TagString: Untagged
@@ -676,6 +677,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _initProcess: {fileID: 3667265685422876516}
   _evaluator: {fileID: 3698948374210367776}
+  _sightSensor: {fileID: 8131503257345141834}
   _type: 1
 --- !u!114 &3667265685422876516
 MonoBehaviour:
@@ -832,6 +834,22 @@ MonoBehaviour:
   _actorType: 1
   _speed: 1
   _model: {fileID: 3535252017480752486}
+--- !u!114 &8131503257345141834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7272666755009121259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ddd8dfcea54a4146b92c5b4689f95cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _radius: 5
+  _targetLayer:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!1 &7474314334066899040
 GameObject:
   m_ObjectHideFlags: 0

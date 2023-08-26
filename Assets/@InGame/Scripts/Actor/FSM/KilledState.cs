@@ -41,6 +41,13 @@ namespace PSB.InGame
                 Pos = _blackBoard.Transform.position,
                 Type = ActionType.Killed,
             });
+            // ログ
+            string r = Utility.ColorCodeRed;
+            string g = Utility.ColorCodeGreen;
+            MessageBroker.Default.Publish(new EventLogMessage()
+            {
+                Message = $"<color={g}>{_blackBoard.Transform.name}</color>が<color={r}>死亡した</color>。ご臨終、だな。",
+            });
         }
     }
 }

@@ -41,6 +41,13 @@ namespace PSB.InGame
                 Pos = _blackBoard.Transform.position,
                 Type = ActionType.Senility,
             });
+            // ログ
+            string r = Utility.ColorCodeRed;
+            string g = Utility.ColorCodeGreen;
+            MessageBroker.Default.Publish(new EventLogMessage()
+            {
+                Message = $"<color={g}>{_blackBoard.Transform.name}</color>が<color={r}>大往生した</color>。ご臨終、だな。",
+            });
         }
     }
 }

@@ -20,13 +20,15 @@ namespace PSB.InGame
     /// </summary>
     [RequireComponent(typeof(InitializeProcess))]
     [RequireComponent(typeof(ActionEvaluator))]
+    [RequireComponent(typeof(SightSensor))]
     [RequireComponent(typeof(BlackBoard))]
-    public class Actor : MonoBehaviour, IReadOnlyParams, IReadOnlyBreedingParam
+    public class Actor : MonoBehaviour, IReadOnlyParams, IReadOnlyBreedingParam, IReadOnlyGeneParams
     {
         public static event UnityAction<Actor> OnSpawned;
 
         [SerializeField] InitializeProcess _initProcess;
         [SerializeField] ActionEvaluator _evaluator;
+        [SerializeField] SightSensor _sightSensor;
         // StatusBaseの取得やController側での制御に必要なので個体毎にデータを持つ
         [SerializeField] ActorType _type;
 
@@ -47,6 +49,12 @@ namespace PSB.InGame
         string IReadOnlyObjectInfo.Name => _initialized ? _name ??= gameObject.name : string.Empty;
         // 繁殖ステートが読み取る用。
         uint IReadOnlyBreedingParam.Gene => _status.Gene;
+        // 評価クラスが読み取る用。
+        byte IReadOnlyGeneParams.ColorR => _status.ColorR;
+        byte IReadOnlyGeneParams.ColorG => _status.ColorG;
+        byte IReadOnlyGeneParams.ColorB => _status.ColorB;
+        Color32 IReadOnlyGeneParams.Color => _status.Color;
+        float IReadOnlyGeneParams.Size => _status.Size;
 
         /// <summary>
         /// スポナーが生成のタイミングで呼ぶ初期化処理
@@ -116,12 +124,17 @@ namespace PSB.InGame
 
         public void Evaluate(float[] leaderEvaluate)
         {
+            // 周囲の敵と物を検知
+            Actor enemy = _sightSensor.SearchEnemy();
+
             // リーダーの各行動への評価との合算で選択する
-            float[] myEvaluate = _evaluator.Evaluate(_status);
+            float[] myEvaluate = _evaluator.Evaluate(_status, enemy);
             ActionType action = ActionEvaluator.SelectMax(myEvaluate, leaderEvaluate);
 
             // 黒板に書き込み
             _blackBoard.NextAction = action;
+            // TODO:敵の取得は出来た。攻撃/逃げるの評価も出来た。黒板に敵を書き込んでステートの作成をする
+            _blackBoard.Enemy = enemy;
         }
 
         void SendSpawnChildMessage(uint gene)
@@ -134,12 +147,19 @@ namespace PSB.InGame
                 Pos = transform.position, // 自身の位置に生成する
             });
         }
+
+        public void Damaged()
+        {
+            _status.Hp.Value -= 10;
+        }
     }
 
     // バグ:経路が見つからないエラーが出るバグ
     // 出来れば:他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
     // 次タスク:攻撃をする、受けるの処理の作成
-    // 次タスク:キャラクターが喋る、プレイヤー側に各イベントのメッセージを通知
+    
+    // 攻撃に関してはキャラクター以外に敵が周囲にいる必要がある。
+    // 敵を検知-> 評価 
 
     // 繁殖時のバグ(修正済み？)
     // 餓死ステートに遷移した状態でも繁殖候補として残ってしまっている

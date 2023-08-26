@@ -3,13 +3,13 @@ using UnityEngine.Events;
 
 namespace PSB.InGame
 {
-    public interface IBlackBoardForActor : IBreedingRegister, IStatusRegister 
+    public interface IBlackBoardForActor : IBreedingRegister, IStatusRegister, IEnemyWriter
     {
         BaseState InitState { get; }
         ActionType NextAction { get; set; }
     }
 
-    public interface IBlackBoardForState : IBreedingInvoker, IMovable, IStatusInvoker
+    public interface IBlackBoardForState : IBreedingInvoker, IMovable, IStatusInvoker, IEnemyReader
     {
         BaseState NextState { get; }
         BaseState EvaluateState { get; }
@@ -20,6 +20,16 @@ namespace PSB.InGame
         Transform Transform { get; }
         Transform Model { get; }
         float Speed { get; }
+    }
+
+    public interface IEnemyWriter
+    {
+        Actor Enemy { set; }
+    }
+
+    public interface IEnemyReader
+    {
+        Actor Enemy { get; }
     }
 
     public interface IStatusRegister

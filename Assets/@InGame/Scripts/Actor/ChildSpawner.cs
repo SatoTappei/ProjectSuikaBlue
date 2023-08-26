@@ -39,10 +39,10 @@ namespace PSB.InGame
             if (!Check()) return;
 
             uint childGene = CalcChildGene(msg);
-            InstantiateActor(_prefab, msg.Pos, childGene);
+            Actor actor = InstantiateActor(_prefab, msg.Pos, childGene);
 
             // キャラクターを生成したメッセージを送信する
-            SendMessage(msg);
+            SendSpawnMessage(actor);
         }
 
         uint CalcChildGene(SpawnChildMessage msg)
@@ -112,9 +112,14 @@ namespace PSB.InGame
 
         byte Clamp(int value) => (byte)Mathf.Clamp(value, byte.MinValue, byte.MaxValue);
 
-        void SendMessage(SpawnChildMessage msg)
+        void SendSpawnMessage(Actor actor)
         {
-            MessageBroker.Default.Publish(new ActorSpawnMessage() { Pos = msg.Pos });
+            // 生まれた
+            MessageBroker.Default.Publish(new ActorSpawnMessage() { Pos = actor.transform.position });
+            // ログ
+            string color = Utility.ColorCodeGreen;
+            string log = $"<color={color}>{actor.name}</color>がこの腐敗した世界に産み落とされたです。";
+            MessageBroker.Default.Publish(new EventLogMessage() { Message = log });
         }
 
         // デバッグ用

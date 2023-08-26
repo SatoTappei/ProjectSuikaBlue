@@ -7,6 +7,9 @@ namespace PSB.InGame
     {
         const string CharTable = "abcdefghijklmnopqrstuvwxyz1234567890";
 
+        public const string ColorCodeGreen = "#21ff37";
+        public const string ColorCodeRed = "#ff6759";
+
         /// <summary>
         /// 周囲八近傍を指定する用の方向の配列
         /// </summary>

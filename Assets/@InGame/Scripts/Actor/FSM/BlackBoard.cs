@@ -17,6 +17,7 @@ namespace PSB.InGame
         ActionType _nextAction;
         Dictionary<ActionType, BaseState> _stateDict;
         Transform _transform;
+        Actor _enemy;
         // •]‰¿‚Í‘Î‰ž‚·‚és“®‚ª–³‚¢“Á•Ê‚Èó‘Ô‚È‚Ì‚Å•Ê“r•ÛŽ‚·‚é
         EvaluateState _evaluateState;
         // H‚×‚é/ˆù‚Þ“x‚ÉŒÄ‚Ño‚³‚ê‚éBˆø”‚É‚Í‰ñ•œ—Ê‚ª“n‚³‚ê‚é
@@ -36,6 +37,9 @@ namespace PSB.InGame
         Transform IMovable.Transform => _transform ??= transform;
         Transform IMovable.Model => _model;
         float IMovable.Speed => _speed;
+
+        Actor IEnemyReader.Enemy => _enemy;
+        Actor IEnemyWriter.Enemy { set => _enemy = value; }
 
         void Awake()
         {
@@ -63,6 +67,8 @@ namespace PSB.InGame
             _stateDict.Add(ActionType.Breed, new BreedState(this));
             _stateDict.Add(ActionType.Killed, new KilledState(this));
             _stateDict.Add(ActionType.Senility, new SenilityState(this));
+            _stateDict.Add(ActionType.Attack, new AttackState(this));
+            _stateDict.Add(ActionType.Escape, new EscapeState(this));
         }
 
         BaseState TryGetActionState(ActionType type)

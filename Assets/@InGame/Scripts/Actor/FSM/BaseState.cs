@@ -13,6 +13,8 @@ namespace PSB.InGame
         Breed,
         Killed,
         Senility,
+        Attack,
+        Escape,
     }
 
     public abstract class BaseState

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Actorのステータスの各種パラメータを読み取るために使用する
 /// パラメータを参照して云々の処理を行う際はこのInterfaceを使用すること
@@ -19,4 +21,13 @@ public interface IReadOnlyEvaluate
 public interface IReadOnlyObjectInfo
 {
     string Name { get; }
+}
+
+public interface IReadOnlyGeneParams
+{
+    byte ColorR { get; }
+    byte ColorG { get; }
+    byte ColorB { get; }
+    Color32 Color { get; }
+    float Size { get; }
 }

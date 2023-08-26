@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 namespace PSB.InGame
 {
@@ -77,7 +78,9 @@ namespace PSB.InGame
                 Actor prefab = m == 0 ? _leaderPrefab : _unitPrefab;
                 // キャラクターの生成
                 Vector3 pos = new Vector3(cell.Pos.x, _spawnHeight, cell.Pos.z);
-                InstantiateActor(prefab, pos);
+                Actor actor = InstantiateActor(prefab, pos);
+
+                SendSpawnMessage(actor.name);
             }
 
             temp.Clear();
@@ -99,6 +102,15 @@ namespace PSB.InGame
 
                 temp.Enqueue(field[ny, nx]);
             }
+        }
+
+        void SendSpawnMessage(string name)
+        {
+            string color = Utility.ColorCodeGreen;
+            MessageBroker.Default.Publish(new EventLogMessage() 
+            {
+                Message = $"<color={color}>{name}</color>が群れに加わったです。"
+            });
         }
     }
 }
