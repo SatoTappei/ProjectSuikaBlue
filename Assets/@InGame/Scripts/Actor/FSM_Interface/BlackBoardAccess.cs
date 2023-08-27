@@ -5,12 +5,14 @@ namespace PSB.InGame
 {
     public interface IBlackBoardForActor : IBreedingRegister, IStatusRegister, IEnemyWriter
     {
+        Transform Leader { set; }
         BaseState InitState { get; }
         ActionType NextAction { get; set; }
     }
 
     public interface IBlackBoardForState : IBreedingInvoker, IMovable, IStatusInvoker, IEnemyReader
     {
+        Transform Leader { get; }
         BaseState NextState { get; }
         BaseState EvaluateState { get; }
     }

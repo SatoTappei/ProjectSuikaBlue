@@ -18,6 +18,7 @@ namespace PSB.InGame
         Dictionary<ActionType, BaseState> _stateDict;
         Transform _transform;
         Actor _enemy;
+        Transform _leader;
         // •]‰¿‚Í‘Î‰ž‚·‚és“®‚ª–³‚¢“Á•Ê‚Èó‘Ô‚È‚Ì‚Å•Ê“r•ÛŽ‚·‚é
         EvaluateState _evaluateState;
         // H‚×‚é/ˆù‚Þ“x‚ÉŒÄ‚Ño‚³‚ê‚éBˆø”‚É‚Í‰ñ•œ—Ê‚ª“n‚³‚ê‚é
@@ -28,9 +29,11 @@ namespace PSB.InGame
         // —Y‚ªŽ“‚ÉŽY‚Ü‚¹‚éƒ^ƒCƒ~ƒ“ƒO‚ÅŒÄ‚Ño‚³‚ê‚éBˆø”‚É‚Í”Ô‚Ìˆâ“`Žq‚ª“n‚³‚ê‚é
         event UnityAction OnMaleBreeding;
 
+        Transform IBlackBoardForState.Leader => _leader;
         BaseState IBlackBoardForState.NextState => TryGetActionState(_nextAction);
         BaseState IBlackBoardForState.EvaluateState => _evaluateState;
-        
+
+        Transform IBlackBoardForActor.Leader { set => _leader = value; }
         BaseState IBlackBoardForActor.InitState => _evaluateState;
         ActionType IBlackBoardForActor.NextAction { get => _nextAction; set => _nextAction = value; }
 
@@ -69,6 +72,7 @@ namespace PSB.InGame
             _stateDict.Add(ActionType.Senility, new SenilityState(this));
             _stateDict.Add(ActionType.Attack, new AttackState(this));
             _stateDict.Add(ActionType.Escape, new EscapeState(this));
+            _stateDict.Add(ActionType.Gather, new GatherState(this));
         }
 
         BaseState TryGetActionState(ActionType type)

@@ -38,6 +38,7 @@ namespace PSB.InGame
         string _name;
         bool _initialized;
 
+        public Transform Leader { set => _blackBoard.Leader = value; } // テスト用、ステートでリーダーを参照するために必要
         public ActorType Type => _type;
         // 読み取る用。初期化前に読み取った場合は仮の値として1を返す。
         float IReadOnlyParams.Food         => _initialized ? _status.Food.Percentage : 1;
@@ -133,7 +134,6 @@ namespace PSB.InGame
 
             // 黒板に書き込み
             _blackBoard.NextAction = action;
-            // TODO:敵の取得は出来た。攻撃/逃げるの評価も出来た。黒板に敵を書き込んでステートの作成をする
             _blackBoard.Enemy = enemy;
         }
 
@@ -152,11 +152,22 @@ namespace PSB.InGame
         {
             _status.Hp.Value -= 10;
         }
+
+        public float[] LeaderEvaluate()
+        {
+            // 本来はpublicな黒板を見て行動を評価する
+            float[] eval = new float[Utility.GetEnumLength<ActionType>() - 1];
+            eval[(int)ActionType.Gather] = 1;
+
+            return eval;
+        }
     }
 
     // バグ:経路が見つからないエラーが出るバグ
     // 出来れば:他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
-    // 次タスク:攻撃をする、受けるの処理の作成
+    // 次タスク:リーダーが死んだ際の処理、群れの長がいないといけない
+    // 次タスク:リーダー命令で群れを集合させる処理
+    // 次タスク:個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う
     
     // 攻撃に関してはキャラクター以外に敵が周囲にいる必要がある。
     // 敵を検知-> 評価 

@@ -15,6 +15,7 @@ namespace PSB.InGame
         Senility,
         Attack,
         Escape,
+        Gather,
     }
 
     public abstract class BaseState

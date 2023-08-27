@@ -34,9 +34,19 @@ namespace PSB.InGame
             // 自動でターンが進むターンベースと考えればLogicが書きやすいかもしれない
 
             if (Input.GetKeyDown(KeyCode.Space)) TrySpawnKurokami();
+            // テスト:キー入力で集合させる
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                ForEachAll(actor => actor.Leader = _kinpatsuLeader.transform);
+                float[] eval = _kinpatsuLeader.LeaderEvaluate();
+                ForEachAll(actor => actor.Evaluate(eval));
+            }
+            else
+            {
+                ForEachAll(actor => actor.Evaluate()); // <- テストで毎フレーム評価する
+            }
 
             ForEachAll(actor => actor.StepParams());
-            ForEachAll(actor => actor.Evaluate()); // <- テストで毎フレーム評価する
             ForEachAll(actor => actor.StepAction());
         }
 
