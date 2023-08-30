@@ -45,22 +45,21 @@ namespace PSB.InGame
             }
         }
 
-        /// <summary>
-        /// GameManager‚©‚çŒÄ‚Ño‚µ‚ÄField‚ğ¶¬‚·‚é
-        /// </summary>
-        public void Create()
-        {
-            _field = _builder.Build();
-            CategorizeCell(_field);
-            _bresenham = new(_field);
-        }
-
         void OnDestroy()
         {
             _field = null;
             _resourceCellDict = null;
             _bresenham = null;
             Instance = null;
+        }
+
+        public Cell[,] Create()
+        {
+            _field = _builder.Build();
+            CategorizeCell(_field);
+            _bresenham = new(_field);
+
+            return _field;
         }
 
         void CategorizeCell(Cell[,] field)

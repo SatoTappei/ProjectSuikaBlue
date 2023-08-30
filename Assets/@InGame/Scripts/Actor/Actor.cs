@@ -18,123 +18,102 @@ namespace PSB.InGame
     /// スポナーから生成され、Controllerによって操作される。
     /// 単体で動作することを考慮していないのでシーン上に直に配置しても機能しない。
     /// </summary>
-    [RequireComponent(typeof(InitializeProcess))]
-    [RequireComponent(typeof(ActionEvaluator))]
-    [RequireComponent(typeof(SightSensor))]
-    [RequireComponent(typeof(BlackBoard))]
-    public class Actor : MonoBehaviour, IReadOnlyParams, IReadOnlyBreedingParam, IReadOnlyGeneParams
+    [RequireComponent(typeof(DataContext))]
+    public class Actor : MonoBehaviour, IReadOnlyActorStatus
     {
         public static event UnityAction<Actor> OnSpawned;
 
-        [SerializeField] InitializeProcess _initProcess;
-        [SerializeField] ActionEvaluator _evaluator;
-        [SerializeField] SightSensor _sightSensor;
-        // StatusBaseの取得やController側での制御に必要なので個体毎にデータを持つ
-        [SerializeField] ActorType _type;
+        [SerializeField] DataContext _context;
+        [SerializeField] SkinnedMeshRenderer _renderer;
 
-        IBlackBoardForActor _blackBoard;
-        Status _status;
+        ActionEvaluator _evaluator;
+        SightSensor _sightSensor;
         BaseState _currentState;
-        string _name;
+        Material _copyMaterial;
         bool _initialized;
 
-        public Transform Leader { set => _blackBoard.Leader = value; } // テスト用、ステートでリーダーを参照するために必要
-        public ActorType Type => _type;
-        // 読み取る用。初期化前に読み取った場合は仮の値として1を返す。
-        float IReadOnlyParams.Food         => _initialized ? _status.Food.Percentage : 1;
-        float IReadOnlyParams.Water        => _initialized ? _status.Water.Percentage : 1;
-        float IReadOnlyParams.HP           => _initialized ? _status.Hp.Percentage : 1;
-        float IReadOnlyParams.LifeSpan     => _initialized ? _status.LifeSpan.Percentage : 1;
-        float IReadOnlyParams.BreedingRate => _initialized ? _status.BreedingRate.Percentage : 1;
-        string IReadOnlyEvaluate.StateName => _initialized ? _currentState.Type.ToString() : string.Empty;
-        string IReadOnlyObjectInfo.Name => _initialized ? _name ??= gameObject.name : string.Empty;
-        // 繁殖ステートが読み取る用。
-        uint IReadOnlyBreedingParam.Gene => _status.Gene;
-        // 評価クラスが読み取る用。
-        byte IReadOnlyGeneParams.ColorR => _status.ColorR;
-        byte IReadOnlyGeneParams.ColorG => _status.ColorG;
-        byte IReadOnlyGeneParams.ColorB => _status.ColorB;
-        Color32 IReadOnlyGeneParams.Color => _status.Color;
-        float IReadOnlyGeneParams.Size => _status.Size;
+        // キャラクターの各種パラメータ。初期化前に読み取った場合は仮の値を返す。
+        public float Food         => _initialized ? _context.Food.Percentage : default;
+        public float Water        => _initialized ? _context.Water.Percentage : default;
+        public float HP           => _initialized ? _context.HP.Percentage : default;
+        public float LifeSpan     => _initialized ? _context.LifeSpan.Percentage : default;
+        public float BreedingRate => _initialized ? _context.BreedingRate.Percentage : default;
+        public string StateName   => _initialized ? _currentState.Type.ToString() : string.Empty;
 
         /// <summary>
-        /// スポナーが生成のタイミングで呼ぶ初期化処理
+        /// スポナーから生成された際にスポナー側が呼び出して初期化する必要がある。
         /// </summary>
         public void Init(uint? gene = null) 
         {
-            // 初期化完了後、各種ステータスの値を参照できる。
-            _status = _initProcess.Execute(gene, _type);
-            _initialized = true;
-
-            // FSMの準備。評価ステートを初期状態のステートとする。
-            _blackBoard = GetComponent<BlackBoard>();
-            _currentState = _blackBoard.InitState;
-
-            // 食べる/飲むステートがステータスを変化させるように登録する
-            _blackBoard.OnEatFoodRegister(v => _status.Food.Value += v);
-            _blackBoard.OnDrinkWaterRegister(v => _status.Water.Value += v);
-
-            // 繁殖ステートが自身が雄/雌の時に行う処理をそれぞれ登録する
-            _blackBoard.OnFemaleBreedingRegister(SendSpawnChildMessage);
-            _blackBoard.OnFemaleBreedingRegister(_ => _status.BreedingRate.Value = 0);
-            _blackBoard.OnMaleBreedingRegister(() => _status.BreedingRate.Value = 0);
+            _context.Init(gene);
+            ApplyGene();
+            _currentState = _context.EvaluateState;
+            _evaluator = new(_context);
+            _sightSensor = new(_context);
 
             OnSpawned?.Invoke(this);
         }
 
         /// <summary>
-        /// 毎フレーム呼び出され、呼び出されるたびにパラメータを1フレーム分だけ変化させる
+        /// 遺伝子を反映してサイズと色を変える
+        /// </summary>
+        void ApplyGene()
+        {
+            _context.Model.localScale *= _context.Size;
+            _renderer.material.SetColor("_BaseColor", _context.Color);
+            _copyMaterial = _renderer.material;
+        }
+
+        /// <summary>
+        /// パラメータを1フレーム分だけ変化させる
         /// </summary>
         public void StepParams()
         {
-            _status.StepFood();
-            _status.StepWater();
-            _status.StepLifeSpan();
+            _context.StepFood();
+            _context.StepWater();
+            _context.StepLifeSpan();
            
             // 食料と水分が0以下なら体力を減らす
-            if (_status.Food.IsBelowZero && _status.Water.IsBelowZero)
+            if (_context.Food.IsBelowZero && _context.Water.IsBelowZero)
             {
-                _status.StepHp();
+                _context.StepHp();
             }
             // 体力が一定以上なら繁殖率が増加する
-            if (_status.IsBreedingRateIncrease)
+            if (_context.IsBreedingRateIncrease)
             {
-                _status.StepBreedingRate();
+                _context.StepBreedingRate();
             }
         }
 
         /// <summary>
-        /// 毎フレーム呼び出され、呼び出されるたびに現在のステートを1フレーム分だけ更新する
+        /// 現在のステートを1フレーム分だけ更新する
         /// </summary>
         public void StepAction()
         {
             _currentState = _currentState.Update();
         }
 
-        public void Evaluate()
+        /// <summary>
+        /// 評価の結果、次の行動が死亡だった場合に呼び出す
+        /// </summary>
+        void OnDeath()
         {
-            // ダミーを作って呼び出す
-            int length = Utility.GetEnumLength<ActionType>() - 1;
-            float[] buffer = ArrayPool<float>.Shared.Rent(length);
-            float[] dummy = buffer.AsSpan(0, length).ToArray();
-
-            Evaluate(dummy);
-
-            ArrayPool<float>.Shared.Return(buffer);
+            // 色の変更を行った際にコピーしていたマテリアルの削除
+            if (_copyMaterial) Destroy(_copyMaterial);
         }
 
+        /// <summary>
+        /// 自身の情報とリーダーの評価値を元に次の行動を決める。
+        /// </summary>
         public void Evaluate(float[] leaderEvaluate)
         {
             // 周囲の敵と物を検知
-            Actor enemy = _sightSensor.SearchEnemy();
+            _context.Enemy = _sightSensor.SearchTarget(_context.EnemyTag);
 
-            // リーダーの各行動への評価との合算で選択する
-            float[] myEvaluate = _evaluator.Evaluate(_status, enemy);
-            ActionType action = ActionEvaluator.SelectMax(myEvaluate, leaderEvaluate);
+            // TODO:追加の評価リソースがある場合はここに書く
 
-            // 黒板に書き込み
-            _blackBoard.NextAction = action;
-            _blackBoard.Enemy = enemy;
+            // 黒板に書き込む
+            _context.NextAction = _evaluator.SelectAction(leaderEvaluate);
         }
 
         void SendSpawnChildMessage(uint gene)
@@ -153,6 +132,7 @@ namespace PSB.InGame
             _status.Hp.Value -= 10;
         }
 
+        // ↓リーダーのみのメソッド
         public float[] LeaderEvaluate()
         {
             // 本来はpublicな黒板を見て行動を評価する
@@ -163,14 +143,16 @@ namespace PSB.InGame
         }
     }
 
+    // ★優先:黒髪と金髪にタグをつける
+
     // バグ:経路が見つからないエラーが出るバグ
     // 出来れば:他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
     // 次タスク:リーダーが死んだ際の処理、群れの長がいないといけない
-    // 次タスク:リーダー命令で群れを集合させる処理
+    // 次タスク: リーダーが死ぬとランダムで次のリーダーが決まる。群れの最後の1匹が死ぬとがめおべら
     // 次タスク:個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う
-    
-    // 攻撃に関してはキャラクター以外に敵が周囲にいる必要がある。
-    // 敵を検知-> 評価 
+
+    // StatusとBlackBoardはActorとStateどちらからも参照出来ないといけない。
+    // 
 
     // 繁殖時のバグ(修正済み？)
     // 餓死ステートに遷移した状態でも繁殖候補として残ってしまっている
@@ -224,7 +206,7 @@ namespace PSB.InGame
     // 遺伝的アルゴリズム
     // 遺伝子は4つ、RGB+サイズ、
 
-    // 黒髪
+    // キャラクター:黒髪
     // リーダーがいない。各々が勝手に行動する。
     // 金髪を見つけると攻撃してくる。
     // 攻撃で死ぬ。

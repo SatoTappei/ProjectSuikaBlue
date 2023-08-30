@@ -5,7 +5,6 @@ namespace PSB.InGame
     [RequireComponent(typeof(PerlinNoise))]
     [RequireComponent(typeof(TerrainGenerator))]
     [RequireComponent(typeof(InitResourceSpawner))]
-    [RequireComponent(typeof(InitKinpatsuSpawner))]
     public class FieldBuilder : MonoBehaviour
     {
         [SerializeField] int _width = 50;
@@ -22,9 +21,6 @@ namespace PSB.InGame
             // 初期資源を配置
             InitResourceSpawner resource = GetComponent<InitResourceSpawner>();
             resource.Spawn(field);
-            // 初期金髪を配置
-            InitKinpatsuSpawner kinpatsu = GetComponent<InitKinpatsuSpawner>();
-            kinpatsu.Spawn(field);
 
             return field;
         }

@@ -78,7 +78,6 @@ namespace PSB.InGame
     /// <summary>
     /// キャラクターが生成された際にスポナーから送信される
     /// エフェクトを表示させるためのエフェクターが受信する
-    /// 各キャラクターが自身を操作する側に登録する処理とは別なので注意
     /// </summary>
     public struct ActorSpawnMessage
     {
