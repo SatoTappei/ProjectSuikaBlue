@@ -29,9 +29,6 @@ namespace PSB.InGame
 
         async void Start()
         {
-            // キャラクターを生成した際にこのクラスで制御できるように登録する
-            RegisterActorCallback();
-
             _initialized = await InitAsync(this.GetCancellationTokenOnDestroy());
         }
 
@@ -54,21 +51,17 @@ namespace PSB.InGame
             //}
             //else
             //{
-            //    ForEachAll(actor => actor.Evaluate()); // <- テストで毎フレーム評価する
+            
             //}
 
-            //ForEachAll(actor => actor.StepParams());
-            //ForEachAll(actor => actor.StepAction());
-        }
-
-        void RegisterActorCallback()
-        {
-            Actor.OnSpawned += AddSpawnedActorTemp;
-            this.OnDisableAsObservable().Subscribe(_ => Actor.OnSpawned -= AddSpawnedActorTemp);
+            ForEachAll(actor => actor.StepParams());
+            //    ForEachAll(actor => actor.Evaluate()); // <- テストで毎フレーム評価する
+            ForEachAll(actor => actor.StepAction());
         }
 
         async UniTask<bool> InitAsync(CancellationToken token)
         {
+            RegisterActorCallback();
             // キャラクターのステータス読み込み
             await StatusBaseHolder.LoadAsync(token);
             // フィールドの生成
@@ -77,6 +70,53 @@ namespace PSB.InGame
             _initKinpatsuSpawner.Spawn(field);
 
             return true;
+        }
+
+        /// <summary>
+        /// ループ中にキャラクターの数が増加してリストの要素数が変わる事を防ぐために
+        /// キャラクター生成時に一時保存用のキューに追加する
+        /// </summary>
+        void RegisterActorCallback()
+        {
+            Actor.OnSpawned += actor => _temp.Enqueue(actor);
+            this.OnDisableAsObservable().Subscribe(_ => Actor.OnSpawned -= actor => _temp.Enqueue(actor));
+        }
+
+        /// <summary>
+        /// 一時保存用のキュー中身を全て制御するキャラクターのリストに追加する
+        /// </summary>
+        void AddControledActorFromTemp()
+        {
+            while (_temp.Count > 0)
+            {
+                Actor actor = _temp.Dequeue();
+
+                if (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
+                else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.AddLast(actor);
+                else if (actor.Type == ActorType.Kurokami) _kurokamiList.AddLast(actor);
+                else
+                {
+                    string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;
+                    throw new System.ArgumentException(msg);
+                }
+            }
+        }
+
+        void ForEachAll(UnityAction<Actor> action)
+        {
+            if (_kinpatsuLeader != null)
+            {
+                action.Invoke(_kinpatsuLeader);
+            }
+
+            foreach (Actor kinpatsu in _kinpatsuList)
+            {
+                action.Invoke(kinpatsu);
+            }
+            foreach (Actor kurokami in _kurokamiList)
+            {
+                action.Invoke(kurokami);
+            }
         }
 
         /// <summary>
@@ -101,42 +141,6 @@ namespace PSB.InGame
             }
 
             return false;
-        }
-
-        void ForEachAll(UnityAction<Actor> action)
-        {
-            if (_kinpatsuLeader != null)
-            {
-                action.Invoke(_kinpatsuLeader);
-            }
-
-            foreach (Actor kinpatsu in _kinpatsuList)
-            {
-                action.Invoke(kinpatsu);
-            }
-            foreach (Actor kurokami in _kurokamiList)
-            {
-                action.Invoke(kurokami);
-            }
-        }
-
-        void AddSpawnedActorTemp(Actor actor) => _temp.Enqueue(actor);
-
-        void AddControledActorFromTemp()
-        {
-            while (_temp.Count > 0)
-            {
-                Actor actor = _temp.Dequeue();
-
-                //if (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
-                //else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.AddLast(actor);
-                //else if (actor.Type == ActorType.Kurokami) _kurokamiList.AddLast(actor);
-                //else
-                //{
-                //    string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;
-                //    throw new System.ArgumentException(msg);
-                //}
-            }
         }
     }
 }

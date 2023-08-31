@@ -6,10 +6,11 @@ namespace PSB.InGame
 
         public EvaluateState(DataContext context) : base(context, StateType.Evaluate)
         {
+            _context = context;
         }
 
         protected override void Enter()
-        {          
+        {
         }
 
         protected override void Exit()

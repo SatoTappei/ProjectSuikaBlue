@@ -37,6 +37,7 @@ namespace PSB.InGame
         public float LifeSpan     => _initialized ? _context.LifeSpan.Percentage : default;
         public float BreedingRate => _initialized ? _context.BreedingRate.Percentage : default;
         public string StateName   => _initialized ? _currentState.Type.ToString() : string.Empty;
+        public ActorType Type     => _initialized ? _context.Type : ActorType.None;
 
         /// <summary>
         /// スポナーから生成された際にスポナー側が呼び出して初期化する必要がある。
@@ -50,6 +51,7 @@ namespace PSB.InGame
             _sightSensor = new(_context);
 
             OnSpawned?.Invoke(this);
+            _initialized = true;
         }
 
         void OnDisable()

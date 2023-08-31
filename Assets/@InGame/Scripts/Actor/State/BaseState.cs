@@ -70,6 +70,8 @@ namespace PSB.InGame
         protected abstract void Exit();
         protected virtual void OnInvalid() { }
 
+        protected void ToEvaluateState() => TryChangeState(Context.EvaluateState);
+
         /// <summary>
         /// Enter()が呼ばれてかつ、ステートの遷移処理を呼んでいない場合のみ遷移可能
         /// </summary>

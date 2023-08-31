@@ -85,6 +85,8 @@ namespace PSB.InGame
         public void Init(uint? gene)
         {
             _transform = transform;
+            // 行動の評価の処理がされない場合はうろうろステートに遷移する
+            NextAction = ActionType.Wander;
 
             _base ??= StatusBaseHolder.Get(_type);
             _gene = gene ?? Base.DefaultGene;

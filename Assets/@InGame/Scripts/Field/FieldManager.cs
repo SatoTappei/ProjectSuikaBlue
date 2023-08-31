@@ -78,6 +78,27 @@ namespace PSB.InGame
         }
 
         /// <summary>
+        /// キャラクターが存在するという情報をセルにセットする
+        /// 情報を消したい場合は第二引数にNoneを指定する
+        /// </summary>
+        public void SetActorOnCell(in Vector3 pos, ActorType type)
+        {
+            TryGetCell(pos, out Cell cell);
+            cell.ActorType = type;
+        }
+
+        /// <summary>
+        /// 指定した座標のセルにキャラクターが存在するかどうかを判定する
+        /// </summary>
+        /// <returns>存在する:true 存在しない:false</returns>
+        public bool IsActorOnCell(in Vector3 pos, out ActorType type)
+        {
+            TryGetCell(pos, out Cell cell);
+            type = cell.ActorType;
+            return cell.ActorType != ActorType.None;
+        }
+
+        /// <summary>
         /// 資源に対応したセルを全て返す。セルが無い場合はリストを作成し返すのでnullを返すことが無い。
         /// </summary>
         /// <returns>セルが1個以上:true 0個:false</returns>
@@ -95,7 +116,6 @@ namespace PSB.InGame
             {
                 throw new KeyNotFoundException("この資源のセルが登録されていない: " + type);
             }
-
         }
 
         public bool TryGetCell(in Vector3 pos, out Cell cell)

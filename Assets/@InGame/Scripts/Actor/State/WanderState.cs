@@ -8,27 +8,22 @@ namespace PSB.InGame
     /// </summary>
     public class WanderState : BaseState
     {
-        Transform _actor;
-        Vector3 _currentCellPos;
-        Vector3 _nextCellPos;
-        float _lerpProgress;
-        float _speedModify = 1;
+        MoveModule _move;
+        FieldModule _field;
 
-        bool OnNextCell => _actor.position == _nextCellPos;
+        bool _hasNextCell;
 
         public WanderState(DataContext context) : base(context, StateType.Wander)
         {
-            _actor = context.Transform;
+            _move = new(context);
+            _field = new(context);
         }
 
         protected override void Enter()
         {
-            _lerpProgress = 0;
-
-            // 正常なら8方向囲まれた位置に存在することが無い
-            SetTargetCell();
-            Modify();
-            Look();
+            _move.Reset();
+            _field.SetActorOnCell();
+            _hasNextCell = SetTargetCell();
         }
 
         protected override void Exit()
@@ -37,20 +32,23 @@ namespace PSB.InGame
 
         protected override void Stay()
         {
-            // 次のセルの上に来た場合は評価ステートに戻る
-            if (OnNextCell)
+            if (!_hasNextCell) ToEvaluateState();
+
+            if (_move.OnNextCell)
             {
                 ToEvaluateState();
+                // 次のセルに到着したタイミングで移動前のセルの情報を消す
+                _field.DeleteActorOnCell(_move.CurrentCellPos);
             }
             else
             {
-                Move();
+                _move.Move();
             }
         }
 
         bool SetTargetCell()
         {
-            _currentCellPos = _actor.position;
+            _move.CurrentCellPos = Context.Transform.position;
 
             // 周囲8マスのランダムなセルに移動する
             Vector3 pos = Context.Transform.position;
@@ -60,40 +58,19 @@ namespace PSB.InGame
                 if (FieldManager.Instance.TryGetCell(index + dir, out Cell cell))
                 {
                     if (!cell.IsWalkable) continue;
+                    if (!cell.IsEmpty) continue;
 
                     // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
-                    _nextCellPos = cell.Pos;
-                    _nextCellPos.y = _actor.position.y;
+                    _move.NextCellPos = cell.Pos;
+                    _move.NextCellPos.y = Context.Transform.position.y;
+                    // 移動先のセルを予約する
+                    _field.SetActorOnCell(_move.NextCellPos);
+
                     return true;
                 }
             }
             
             return false;
-        }
-
-        void ToEvaluateState() => TryChangeState(Context.EvaluateState);
-
-        void Move()
-        {
-            //_lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
-            _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
-        }
-
-        /// <summary>
-        /// 斜め移動の速度を補正する
-        /// </summary>
-        void Modify()
-        {
-            bool dx = Mathf.Approximately(_currentCellPos.x, _nextCellPos.x);
-            bool dz = Mathf.Approximately(_currentCellPos.z, _nextCellPos.z);
-
-            _speedModify = (dx || dz) ? 1 : 0.7f;
-        }
-
-        void Look()
-        {
-            Vector3 dir = _nextCellPos - _currentCellPos;
-            Context.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
         }
     }
 }

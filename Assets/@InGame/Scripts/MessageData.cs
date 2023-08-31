@@ -12,6 +12,50 @@ namespace PSB.InGame
     }
 
     /// <summary>
+    /// 繁殖ステートで子を生成するタイミングで送信される
+    /// 生成に用いるパラメータのみ送信しているので、任意のクラスからも送信可能
+    /// 子を生成するスポナーが受信し、子を生成する
+    /// </summary>
+    public class SpawnChildMessage
+    {
+        public uint Gene1 { get; set; }
+        public uint Gene2 { get; set; }
+        public float Food { get; set; }
+        public float Water { get; set; }
+        public float HP { get; set; }
+        public float LifeSpan { get; set; }
+        public Vector3 Pos { get; set; }
+    }
+
+    /// <summary>
+    /// 音を再生する際に送信する
+    /// </summary>
+    public struct PlayAudioMessage
+    {
+        public AudioKey Key { get; set; }
+    }
+
+    /// <summary>
+    /// 各種イベントのログを表示する際に任意のクラスから送信される
+    /// </summary>
+    public struct EventLogMessage
+    {
+        public string Message { get; set; }
+    }
+
+    // 以下は汎用性など要検証
+
+    /// <summary>
+    /// キャラクターが生成された際にスポナーから送信される
+    /// エフェクトを表示させるためのエフェクターが受信する
+    /// </summary>
+    public struct ActorSpawnMessage
+    {
+        public Vector3 Pos { get; set; }
+        public ActionType Type { get; set; }
+    }
+
+    /// <summary>
     /// 生成するタイミングで送信される
     /// </summary>
     public struct KurokamiSpawnMessage
@@ -53,20 +97,7 @@ namespace PSB.InGame
         public int ID { get; set; }
     }
 
-    /// <summary>
-    /// 繁殖ステートで子を生成するタイミングでコールバックから送信される
-    /// 子を生成するスポナーが受信し、子を生成する
-    /// </summary>
-    public class SpawnChildMessage
-    {
-        public uint Gene1 { get; set; }
-        public uint Gene2 { get; set; }
-        public float Food { get; set; }
-        public float Water { get; set; }
-        public float HP { get; set; }
-        public float LifeSpan { get; set; }
-        public Vector3 Pos { get; set; }
-    }
+
 
     /// <summary>
     /// キャラクターが死んだ際に各キャラクターから送信される
@@ -78,29 +109,5 @@ namespace PSB.InGame
         public ActionType Type { get; set; }
     }
 
-    /// <summary>
-    /// キャラクターが生成された際にスポナーから送信される
-    /// エフェクトを表示させるためのエフェクターが受信する
-    /// </summary>
-    public struct ActorSpawnMessage
-    {
-        public Vector3 Pos { get; set; }
-        public ActionType Type { get; set; }
-    }
 
-    /// <summary>
-    /// 音を再生する際に送信する
-    /// </summary>
-    public struct PlayAudioMessage
-    {
-        public AudioKey Key { get; set; }
-    }
-
-    /// <summary>
-    /// 各種イベントのログを表示する際に任意のクラスから送信される
-    /// </summary>
-    public struct EventLogMessage
-    {
-        public string Message { get; set; }
-    }
 }
