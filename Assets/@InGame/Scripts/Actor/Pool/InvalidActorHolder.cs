@@ -31,8 +31,8 @@ namespace PSB.InGame
             _kurokamiPool = new(_kurokamiPrefab, "KurokamiPool");
 
             // UniRxのオブプーの機能で非同期でプールの中身を生成していく
-            _kinpatsuPool.PreloadAsync(PoolSize / 2, 1).Subscribe();
-            _kurokamiPool.PreloadAsync(PoolSize / 2, 1).Subscribe();
+            _kinpatsuPool.PreloadAsync(PoolSize / 2, 1).Subscribe().AddTo(this);
+            _kurokamiPool.PreloadAsync(PoolSize / 2, 1).Subscribe().AddTo(this);
         }
 
         public Actor Rent(ActorType type)

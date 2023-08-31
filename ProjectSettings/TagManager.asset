@@ -9,6 +9,8 @@ TagManager:
   - Obstacle
   - Enemy
   - Field
+  - Kinpatsu
+  - Kurokami
   layers:
   - Default
   - TransparentFX

@@ -33,7 +33,7 @@ namespace PSB.InGame
 
         protected override void Enter()
         {
-            _enemy = Context.Enemy;
+            //_enemy = Context.Enemy;
             _stage = Stage.Move;
             _attackTimer = 0;
             TryPathfinding();
@@ -113,7 +113,7 @@ namespace PSB.InGame
                 if (d <= 1.5f)
                 {
                     // 1”­‰£‚Á‚½‚ç‘JˆÚ
-                    _enemy.Damaged();
+                    //_enemy.Damaged();
                     ToEvaluateState();
                 }
                 else
@@ -161,7 +161,7 @@ namespace PSB.InGame
 
         void Move()
         {
-            _lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
+            //_lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
             _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
         }
 

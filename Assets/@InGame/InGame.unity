@@ -1061,8 +1061,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _holder: {fileID: 477467199}
   _randomRange: 10
-  _mutationProb: 0.05
   _mutationMag: 3
+  _mutationProb: 0.05
+  _foodThresholdHigh: 0.5
+  _foodThresholdLow: 0
+  _waterThresholdHigh: 0.5
+  _waterThresholdLow: 0
+  _hpThresholdHigh: 0.9
+  _hpThresholdLow: 0.6
+  _lifeSpanThresholdHigh: 0.66
+  _lifeSpanThresholdLow: 0.33
 --- !u!114 &477467199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1092,8 +1100,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _holder: {fileID: 477467199}
-  _totalSpawn: 3
   _spawnHeight: 0.5
+  _totalSpawn: 3
 --- !u!1 &509570507
 GameObject:
   m_ObjectHideFlags: 0
@@ -2609,8 +2617,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _holder: {fileID: 0}
-  _totalSpawn: 3
   _spawnHeight: 0.5
+  _totalSpawn: 3
 --- !u!1 &1119824691
 GameObject:
   m_ObjectHideFlags: 0

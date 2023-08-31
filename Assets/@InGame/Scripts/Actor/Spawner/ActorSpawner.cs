@@ -53,7 +53,7 @@ namespace PSB.InGame
         /// ¶¬”‚ğ’²‚×‚½‚¢ê‡‚ÉŒÄ‚Ô
         /// </summary>
         /// <returns>¶¬‰Â”\:true ¶¬ãŒÀ:false</returns>
-        protected bool Check()
+        protected bool CheckSpawn()
         {
             if (_count >= InvalidActorHolder.PoolSize)
             {

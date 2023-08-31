@@ -91,7 +91,7 @@ namespace PSB.InGame
 
         void Move()
         {
-            _lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
+            //_lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
             _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
         }
 

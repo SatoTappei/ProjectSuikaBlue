@@ -36,7 +36,7 @@ namespace PSB.InGame
 
         public SearchWaterState(DataContext context) : base(context, StateType.SearchWarter)
         {
-            _actor = _blackBoard.Transform;
+            //_actor = _blackBoard.Transform;
         }
 
         protected override void Enter()
@@ -46,7 +46,7 @@ namespace PSB.InGame
             _effectProgress = 0;
 
             _hasPath = TryPathfinding();
-            TryStepNextCell();
+            //TryStepNextCell();
         }
 
         protected override void Exit()
@@ -56,13 +56,13 @@ namespace PSB.InGame
         protected override void Stay()
         {
             // 経路が無いので評価ステートに遷移
-            if (!_hasPath) { ToEvaluateState(); return; }
+            //if (!_hasPath) { ToEvaluateState(); return; }
             
-            switch (_stage)
-            {
-                case Stage.Move: MoveStage(); break;
-                case Stage.Drink: DrinkStage(); break;
-            }
+            //switch (_stage)
+            //{
+            //    case Stage.Move: MoveStage(); break;
+            //    case Stage.Drink: DrinkStage(); break;
+            //}
         }
 
         bool TryPathfinding()
@@ -88,91 +88,91 @@ namespace PSB.InGame
             return false;
         }
 
-        void ToEvaluateState() => TryChangeState(_blackBoard.EvaluateState);
+        //void ToEvaluateState() => TryChangeState(_blackBoard.EvaluateState);
 
         /// <summary>
         /// 食料のセルに移動
         /// </summary>
-        void MoveStage()
-        {
-            // 次のセルの上に来た場合はチェックする
-            if (OnNextCell)
-            {
-                // 違うステートに遷移する場合は一度評価ステートを経由する
-                if (_blackBoard.NextState != this) { ToEvaluateState(); return; }
+        //void MoveStage()
+        //{
+        //    // 次のセルの上に来た場合はチェックする
+        //    if (OnNextCell)
+        //    {
+        //        // 違うステートに遷移する場合は一度評価ステートを経由する
+        //        if (_blackBoard.NextState != this) { ToEvaluateState(); return; }
 
-                if (TryStepNextCell())
-                {
-                    // 経路の途中のセルの場合の処理
-                }
-                else
-                {
-                    _stage = Stage.Drink; // 飲む状態へ
-                }
-            }
-            else
-            {
-                Move();
-            }
-        }
+        //        if (TryStepNextCell())
+        //        {
+        //            // 経路の途中のセルの場合の処理
+        //        }
+        //        else
+        //        {
+        //            _stage = Stage.Drink; // 飲む状態へ
+        //        }
+        //    }
+        //    else
+        //    {
+        //        Move();
+        //    }
+        //}
 
-        /// <summary>
-        /// 水を飲む
-        /// </summary>
-        void DrinkStage()
-        {
-            if (!StepEatProgress()) { ToEvaluateState(); return; }
-        }
+        ///// <summary>
+        ///// 水を飲む
+        ///// </summary>
+        //void DrinkStage()
+        //{
+        //    if (!StepEatProgress()) { ToEvaluateState(); return; }
+        //}
 
-        /// <summary>
-        /// 現在のセルの位置を自身の位置で更新する。
-        /// 次のセルの位置をあれば次のセルの位置、なければ自身の位置で更新する。
-        /// </summary>
-        /// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
-        bool TryStepNextCell()
-        {
-            _currentCellPos = _actor.position;
+        ///// <summary>
+        ///// 現在のセルの位置を自身の位置で更新する。
+        ///// 次のセルの位置をあれば次のセルの位置、なければ自身の位置で更新する。
+        ///// </summary>
+        ///// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
+        //bool TryStepNextCell()
+        //{
+        //    _currentCellPos = _actor.position;
 
-            if (_path.TryPop(out _nextCellPos))
-            {
-                // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
-                _nextCellPos.y = _actor.position.y;
-                Modify();
-                Look();
-                _lerpProgress = 0;
+        //    if (_path.TryPop(out _nextCellPos))
+        //    {
+        //        // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
+        //        _nextCellPos.y = _actor.position.y;
+        //        Modify();
+        //        Look();
+        //        _lerpProgress = 0;
                 
-                return true;
-            }
+        //        return true;
+        //    }
 
-            _nextCellPos = _actor.position;
+        //    _nextCellPos = _actor.position;
 
-            return false;
-        }
+        //    return false;
+        //}
 
-        void Look()
-        {
-            Vector3 dir = _nextCellPos - _currentCellPos;
-            _blackBoard.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
-        }
+        //void Look()
+        //{
+        //    Vector3 dir = _nextCellPos - _currentCellPos;
+        //    _blackBoard.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
+        //}
 
-        void Move()
-        {
-            _lerpProgress += Time.deltaTime * _blackBoard.Speed * _speedModify;
-            _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
-        }
+        //void Move()
+        //{
+        //    _lerpProgress += Time.deltaTime * _blackBoard.Speed * _speedModify;
+        //    _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
+        //}
 
-        /// <summary>
-        /// 回復の進捗度を進める
-        /// </summary>
-        /// <returns>回復の進捗中:true 回復の進捗が回復値に達した:false</returns>
-        bool StepEatProgress()
-        {
-            float value = Time.deltaTime * EffectDelta;
-            _effectProgress += value;
-            _blackBoard.OnDrinkWaterInvoke(value); // 値の更新
+        ///// <summary>
+        ///// 回復の進捗度を進める
+        ///// </summary>
+        ///// <returns>回復の進捗中:true 回復の進捗が回復値に達した:false</returns>
+        //bool StepEatProgress()
+        //{
+        //    float value = Time.deltaTime * EffectDelta;
+        //    _effectProgress += value;
+        //    _blackBoard.OnDrinkWaterInvoke(value); // 値の更新
 
-            return _effectProgress <= EffectValue;
-        }
+        //    return _effectProgress <= EffectValue;
+        //}
 
         /// <summary>
         /// 斜め移動の速度を補正する

@@ -128,14 +128,14 @@ namespace PSB.InGame
             {
                 Actor actor = _temp.Dequeue();
 
-                if (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
-                else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.AddLast(actor);
-                else if (actor.Type == ActorType.Kurokami) _kurokamiList.AddLast(actor);
-                else
-                {
-                    string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;
-                    throw new System.ArgumentException(msg);
-                }
+                //if (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
+                //else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.AddLast(actor);
+                //else if (actor.Type == ActorType.Kurokami) _kurokamiList.AddLast(actor);
+                //else
+                //{
+                //    string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;
+                //    throw new System.ArgumentException(msg);
+                //}
             }
         }
     }

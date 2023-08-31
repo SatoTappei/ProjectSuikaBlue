@@ -1,31 +1,32 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+using UnityEngine.Events;
 
 namespace PSB.InGame
 {
-    public class DataContext : MonoBehaviour
+    public class DataContext : MonoBehaviour, IDamageReceiver
     {
         [SerializeField] ActorType _type;
         [SerializeField] Transform _model;
         [Header("ギズモへの描画を行う")]
         [SerializeField] bool _isDrawGizmos;
 
+        // Actor側が書き込んでState側で読み取る値
+        [HideInInspector] public DataContext Enemy;
+        [HideInInspector] public Transform Leader;
+        [HideInInspector] public ActionType NextAction;
+        // パラメータ
+        [HideInInspector] public Param Food;
+        [HideInInspector] public Param Water;
+        [HideInInspector] public Param HP;
+        [HideInInspector] public Param LifeSpan;
+        [HideInInspector] public Param BreedingRate;
+
         Transform _transform;
         StatusBase _base;
         Dictionary<ActionType, BaseState> _stateDict;
         // 評価は対応する行動が無い特別な状態なので別途保持する
         EvaluateState _evaluateState;
-        // Actor側が書き込んでState側で読み取る値
-        DataContext _enemy;
-        Transform _leader;
-        ActionType _nextAction;
-        // パラメータ
-        Param _food;
-        Param _water;
-        Param _hp;
-        Param _lifeSpan;
-        Param _breedingRate;
         // 8ビット区切りの遺伝子(カラーR カラーG カラーB サイズ)
         uint _gene;
         // 初期化済みフラグ
@@ -42,7 +43,7 @@ namespace PSB.InGame
         public byte ColorG => (byte)(Gene >> 16 & 0xFF);
         public byte ColorB => (byte)(Gene >> 8 & 0xFF);
         public Color32 Color => new Color32(ColorR, ColorG, ColorB, 255);
-        public bool IsEnemyDetected => _enemy != null;
+        public bool IsEnemyDetected => Enemy != null;
 
         public float Size
         {
@@ -76,15 +77,6 @@ namespace PSB.InGame
         /// 繁殖率が増加するかどうか
         /// </summary>
         public bool IsBreedingRateIncrease => HP.Percentage >= Base.BreedingHpThreshold;
-
-        public DataContext Enemy     { get => _enemy;        set => _enemy = value; }
-        public Transform Leader      { get => _leader;       set => _leader = value; }
-        public ActionType NextAction { get => _nextAction;   set => _nextAction = value; }
-        public Param Food            { get => _food;         set => _food = value; }
-        public Param Water           { get => _water;        set => _water = value; }
-        public Param HP              { get => _hp;           set => _hp = value; }
-        public Param LifeSpan        { get => _lifeSpan;     set => _lifeSpan = value; }
-        public Param BreedingRate    { get => _breedingRate; set => _breedingRate = value; }
 
         /// <summary>
         /// 初期化処理。遺伝子を渡すだけなのでスポナーとActorどちらが呼んでも正常に動作する。
@@ -149,11 +141,13 @@ namespace PSB.InGame
             _stateDict.Add(ActionType.None, new IdleState(this));
         }
 
-        public void StepFood()         => _food.Value         -= Base.DeltaFood         * Time.deltaTime;
-        public void StepWater()        => _water.Value        -= Base.DeltaWater        * Time.deltaTime;
-        public void StepHp()           => _hp.Value           -= Base.DeltaHp           * Time.deltaTime;
-        public void StepLifeSpan()     => _lifeSpan.Value     -= Base.DeltaLifeSpan     * Time.deltaTime;    
-        public void StepBreedingRate() => _breedingRate.Value += Base.DeltaBreedingRate * Time.deltaTime; // 足し算
+        public void StepFood()         => Food.Value         -= Base.DeltaFood         * Time.deltaTime;
+        public void StepWater()        => Water.Value        -= Base.DeltaWater        * Time.deltaTime;
+        public void StepHp()           => HP.Value           -= Base.DeltaHp           * Time.deltaTime;
+        public void StepLifeSpan()     => LifeSpan.Value     -= Base.DeltaLifeSpan     * Time.deltaTime;    
+        public void StepBreedingRate() => BreedingRate.Value += Base.DeltaBreedingRate * Time.deltaTime; // 足し算
+
+        public void Damage(int value) => HP.Value -= value;
 
         // 以下デバッグ用
         public void Log()

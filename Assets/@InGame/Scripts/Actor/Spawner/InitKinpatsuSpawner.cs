@@ -14,9 +14,9 @@ namespace PSB.InGame
             Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down,
         };
 
+        [SerializeField] float _spawnHeight = 1.0f;
         [Range(1, 9)]
         [SerializeField] int _totalSpawn = 3;
-        [SerializeField] float _spawnHeight = 1.0f;
 
         /// <summary>
         /// フィールドの中央から時計回りに生成箇所を探し、生成する

@@ -593,13 +593,10 @@ GameObject:
   - component: {fileID: 7927696784740155334}
   - component: {fileID: 3697286503333623935}
   - component: {fileID: -2571926374511651681}
-  - component: {fileID: 3667265685422876516}
-  - component: {fileID: 3698948374210367776}
-  - component: {fileID: 3730319621309008667}
-  - component: {fileID: 8131503257345141834}
+  - component: {fileID: 7448872370978080667}
   m_Layer: 0
   m_Name: Actor_Kinpatsu
-  m_TagString: Untagged
+  m_TagString: Kinpatsu
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -675,25 +672,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0f5265e07380949a00c308b6d21c75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _initProcess: {fileID: 3667265685422876516}
-  _evaluator: {fileID: 3698948374210367776}
-  _sightSensor: {fileID: 8131503257345141834}
-  _type: 1
---- !u!114 &3667265685422876516
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7272666755009121259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9791e82d116fdfd4c882a2a173876487, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _model: {fileID: 3535252017480752486}
+  _context: {fileID: 7448872370978080667}
   _renderer: {fileID: 1944416678927653220}
---- !u!114 &3698948374210367776
+--- !u!114 &7448872370978080667
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -702,154 +683,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 7272666755009121259}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30773140e96df954995543f9ab3a8771, type: 3}
+  m_Script: {fileID: 11500000, guid: e6843b1b12a02394c9609d569264a7e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _breedCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _foodCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0.00000076182187
-      value: 0.9999967
-      inSlope: 0.011336273
-      outSlope: 0.011336273
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.20833273
-    - serializedVersion: 3
-      time: 0.5
-      value: 0
-      inSlope: 0.026773242
-      outSlope: 0.026773242
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.6928212
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.39314288
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _waterCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.6666667
-    - serializedVersion: 3
-      time: 0.5
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.40833336
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _wanderCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0.1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!114 &3730319621309008667
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7272666755009121259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e510a604b4792634dba2854e2c97b762, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _actorType: 1
-  _speed: 1
+  _type: 1
   _model: {fileID: 3535252017480752486}
---- !u!114 &8131503257345141834
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7272666755009121259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ddd8dfcea54a4146b92c5b4689f95cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _radius: 5
-  _targetLayer:
-    serializedVersion: 2
-    m_Bits: 1
+  _isDrawGizmos: 1
+  Enemy: {fileID: 0}
+  Leader: {fileID: 0}
+  NextAction: 0
 --- !u!1 &7474314334066899040
 GameObject:
   m_ObjectHideFlags: 0

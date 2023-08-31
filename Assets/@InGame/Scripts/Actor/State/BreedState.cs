@@ -67,37 +67,37 @@ namespace PSB.InGame
 
         protected override void Stay()
         {
-            // タイマーを進める。時間切れの場合は評価ステートに遷移
-            if (!StepTimer()) { ToEvaluateState(); return; }
-            // マッチングしていない状態で死んだ場合はセル上にいるので死亡ステートに遷移して大丈夫
-            if (!IsMatching && IsDeath) { ToEvaluateState(); return; }
-            // マッチングしているかチェック
-            if (!IsMatching) return;
-            // 経路があるかチェック
-            if (!HasPath) return;
+            //// タイマーを進める。時間切れの場合は評価ステートに遷移
+            //if (!StepTimer()) { ToEvaluateState(); return; }
+            //// マッチングしていない状態で死んだ場合はセル上にいるので死亡ステートに遷移して大丈夫
+            //if (!IsMatching && IsDeath) { ToEvaluateState(); return; }
+            //// マッチングしているかチェック
+            //if (!IsMatching) return;
+            //// 経路があるかチェック
+            //if (!HasPath) return;
 
-            if (_sex == Sex.Male)
-            {
-                if (OnNextCell)
-                {
-                    if (IsDeath) { ToEvaluateState(); return; }
+            //if (_sex == Sex.Male)
+            //{
+            //    if (OnNextCell)
+            //    {
+            //        if (IsDeath) { ToEvaluateState(); return; }
 
-                    if (!TryStepNextCell())
-                    {
-                        // 番の雌にサインを送信し、受信した雌が出産の処理を実行する
-                        OnArrivalNeighbourPertner();
-                        ToEvaluateState();
-                    }
-                }
-                else
-                {
-                    Move();
-                }
-            }
-            else if (_sex == Sex.Female)
-            {
-                // 雌はその場で待機、メッセージを受信したら出産
-            }
+            //        if (!TryStepNextCell())
+            //        {
+            //            // 番の雌にサインを送信し、受信した雌が出産の処理を実行する
+            //            OnArrivalNeighbourPertner();
+            //            ToEvaluateState();
+            //        }
+            //    }
+            //    else
+            //    {
+            //        Move();
+            //    }
+            //}
+            //else if (_sex == Sex.Female)
+            //{
+            //    // 雌はその場で待機、メッセージを受信したら出産
+            //}
         }
 
         /// <summary>
@@ -139,10 +139,10 @@ namespace PSB.InGame
 
         void OnArrivalNeighbourPertner()
         {
-            // 雌に産ませる
-            MessageBroker.Default.Publish(new BreedingPartnerMessage() { ID = _partner.GetInstanceID() });
-            // 登録された繁殖率を0にする処理を実行
-            _blackBoard.OnMaleBreedingInvoke();
+            //// 雌に産ませる
+            //MessageBroker.Default.Publish(new BreedingPartnerMessage() { ID = _partner.GetInstanceID() });
+            //// 登録された繁殖率を0にする処理を実行
+            //_blackBoard.OnMaleBreedingInvoke();
         }
 
         void MatchingComplete(MatchingMessage msg)
@@ -159,20 +159,20 @@ namespace PSB.InGame
 
         void MatchingCancel(CancelBreedingMessage _)
         {
-            ToEvaluateState();
+            //ToEvaluateState();
         }
 
         void PartnerSign(BreedingPartnerMessage msg)
         {
             // 産む処理の実行
             uint gene = _partner.GetComponent<IReadOnlyBreedingParam>().Gene;
-            _blackBoard.OnFemaleBreedingInvoke(gene);
+            //_blackBoard.OnFemaleBreedingInvoke(gene);
             
             // 評価ステートに遷移
-            ToEvaluateState();
+            //ToEvaluateState();
         }
 
-        void ToEvaluateState() => TryChangeState(_blackBoard.EvaluateState);
+        //void ToEvaluateState() => TryChangeState(_blackBoard.EvaluateState);
 
         bool TryPathfinding()
         {
@@ -207,7 +207,7 @@ namespace PSB.InGame
         void Look()
         {
             Vector3 dir = _nextCellPos - _currentCellPos;
-            _blackBoard.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
+            //_blackBoard.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace PSB.InGame
 
         void Move()
         {
-            _lerpProgress += Time.deltaTime * _blackBoard.Speed * _speedModify;
+            //_lerpProgress += Time.deltaTime * _blackBoard.Speed * _speedModify;
             _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
         }
 

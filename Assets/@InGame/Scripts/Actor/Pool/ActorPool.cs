@@ -20,8 +20,7 @@ namespace PSB.InGame
 
         protected override Actor CreateInstance()
         {
-            Actor particle = Object.Instantiate(_origin, _parent);
-            return particle;
+            return Object.Instantiate(_origin, _parent);
         }
     }
 }

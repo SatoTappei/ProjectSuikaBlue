@@ -15,7 +15,7 @@ namespace PSB.InGame
 
         void Spawn(Vector3 pos)
         {
-            if (!Check()) return;
+            if (!CheckSpawn()) return;
 
             pos += Vector3.up * _spawnHeight;
             // TODO:–{—ˆ‚Í•”¯‚àˆâ“`q‚ğ“n‚·

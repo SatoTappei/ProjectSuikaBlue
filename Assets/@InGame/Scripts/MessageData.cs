@@ -55,13 +55,16 @@ namespace PSB.InGame
 
     /// <summary>
     /// 繁殖ステートで子を生成するタイミングでコールバックから送信される
-    /// 子を生成するクラスが受信する
+    /// 子を生成するスポナーが受信し、子を生成する
     /// </summary>
     public class SpawnChildMessage
     {
         public uint Gene1 { get; set; }
         public uint Gene2 { get; set; }
-        public IReadOnlyParams Params { get; set; }
+        public float Food { get; set; }
+        public float Water { get; set; }
+        public float HP { get; set; }
+        public float LifeSpan { get; set; }
         public Vector3 Pos { get; set; }
     }
 
@@ -82,6 +85,7 @@ namespace PSB.InGame
     public struct ActorSpawnMessage
     {
         public Vector3 Pos { get; set; }
+        public ActionType Type { get; set; }
     }
 
     /// <summary>

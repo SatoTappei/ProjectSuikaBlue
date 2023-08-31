@@ -7,7 +7,6 @@ namespace PSB.InGame
     {
         [Header("ëÄçÏÇ∑ÇÈUI")]
         [SerializeField] Transform _root;
-        [SerializeField] Image _icon;
         [SerializeField] Text _nameText;
         [SerializeField] Text _stateNameText;
         [SerializeField] Transform _foodBar;

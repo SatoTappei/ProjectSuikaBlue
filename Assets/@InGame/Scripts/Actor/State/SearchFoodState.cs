@@ -155,7 +155,7 @@ namespace PSB.InGame
 
         void Move()
         {
-            _lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
+            //_lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
             _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
         }
 
@@ -167,7 +167,7 @@ namespace PSB.InGame
         {
             float value = Time.deltaTime * EffectDelta;
             _effectProgress += value;
-            Context.OnEatFoodInvoke(value); // 値の更新
+            //Context.OnEatFoodInvoke(value); // 値の更新
 
             return _effectProgress <= EffectValue;
         }

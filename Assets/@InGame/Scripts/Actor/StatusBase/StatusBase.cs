@@ -54,6 +54,8 @@ namespace PSB.InGame
         [Header("視界の設定")]
         [SerializeField] float _sightRadius = 3.0f;
         [SerializeField] LayerMask _sightTargetLayer;
+        [Header("攻撃で与えるダメージ")]
+        [SerializeField] int _meleeDamage = 10;
 
         public ActorType Type => _type;
         public float DeltaFood => _deltaFood;
@@ -73,6 +75,7 @@ namespace PSB.InGame
         public float EscapeHpThreshold => _escapeHpThreshold;
         public float SightRadius => _sightRadius;
         public LayerMask SightTargetLayer => _sightTargetLayer;
+        public int MeleeDamage => _meleeDamage;
         /// <summary>
         /// 親が無い場合のデフォルトの遺伝子。カラーが白でサイズがほぼ1になる値
         /// </summary>

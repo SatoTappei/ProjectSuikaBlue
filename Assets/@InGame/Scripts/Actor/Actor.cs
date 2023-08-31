@@ -1,8 +1,6 @@
+using UniRx;
 using UnityEngine;
 using UnityEngine.Events;
-using UniRx;
-using System;
-using System.Buffers;
 
 namespace PSB.InGame
 {
@@ -54,6 +52,13 @@ namespace PSB.InGame
             OnSpawned?.Invoke(this);
         }
 
+        void OnDisable()
+        {
+            // 色の変更を行った際にコピーしていたマテリアルの削除
+            // 死亡する際に非表示になるのでこのタイミングで行う
+            if (_copyMaterial != null) Destroy(_copyMaterial);
+        }
+
         /// <summary>
         /// 遺伝子を反映してサイズと色を変える
         /// </summary>
@@ -94,15 +99,6 @@ namespace PSB.InGame
         }
 
         /// <summary>
-        /// 評価の結果、次の行動が死亡だった場合に呼び出す
-        /// </summary>
-        void OnDeath()
-        {
-            // 色の変更を行った際にコピーしていたマテリアルの削除
-            if (_copyMaterial) Destroy(_copyMaterial);
-        }
-
-        /// <summary>
         /// 自身の情報とリーダーの評価値を元に次の行動を決める。
         /// </summary>
         public void Evaluate(float[] leaderEvaluate)
@@ -114,22 +110,6 @@ namespace PSB.InGame
 
             // 黒板に書き込む
             _context.NextAction = _evaluator.SelectAction(leaderEvaluate);
-        }
-
-        void SendSpawnChildMessage(uint gene)
-        {
-            MessageBroker.Default.Publish(new SpawnChildMessage 
-            {
-                Gene1 = gene,
-                Gene2 = _status.Gene,
-                Params = this,
-                Pos = transform.position, // 自身の位置に生成する
-            });
-        }
-
-        public void Damaged()
-        {
-            _status.Hp.Value -= 10;
         }
 
         // ↓リーダーのみのメソッド
