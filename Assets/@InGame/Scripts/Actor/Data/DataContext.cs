@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
+using System;
 
 namespace PSB.InGame
 {
@@ -150,6 +150,7 @@ namespace PSB.InGame
         public void StepBreedingRate() => BreedingRate.Value += Base.DeltaBreedingRate * Time.deltaTime; // 足し算
 
         public void Damage(int value) => HP.Value -= value;
+        public bool ShouldChangeState(BaseState state) => NextState != state;
 
         // 以下デバッグ用
         public void Log()

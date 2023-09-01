@@ -56,28 +56,28 @@ namespace PSB.InGame
             // 2人の間に経路があるか調べる
             Vector3 m = male.transform.position;
             Vector3 f = female.transform.position;
-            if (FieldManager.Instance.TryGetPath(m, f, out Stack<Vector3> _))
-            {
-                // 経路があればマッチング
-                MessageBroker.Default.Publish(new MatchingMessage()
-                {
-                    ID = male.transform.GetInstanceID(),
-                    Partner = female.transform,
-                    Sex = Sex.Male,
-                });
-                MessageBroker.Default.Publish(new MatchingMessage()
-                {
-                    ID = female.transform.GetInstanceID(),
-                    Partner = male.transform,
-                    Sex = Sex.Female,
-                });
-            }
-            else
-            {
-                // 再度追加
-                _actorList.Add(male);
-                _actorList.Add(female);
-            }
+            //if (FieldManager.Instance.TryGetPath(m, f, out Stack<Vector3> _))
+            //{
+            //    // 経路があればマッチング
+            //    MessageBroker.Default.Publish(new MatchingMessage()
+            //    {
+            //        ID = male.transform.GetInstanceID(),
+            //        Partner = female.transform,
+            //        Sex = Sex.Male,
+            //    });
+            //    MessageBroker.Default.Publish(new MatchingMessage()
+            //    {
+            //        ID = female.transform.GetInstanceID(),
+            //        Partner = male.transform,
+            //        Sex = Sex.Female,
+            //    });
+            //}
+            //else
+            //{
+            //    // 再度追加
+            //    _actorList.Add(male);
+            //    _actorList.Add(female);
+            //}
         }
 
         void Shuffle()

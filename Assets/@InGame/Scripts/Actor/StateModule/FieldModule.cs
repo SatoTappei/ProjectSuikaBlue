@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PSB.InGame
 {
     /// <summary>
-    /// ステートのFieldManagerへ各種登録を行うクラス
+    /// ステートのFieldManagerへセルの予約/予約解除を行う処理のラッパー
     /// </summary>
     public class FieldModule
     {
@@ -24,6 +24,11 @@ namespace PSB.InGame
             FieldManager.Instance.SetActorOnCell(pos, _context.Type);
         }
 
+        public void SetActorOnCell(Vector2Int index)
+        {
+            FieldManager.Instance.SetActorOnCell(index, _context.Type);
+        }
+
         public void DeleteActorOnCell()
         {
             FieldManager.Instance.SetActorOnCell(_context.Transform.position, ActorType.None);
@@ -32,6 +37,11 @@ namespace PSB.InGame
         public void DeleteActorOnCell(Vector3 pos)
         {
             FieldManager.Instance.SetActorOnCell(pos, ActorType.None);
+        }
+
+        public void DeleteActorOnCell(Vector2Int index)
+        {
+            FieldManager.Instance.SetActorOnCell(index, ActorType.None);
         }
     }
 }

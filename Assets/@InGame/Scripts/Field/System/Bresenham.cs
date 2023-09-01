@@ -17,7 +17,7 @@ namespace PSB.InGame
         /// pathにはセルAの次のセルから、セルBもしくは障害物の1つ手前のセルまでが挿入される。
         /// </summary>
         /// <returns>Bにたどり着いた: true 障害物にぶつかった: false</returns>
-        public bool TryGetPath(Vector2Int a, Vector2Int b, out Stack<Vector2Int> path)
+        public bool TryGetPath(Vector2Int a, Vector2Int b, out List<Vector2Int> path)
         {
             int deltaX = b.x - a.x;
             int deltaY = b.y - a.y;
@@ -42,7 +42,7 @@ namespace PSB.InGame
 
             path = new(longSide);
             int fraction = longSide / 2; // 本来は除算を使用しないことで高速化を図る
-            for (int i = 1; i < longSide; i++)
+            for (int i = 1; i <= longSide; i++)
             {
                 fraction += shortSide;
                 if (fraction > longSide)
@@ -59,7 +59,7 @@ namespace PSB.InGame
 
                 if (_field[a.y, a.x].IsWalkable)
                 {
-                    path.Push(a);
+                    path.Add(a);
                 }
                 else
                 {
@@ -68,6 +68,14 @@ namespace PSB.InGame
             }
 
             return true;
+        }
+
+        // デバッグ用
+        void DebugVisualize(Vector2Int index)
+        {
+            var v = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            v.transform.position = _field[index.y, index.x].Pos;
+            v.transform.position += Vector3.up;
         }
     }
 }

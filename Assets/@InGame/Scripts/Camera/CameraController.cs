@@ -4,8 +4,10 @@ namespace PSB.InGame
 {
     public class CameraController : MonoBehaviour
     {
+        [SerializeField] Transform _parent;
         [SerializeField] Transform _child;
         [SerializeField] float _moveSpeed = 3.0f;
+        [SerializeField] float _rotSpeed = 5.0f;
         [SerializeField] int _zoomStep = 5;
 
         Transform _transform;
@@ -17,13 +19,24 @@ namespace PSB.InGame
 
         void Update()
         {
-            (Vector2 move, float fov) input = Input();
-            Move(input.move);
+            (bool shift, Vector2 move, float fov) input = Input();
+            if (input.shift)
+            {
+                Rotate(input.move);
+            }
+            else
+            {
+                Move(input.move);
+            }
+            
             Zoom(input.fov);
         }
 
-        (Vector2 move, float fov) Input()
+        (bool shift, Vector2 move, float fov) Input()
         {
+            // ƒVƒtƒg
+            bool shift = UnityEngine.Input.GetKey(KeyCode.LeftShift);
+
             // ˆÚ“®
             Vector2 move = Vector2.zero;
             if (UnityEngine.Input.GetKey(KeyCode.A)) move += Vector2.left;
@@ -35,21 +48,29 @@ namespace PSB.InGame
             float fov;
             fov = UnityEngine.Input.GetAxis("Mouse ScrollWheel");
 
-            return (move, fov);
+            return (shift, move, fov);
         }
 
         void Move(Vector2 input)
         {
             input = input.normalized;
-            _transform.position += new Vector3(input.x, 0, input.y) * Time.deltaTime * _moveSpeed;
+            Vector3 hori = _parent.right * input.x;
+            Vector3 vert = _parent.forward * input.y;
+            _transform.position += (hori + vert) * Time.deltaTime * _moveSpeed;
+        }
+
+        void Rotate(Vector2 input)
+        {
+            _parent.eulerAngles += -input.x * Vector3.up * Time.deltaTime * _rotSpeed;
+
         }
 
         void Zoom(float input)
         {
-            Vector3 pos = _child.transform.position;
+            Vector3 pos = _parent.transform.position;
             pos.y += input * -_zoomStep;
 
-            _child.transform.position = pos;
+            _parent.transform.position = pos;
         }
     }
 }

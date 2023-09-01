@@ -20,3 +20,40 @@ MonoBehaviour:
   _deltaBreedingRate: 0
   _minSize: 0.5
   _maxSize: 1.5
+  _breedingThreshold: 0.7
+  _breedingHpThreshold: 0.8
+  _moveSpeed: 3
+  _breedCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _foodCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _waterCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _wanderCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _sizeEvalFactor: 1.5
+  _colorEvalFactor: 1.5
+  _hpEvalFactor: 2
+  _attackHpThreshold: 0.75
+  _escapeHpThreshold: 0.33
+  _sightRadius: 3
+  _sightTargetLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  _meleeDamage: 10

@@ -76,10 +76,10 @@ namespace PSB.InGame
                 Vector3 pos = _actor.position;
                 foreach (Cell food in cellList.OrderBy(c => Vector3.SqrMagnitude(c.Pos - pos)))
                 {
-                    if (FieldManager.Instance.TryGetPath(pos, food.Pos, out _path)) // <- ±Ô¼²
-                    {
-                        return true;
-                    }
+                    //if (FieldManager.Instance.TryGetPath(pos, food.Pos, out _path)) // <- ±Ô¼²
+                    //{
+                    //    return true;
+                    //}
                 }
 
                 return false;

@@ -36,7 +36,7 @@ namespace PSB.InGame
             //_enemy = Context.Enemy;
             _stage = Stage.Move;
             _attackTimer = 0;
-            TryPathfinding();
+            //sTryPathfinding();
             TryStepNextCell();
         }
 
@@ -120,7 +120,7 @@ namespace PSB.InGame
                 {
                     _stage = Stage.Move;
 
-                    TryPathfinding();
+                    //TryPathfinding();
                     TryStepNextCell();
                 }
             }
@@ -153,11 +153,11 @@ namespace PSB.InGame
             return false;
         }
 
-        bool TryPathfinding()
-        {
-            _path.Clear();
-            return FieldManager.Instance.TryGetPath(_actor.position, _enemy.transform.position, out _path);
-        }
+        //bool TryPathfinding()
+        //{
+        //    _path.Clear();
+        //    return FieldManager.Instance.TryGetPath(_actor.position, _enemy.transform.position, out _path);
+        //}
 
         void Move()
         {

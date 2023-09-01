@@ -29,7 +29,7 @@ namespace PSB.InGame
         protected override void Enter()
         {
             _leader = Context.Leader.transform;
-            TryPathfinding();
+            //TryPathfinding();
             TryStepNextCell();
         }
 
@@ -56,11 +56,11 @@ namespace PSB.InGame
             }
         }
 
-        bool TryPathfinding()
-        {
-            _path.Clear();
-            return FieldManager.Instance.TryGetPath(_actor.position, _leader.transform.position, out _path);
-        }
+        //bool TryPathfinding()
+        //{
+        //    _path.Clear();
+        //    return FieldManager.Instance.TryGetPath(_actor.position, _leader.transform.position, out _path);
+        //}
 
         void ToEvaluateState() => TryChangeState(Context.EvaluateState);
 

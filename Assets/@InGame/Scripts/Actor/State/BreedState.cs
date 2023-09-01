@@ -151,8 +151,8 @@ namespace PSB.InGame
             _sex = msg.Sex;
             _partner = msg.Partner;
             // 経路探索
-            bool hasPath = TryPathfinding();
-            if (!hasPath) throw new System.NullReferenceException("繁殖ステートのパートナーへの経路がnull");
+            //bool hasPath = TryPathfinding();
+            //if (!hasPath) throw new System.NullReferenceException("繁殖ステートのパートナーへの経路がnull");
             
             TryStepNextCell();
         }
@@ -174,10 +174,10 @@ namespace PSB.InGame
 
         //void ToEvaluateState() => TryChangeState(_blackBoard.EvaluateState);
 
-        bool TryPathfinding()
-        {
-            return FieldManager.Instance.TryGetPath(_actor.position, _partner.position, out _path);
-        }
+        //bool TryPathfinding()
+        //{
+        //    return FieldManager.Instance.TryGetPath(_actor.position, _partner.position, out _path);
+        //}
 
         /// <summary>
         /// 現在のセルの位置を自身の位置で更新する。

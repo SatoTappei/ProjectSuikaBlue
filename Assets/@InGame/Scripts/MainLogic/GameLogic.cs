@@ -55,7 +55,7 @@ namespace PSB.InGame
             //}
 
             ForEachAll(actor => actor.StepParams());
-            //    ForEachAll(actor => actor.Evaluate()); // <- テストで毎フレーム評価する
+            ForEachAll(actor => actor.Evaluate(new float[Utility.GetEnumLength<ActionType>() - 1])); // <- テストで毎フレーム評価する
             ForEachAll(actor => actor.StepAction());
         }
 

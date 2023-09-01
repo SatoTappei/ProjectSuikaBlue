@@ -36,11 +36,9 @@ namespace PSB.InGame
         {
             _lerpProgress += Time.deltaTime * _context.Base.MoveSpeed * _speedModify;
             _context.Transform.position = Vector3.Lerp(CurrentCellPos, NextCellPos, _lerpProgress);
-
-            Look();
         }
 
-        void Look()
+        public void Look()
         {
             Vector3 dir = NextCellPos - CurrentCellPos;
             _context.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);

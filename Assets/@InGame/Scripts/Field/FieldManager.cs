@@ -87,6 +87,12 @@ namespace PSB.InGame
             cell.ActorType = type;
         }
 
+        public void SetActorOnCell(in Vector2Int index, ActorType type)
+        {
+            TryGetCell(index, out Cell cell);
+            cell.ActorType = type;
+        }
+
         /// <summary>
         /// 指定した座標のセルにキャラクターが存在するかどうかを判定する
         /// </summary>
@@ -98,14 +104,29 @@ namespace PSB.InGame
             return cell.ActorType != ActorType.None;
         }
 
+        public bool IsActorOnCell(Vector2Int index, out ActorType type)
+        {
+            // TryGetCellメソッドはVector3をVector2Intに変換しているのでそれを省略する
+            if (FieldUtility.IsWithinGrid(_field, index))
+            {
+                Cell cell = _field[index.y, index.x];
+                type = cell.ActorType;
+                return cell.ActorType != ActorType.None;
+            }
+            else
+            {
+                Debug.LogWarning("グリッド外を指定している: " + index);
+                type = ActorType.None;
+                return false;
+            }
+        }
+
         /// <summary>
         /// 資源に対応したセルを全て返す。セルが無い場合はリストを作成し返すのでnullを返すことが無い。
         /// </summary>
         /// <returns>セルが1個以上:true 0個:false</returns>
         public bool TryGetResourceCells(ResourceType type, out List<Cell> list)
         {
-            ThrowIfFieldIsNull();
-
             if (_resourceCellDict.ContainsKey(type))
             {
                 list = _resourceCellDict[type];
@@ -120,28 +141,23 @@ namespace PSB.InGame
 
         public bool TryGetCell(in Vector3 pos, out Cell cell)
         {
-            ThrowIfFieldIsNull();
-
             Vector2Int index = WorldPosToGridIndex(pos);
-            if(FieldUtility.IsWithinGrid(_field, index))
+            return TryGetCell(index, out cell);
+        }
+
+        public bool TryGetCell(Vector2Int index, out Cell cell)
+        {
+            if (FieldUtility.IsWithinGrid(_field, index))
             {
                 cell = _field[index.y, index.x];
                 return true;
             }
             else
             {
+                Debug.LogWarning("グリッド外を指定している: " + index);
                 cell = null;
                 return false;
             }
-        }
-
-        public bool TryGetCell(Vector2Int index, out Cell cell)
-        {
-            ThrowIfFieldIsNull();
-            
-            bool isWithin = FieldUtility.IsWithinGrid(_field, index);
-            cell = isWithin ? _field[index.y, index.x] : null;            
-            return isWithin;
         }
 
         /// <summary>
@@ -149,7 +165,7 @@ namespace PSB.InGame
         /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
         /// </summary>
         /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
-        public bool TryGetPath(in Vector3 startPos, in Vector3 goalPos, out Stack<Vector3> path)
+        public bool TryGetPath(in Vector3 startPos, in Vector3 goalPos, out List<Vector3> path)
         {
             Vector2Int startIndex = WorldPosToGridIndex(startPos);
             Vector2Int goalIndex = WorldPosToGridIndex(goalPos);
@@ -161,14 +177,14 @@ namespace PSB.InGame
         /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
         /// </summary>
         /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
-        public bool TryGetPath(Vector2Int startIndex, Vector2Int goalIndex, out Stack<Vector3> path)
+        public bool TryGetPath(Vector2Int startIndex, Vector2Int goalIndex, out List<Vector3> path)
         {
             bool hasStart = FieldUtility.IsWithinGrid(_field, startIndex);
             bool hasGoal = FieldUtility.IsWithinGrid(_field, goalIndex);
 
             if (hasStart && hasGoal)
             {
-                bool isGoal = _bresenham.TryGetPath(startIndex, goalIndex, out Stack<Vector2Int> indexes);
+                bool isGoal = _bresenham.TryGetPath(startIndex, goalIndex, out List<Vector2Int> indexes);
                 path = CreatePath(indexes);
 
                 return isGoal;
@@ -184,27 +200,15 @@ namespace PSB.InGame
         /// 添え字に対応したセルの位置をStackに詰めていく
         /// </summary>
         /// <returns>通るセルの位置のスタック</returns>
-        Stack<Vector3> CreatePath(Stack<Vector2Int> indexes)
-        {
-            Stack<Vector3> path = new(indexes.Count);
+        List<Vector3> CreatePath(List<Vector2Int> indexes)
+        {     
+            List<Vector3> path = new(indexes.Count); // TODO: 経路を作る度にnewしている
             foreach (Vector2Int index in indexes)
             {
-                path.Push(_field[index.y, index.x].Pos);
+                path.Add(_field[index.y, index.x].Pos);
             }
 
             return path;
-        }
-
-        /// <summary>
-        /// 外部からFieldの生成前にセルの情報や経路を探索しようとしてるケースを検知する
-        /// </summary>
-        void ThrowIfFieldIsNull()
-        {
-            if (_field == null)
-            {
-                string msg = "Fieldが未生成の状態でセルの情報もしくは経路を取得しようとしている";
-                throw new System.NullReferenceException(msg);
-            }
         }
 
         /// <summary>
@@ -236,6 +240,18 @@ namespace PSB.InGame
             };
 
             return index;
+        }
+
+        /// <summary>
+        /// 外部からFieldの生成前にセルの情報や経路を探索しようとしてるケースを検知する
+        /// </summary>
+        void ThrowIfFieldIsNull()
+        {
+            if (_field == null)
+            {
+                string msg = "Fieldが未生成の状態でセルの情報もしくは経路を取得しようとしている";
+                throw new System.NullReferenceException(msg);
+            }
         }
 
         /// <summary>

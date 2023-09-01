@@ -10,7 +10,6 @@ namespace PSB.InGame
     {
         MoveModule _move;
         FieldModule _field;
-
         bool _hasNextCell;
 
         public WanderState(DataContext context) : base(context, StateType.Wander)
@@ -65,6 +64,9 @@ namespace PSB.InGame
                     _move.NextCellPos.y = Context.Transform.position.y;
                     // à⁄ìÆêÊÇÃÉZÉãÇó\ñÒÇ∑ÇÈ
                     _field.SetActorOnCell(_move.NextCellPos);
+
+                    _move.Modify();
+                    _move.Look();
 
                     return true;
                 }
