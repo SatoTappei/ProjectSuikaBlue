@@ -3,16 +3,26 @@ using UniRx;
 
 namespace PSB.InGame
 {
-    public class ActorEventEffector : MonoBehaviour
+    public enum ParticleType
+    {
+        Killed,
+        Senility,
+        Spawn,
+        Eat,
+    }
+
+    public class ParticlePlayer : MonoBehaviour
     {
         [SerializeField] Particle _killed;
         [SerializeField] Particle _senility;
         [SerializeField] Particle _spawn;
+        [SerializeField] Particle _eat;
         [SerializeField] float _height = 0.6f;
 
         ParticlePool _killedPool;
         ParticlePool _senilityPool;
         ParticlePool _spawnPool;
+        ParticlePool _eatPool;
 
         void Awake()
         {
@@ -32,27 +42,22 @@ namespace PSB.InGame
             _killedPool = new(_killed, "KilledParticlePool");
             _senilityPool = new(_senility, "SenilityParticlePool");
             _spawnPool = new(_spawn, "SpawnParticlePool");
+            _eatPool = new(_eat, "EatParticlePool");
         }
 
         void ReceiveMessage()
         {
-            // 死亡メッセージを受信
-            MessageBroker.Default.Receive<ActorDeathMessage>()
-                .Where(msg => msg.Type == ActionType.Killed || msg.Type == ActionType.Senility)
-                .Subscribe(PlayDeathParticle).AddTo(this);
-            // 生成メッセージを受信
-            MessageBroker.Default.Receive<ActorSpawnMessage>().Subscribe(PlaySpawnParticle).AddTo(this);
+            MessageBroker.Default.Receive<PlayParticleMessage>().Subscribe(Play).AddTo(this);
         }
 
-        void PlayDeathParticle(ActorDeathMessage msg)
+        void Play(PlayParticleMessage msg)
         {
-            Particle particle = msg.Type == ActionType.Killed ? _killedPool.Rent() : _senilityPool.Rent();
-            particle.transform.position = new Vector3(msg.Pos.x, _height, msg.Pos.z);
-        }
-
-        void PlaySpawnParticle(ActorSpawnMessage msg)
-        {
-            Particle particle = _spawnPool.Rent();
+            Particle particle = null;
+            if      (msg.Type == ParticleType.Killed)   particle = _killedPool.Rent();
+            else if (msg.Type == ParticleType.Senility) particle = _senilityPool.Rent();
+            else if (msg.Type == ParticleType.Spawn)    particle = _spawnPool.Rent();
+            else if (msg.Type == ParticleType.Eat)      particle = _eatPool.Rent();
+            
             particle.transform.position = new Vector3(msg.Pos.x, _height, msg.Pos.z);
         }
     }

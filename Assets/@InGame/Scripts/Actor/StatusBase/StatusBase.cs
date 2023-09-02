@@ -56,6 +56,8 @@ namespace PSB.InGame
         [SerializeField] LayerMask _sightTargetLayer;
         [Header("攻撃で与えるダメージ")]
         [SerializeField] int _meleeDamage = 10;
+        [Header("食事や水分の回復速度")]
+        [SerializeField] float _healingRate = 100;
 
         public ActorType Type => _type;
         public float DeltaFood => _deltaFood;
@@ -74,6 +76,7 @@ namespace PSB.InGame
         public float AttackHpThreshold => _attackHpThreshold;
         public float EscapeHpThreshold => _escapeHpThreshold;
         public float SightRadius => _sightRadius;
+        public float HealingRate => _healingRate;
         public LayerMask SightTargetLayer => _sightTargetLayer;
         public int MeleeDamage => _meleeDamage;
         /// <summary>

@@ -9,6 +9,7 @@ namespace PSB.InGame
         public static FieldManager Instance { get; private set; }
 
         [SerializeField] FieldBuilder _builder;
+        [SerializeField] ResourceDataHolder _dataHolder;
         [Header("Startのタイミングで生成する")]
         [SerializeField] bool _buildOnStart;
 
@@ -76,6 +77,9 @@ namespace PSB.InGame
                 _resourceCellDict[cell.ResourceType].Add(cell);
             }
         }
+
+        public int GetResourceHealingLimit(ResourceType type) => _dataHolder.GetHealingLimit(type);
+        public bool IsWithInGrid(Vector2Int index)=> FieldUtility.IsWithinGrid(_field, index);
 
         /// <summary>
         /// キャラクターが存在するという情報をセルにセットする

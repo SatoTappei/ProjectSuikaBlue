@@ -16,7 +16,7 @@ MonoBehaviour:
   _deltaFood: 15.2
   _deltaWater: 0
   _deltaHp: 0.3
-  _deltaLifeSpan: 0.6
+  _deltaLifeSpan: 10.8
   _deltaBreedingRate: 0.8
   _minSize: 0.5
   _maxSize: 1.5
@@ -129,3 +129,4 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   _meleeDamage: 10
+  _healingRate: 100

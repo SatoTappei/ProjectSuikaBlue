@@ -54,6 +54,8 @@ namespace PSB.InGame
             Vector2Int index = FieldManager.Instance.WorldPosToGridIndex(pos);
             foreach (Vector2Int dir in Utility.EightDirections.OrderBy(_ => System.Guid.NewGuid()))
             {
+                if (!FieldManager.Instance.IsWithInGrid(index + dir)) continue;
+
                 if (FieldManager.Instance.TryGetCell(index + dir, out Cell cell))
                 {
                     if (!cell.IsWalkable) continue;

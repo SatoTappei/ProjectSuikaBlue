@@ -41,7 +41,11 @@ namespace PSB.InGame
         public void Look()
         {
             Vector3 dir = NextCellPos - CurrentCellPos;
-            _context.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
+
+            if (dir != Vector3.zero)
+            {
+                _context.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
+            }
         }
 
         /// <summary>

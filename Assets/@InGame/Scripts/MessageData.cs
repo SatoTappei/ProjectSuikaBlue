@@ -43,6 +43,15 @@ namespace PSB.InGame
         public string Message { get; set; }
     }
 
+    /// <summary>
+    /// パーティクルの再生を行う際に任意のクラスから送信される
+    /// </summary>
+    public struct PlayParticleMessage
+    {
+        public ParticleType Type { get; set; }
+        public Vector3 Pos { get; set; }
+    }
+
     // 以下は汎用性など要検証
 
     /// <summary>
@@ -108,6 +117,4 @@ namespace PSB.InGame
         public Vector3 Pos { get; set; }
         public ActionType Type { get; set; }
     }
-
-
 }
