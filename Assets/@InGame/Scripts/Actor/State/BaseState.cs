@@ -73,6 +73,12 @@ namespace PSB.InGame
         protected void ToEvaluateState() => TryChangeState(Context.EvaluateState);
 
         /// <summary>
+        /// 次にプールから取り出した時にEnter以外から始まるのを防ぐ。
+        /// プールに戻す際に呼ぶ必要がある。
+        /// </summary>
+        protected void ResetStage() => _stage = Stage.Enter;
+
+        /// <summary>
         /// Enter()が呼ばれてかつ、ステートの遷移処理を呼んでいない場合のみ遷移可能
         /// </summary>
         /// <returns>ステートの遷移の可否</returns>

@@ -16,12 +16,12 @@ namespace PSB.InGame
     public class GameLogic : MonoBehaviour
     {
         [SerializeField] InitKinpatsuSpawner _initKinpatsuSpawner;
-        [SerializeField] int _spawnRadius = 5;
+        [SerializeField] KurokamiSpawnModule _kurokamiSpawnModule;
 
         Leader _leader;
         Actor _kinpatsuLeader;
-        LinkedList<Actor> _kinpatsuList = new();
-        LinkedList<Actor> _kurokamiList = new();
+        List<Actor> _kinpatsuList = new();
+        List<Actor> _kurokamiList = new();
 
         bool _initialized;
         // 任意のタイミングでキャラクターのリストを更新するための一時保存用のキュー
@@ -39,24 +39,24 @@ namespace PSB.InGame
             // 制御するキャラクターのリストの更新
             AddControledActorFromTemp();
 
-            //// 自動でターンが進むターンベースと考えればLogicが書きやすいかもしれない
+            // 死んだキャラクターをリストから削除
+            if (_kinpatsuLeader != null) _kinpatsuLeader = null;
+            _kinpatsuList.RemoveAll(actor => actor.IsDead);
+            _kurokamiList.RemoveAll(actor => actor.IsDead);
 
-            //if (Input.GetKeyDown(KeyCode.Space)) TrySpawnKurokami();
-            //// テスト:キー入力で集合させる
-            //if (Input.GetKey(KeyCode.LeftShift))
-            //{
-            //    ForEachAll(actor => actor.Leader = _kinpatsuLeader.transform);
-            //    float[] eval = _kinpatsuLeader.LeaderEvaluate();
-            //    ForEachAll(actor => actor.Evaluate(eval));
-            //}
-            //else
-            //{
-            
-            //}
+            DebugLog();
 
             ForEachAll(actor => actor.StepParams());
-            ForEachAll(actor => actor.Evaluate(new float[Utility.GetEnumLength<ActionType>() - 1])); // <- テストで毎フレーム評価する
+            ForEachAll(actor => actor.Evaluate(new float[Utility.GetEnumLength<ActionType>() - 1]));
             ForEachAll(actor => actor.StepAction());
+
+            // 一定間隔で黒髪を生成する
+            _kurokamiSpawnModule.Step(transform.position);
+        }
+
+        void OnDestroy()
+        {
+            StatusBaseHolder.Release();
         }
 
         async UniTask<bool> InitAsync(CancellationToken token)
@@ -92,8 +92,8 @@ namespace PSB.InGame
                 Actor actor = _temp.Dequeue();
 
                 if (actor.Type == ActorType.KinpatsuLeader) _kinpatsuLeader = actor;
-                else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.AddLast(actor);
-                else if (actor.Type == ActorType.Kurokami) _kurokamiList.AddLast(actor);
+                else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.Add(actor);
+                else if (actor.Type == ActorType.Kurokami) _kurokamiList.Add(actor);
                 else
                 {
                     string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;
@@ -119,28 +119,10 @@ namespace PSB.InGame
             }
         }
 
-        /// <summary>
-        /// リーダーの位置を中心に一定間隔離れた位置に生成する
-        /// </summary>
-        /// <returns>生成した:true 生成できなかった:false</returns>
-        bool TrySpawnKurokami()
+        // デバッグ用
+        void DebugLog()
         {
-            if (_kinpatsuLeader == null) return false;
-          
-            Vector3 spawnPos = _kinpatsuLeader.transform.position;
-            foreach (Vector2Int dir in Utility.EightDirections.OrderBy(_ => System.Guid.NewGuid()))
-            {
-                Vector3 pos = spawnPos + new Vector3(dir.x, 0, dir.y) * _spawnRadius;
-
-                // セルが取得出来た。セルが海以外、資源なし、キャラがいない場合は生成可能
-                if (!FieldManager.Instance.TryGetCell(pos, out Cell cell)) continue;
-                if (!cell.IsEmpty) continue;
-
-                MessageBroker.Default.Publish(new KurokamiSpawnMessage() { Pos = cell.Pos });
-                return true;
-            }
-
-            return false;
+            Debug.Log($"リーダー:{_kinpatsuLeader} 金髪:{_kinpatsuList.Count} 黒髪:{_kurokamiList.Count}");
         }
     }
 }

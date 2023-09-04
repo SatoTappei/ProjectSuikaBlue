@@ -2,7 +2,7 @@ namespace PSB.InGame
 {
     public class EvaluateState : BaseState
     {
-        DataContext _context;
+        readonly DataContext _context;
 
         public EvaluateState(DataContext context) : base(context, StateType.Evaluate)
         {

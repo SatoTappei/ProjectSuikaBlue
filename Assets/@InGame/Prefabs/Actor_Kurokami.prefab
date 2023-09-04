@@ -215,6 +215,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _context: {fileID: 5492098718950266863}
   _renderer: {fileID: 8823516395768788015}
+  _defaultMaterial: {fileID: 2100000, guid: 2896d36e5e1c3d940ac9dd7b2bb57c4c, type: 2}
 --- !u!114 &5492098718950266863
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,12 +17,12 @@ namespace PSB.InGame
             Eat,
         }
 
-        MoveModule _move;
-        FieldModule _field;
-        EatParticleModule _particle;
+        readonly MoveModule _move;
+        readonly FieldModule _field;
+        readonly EatParticleModule _particle;
 
-        ResourceType _resourceType;
-        UnityAction _stepEatAction;
+        readonly ResourceType _resourceType;
+        readonly UnityAction _stepEatAction;
         Stage _stage;
         List<Vector3> _path = new();
         float _healingProgress;

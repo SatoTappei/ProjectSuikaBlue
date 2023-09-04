@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+using UnityEngine.Events;
 
 namespace PSB.InGame
 {
@@ -11,6 +11,8 @@ namespace PSB.InGame
         [Header("ギズモへの描画を行う")]
         [SerializeField] bool _isDrawGizmos;
 
+        // プールに返却する処理。生成時にプールから登録される
+        [HideInInspector] public UnityAction ReturnToPool;
         // Actor側が書き込んでState側で読み取る値
         [HideInInspector] public DataContext Enemy;
         [HideInInspector] public Transform Leader;
@@ -84,7 +86,7 @@ namespace PSB.InGame
         /// </summary>
         public void Init(uint? gene)
         {
-            _transform = transform;
+            _transform ??= transform;
             // 行動の評価の処理がされない場合はうろうろステートに遷移する
             NextAction = ActionType.Wander;
 

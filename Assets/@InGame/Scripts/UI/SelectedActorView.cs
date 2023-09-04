@@ -37,7 +37,7 @@ namespace PSB.InGame
 
         protected override void OnDeselected() 
         {
-            _root.localScale = Vector3.zero; 
+            _root.localScale = Vector3.zero;
             _actor = null;
             _name = null;
         }

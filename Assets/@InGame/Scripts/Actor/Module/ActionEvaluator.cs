@@ -21,7 +21,7 @@ namespace PSB.InGame
 
     public class ActionEvaluator
     {
-        DataContext _context;
+        readonly DataContext _context;
         float[] _evaluate = new float[Utility.GetEnumLength<ActionType>() - 1];
 
         public ActionEvaluator(DataContext context)

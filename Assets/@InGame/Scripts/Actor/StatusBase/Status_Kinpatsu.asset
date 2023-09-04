@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Status_Kinpatsu
   m_EditorClassIdentifier: Assembly-CSharp::Gene
   _type: 1
-  _deltaFood: 15.2
-  _deltaWater: 0
-  _deltaHp: 0.3
-  _deltaLifeSpan: 10.8
+  _deltaFood: 20
+  _deltaWater: 20
+  _deltaHp: 10.4
+  _deltaLifeSpan: 20
   _deltaBreedingRate: 0.8
   _minSize: 0.5
   _maxSize: 1.5
@@ -76,21 +76,21 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
-      tangentMode: 34
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
+      outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      inSlope: -0.46671903
+      outSlope: -0.46671903
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0.24569598
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

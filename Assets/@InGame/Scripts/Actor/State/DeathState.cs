@@ -1,5 +1,4 @@
 using UniRx;
-using UnityEngine;
 
 namespace PSB.InGame
 {
@@ -9,21 +8,20 @@ namespace PSB.InGame
     /// </summary>
     public class DeathState : BaseState
     {
-        ParticleType _particleType;
-        string _msg;
+        readonly FieldModule _field;
+        readonly ParticleType _particleType;
+        readonly string _msg;
 
         public DeathState(DataContext context, StateType stateType, ParticleType particleType, string msg) 
             : base(context, stateType)
         {
+            _field = new(context);
             _particleType = particleType;
             _msg = msg;
         }
 
         protected override void Enter()
         {
-            Invalid();
-            SendParticleMessage(); 
-            SendLogMessage();
         }
 
         protected override void Exit()
@@ -32,13 +30,19 @@ namespace PSB.InGame
 
         protected override void Stay()
         {
+            // 死亡した際にはこれ以上遷移しないためセルの予約をしない。
+
+            Invalid();
+            SendParticleMessage();
+            SendLogMessage();
         }
 
         void Invalid()
         {
-            // コライダーとレンダラーを無効化して、クリックを防ぐ＆画面に非表示
-            Context.Transform.GetComponent<SphereCollider>().enabled = false;
-            Context.Transform.GetComponentInChildren<SkinnedMeshRenderer>().enabled = false;
+            _field.DeleteActorOnCell();
+            Context.ReturnToPool?.Invoke();
+            // Enterのタイミングでプールに戻すので、次に取り出した際にEnterから始まるようにリセットする
+            ResetStage();
         }
 
         void SendParticleMessage()

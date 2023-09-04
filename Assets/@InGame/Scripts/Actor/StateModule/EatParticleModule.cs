@@ -13,7 +13,7 @@ namespace PSB.InGame
         // 食事中の演出のパーティクルを出す間隔
         const float PlayParticleRate = 0.5f;
 
-        DataContext _context;
+        readonly DataContext _context;
         float _timer;
 
         public EatParticleModule(DataContext context)

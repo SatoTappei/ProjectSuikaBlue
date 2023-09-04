@@ -10,7 +10,7 @@ namespace PSB.InGame
         public Vector3 CurrentCellPos;
         public Vector3 NextCellPos;
 
-        DataContext _context;
+        readonly DataContext _context;
         float _lerpProgress;
         float _speedModify = 1;
 

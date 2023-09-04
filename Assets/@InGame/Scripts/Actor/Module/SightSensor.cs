@@ -4,7 +4,7 @@ namespace PSB.InGame
 {
     public class SightSensor
     {
-        DataContext _context;
+        readonly DataContext _context;
         Collider[] _results = new Collider[8];
 
         public SightSensor(DataContext context)

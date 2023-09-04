@@ -41,14 +41,13 @@ namespace PSB.InGame
             {
                 return _kinpatsuPool.Rent();
             }
+            else if (type == ActorType.KinpatsuLeader)
+            {
+                return _kinpatsuPool.Rent();
+            }
             else if (type == ActorType.Kurokami)
             {
                 return _kurokamiPool.Rent();
-            }
-            else if (type == ActorType.KinpatsuLeader)
-            {
-                // TODO:金髪プールから取得時、リーダー専用の処理が必要？
-                return _kinpatsuPool.Rent();
             }
             else
             {

@@ -8,8 +8,8 @@ namespace PSB.InGame
     /// </summary>
     public class WanderState : BaseState
     {
-        MoveModule _move;
-        FieldModule _field;
+        readonly MoveModule _move;
+        readonly FieldModule _field;
         bool _hasNextCell;
 
         public WanderState(DataContext context) : base(context, StateType.Wander)

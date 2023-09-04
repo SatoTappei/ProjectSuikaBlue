@@ -1,6 +1,6 @@
-using UniRx;
 using UnityEngine;
 using UnityEngine.Events;
+using UniRx;
 
 namespace PSB.InGame
 {
@@ -23,12 +23,13 @@ namespace PSB.InGame
 
         [SerializeField] DataContext _context;
         [SerializeField] SkinnedMeshRenderer _renderer;
+        [SerializeField] Material _defaultMaterial;
 
         ActionEvaluator _evaluator;
         SightSensor _sightSensor;
         BaseState _currentState;
-        Material _copyMaterial;
         bool _initialized;
+        bool _isDead;
 
         // キャラクターの各種パラメータ。初期化前に読み取った場合は仮の値を返す。
         public float Food         => _initialized ? _context.Food.Percentage : default;
@@ -38,27 +39,33 @@ namespace PSB.InGame
         public float BreedingRate => _initialized ? _context.BreedingRate.Percentage : default;
         public string StateName   => _initialized ? _currentState.Type.ToString() : string.Empty;
         public ActorType Type     => _initialized ? _context.Type : ActorType.None;
+        // 死んだ場合(プールに返却した)のフラグ
+        public bool IsDead => _initialized ? _isDead : false;
 
         /// <summary>
         /// スポナーから生成された際にスポナー側が呼び出して初期化する必要がある。
         /// </summary>
         public void Init(uint? gene = null) 
         {
+            _isDead = false;
+
             _context.Init(gene);
             ApplyGene();
             _currentState = _context.EvaluateState;
-            _evaluator = new(_context);
-            _sightSensor = new(_context);
+            _evaluator ??= new(_context);
+            _sightSensor ??= new(_context);
 
             OnSpawned?.Invoke(this);
             _initialized = true;
         }
 
+        // 死亡する際に非表示になる
         void OnDisable()
         {
-            // 色の変更を行った際にコピーしていたマテリアルの削除
-            // 死亡する際に非表示になるのでこのタイミングで行う
-            if (_copyMaterial != null) Destroy(_copyMaterial);
+            _isDead = true;
+
+            // 死亡したメッセージの送信
+            MessageBroker.Default.Publish(new ActorDeathMessage());
         }
 
         /// <summary>
@@ -67,8 +74,13 @@ namespace PSB.InGame
         void ApplyGene()
         {
             _context.Model.localScale *= _context.Size;
-            _renderer.material.SetColor("_BaseColor", _context.Color);
-            _copyMaterial = _renderer.material;
+
+            // 現在のマテリアルを削除
+            Destroy(_renderer.material);
+            // デフォルトのコピーからマテリアルを作成
+            Material next = new(_defaultMaterial);
+            next.SetColor("_BaseColor", _context.Color);
+            _renderer.material = next;
         }
 
         /// <summary>
@@ -105,11 +117,14 @@ namespace PSB.InGame
         /// </summary>
         public void Evaluate(float[] leaderEvaluate)
         {
+            // 評価ステート以外では評価しないことで、毎フレーム評価処理を行うのを防ぐ
+            if (_currentState != _context.EvaluateState) return;
+
             // 周囲の敵と物を検知
             _context.Enemy = _sightSensor.SearchTarget(_context.EnemyTag);
-
+            
             // TODO:追加の評価リソースがある場合はここに書く
-
+            
             // 黒板に書き込む
             _context.NextAction = _evaluator.SelectAction(leaderEvaluate);
         }
@@ -125,16 +140,14 @@ namespace PSB.InGame
         }
     }
 
-    // ★優先:黒髪と金髪にタグをつける
-
     // バグ:経路が見つからないエラーが出るバグ
-    // 出来れば:他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
-    // 次タスク:リーダーが死んだ際の処理、群れの長がいないといけない
+    // 出来れば: 他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
+    // 次タスク: リーダーが死んだ際の処理、群れの長がいないといけない
     // 次タスク: リーダーが死ぬとランダムで次のリーダーが決まる。群れの最後の1匹が死ぬとがめおべら
-    // 次タスク:個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う
+    // 次タスク: 個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う。
 
-    // StatusとBlackBoardはActorとStateどちらからも参照出来ないといけない。
-    // 
+    // うろうろのStayから寿命のStay？寿命のEnterが呼ばれていないのにStayが呼ばれている。
+    // なぜ？しかも1度プールに戻してから取り出した個体のみ。
 
     // 繁殖時のバグ(修正済み？)
     // 餓死ステートに遷移した状態でも繁殖候補として残ってしまっている

@@ -7,7 +7,7 @@ namespace PSB.InGame
     /// </summary>
     public class FieldModule
     {
-        DataContext _context;
+        readonly DataContext _context;
 
         public FieldModule(DataContext context)
         {

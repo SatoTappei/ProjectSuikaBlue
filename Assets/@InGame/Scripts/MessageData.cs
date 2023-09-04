@@ -52,6 +52,13 @@ namespace PSB.InGame
         public Vector3 Pos { get; set; }
     }
 
+    /// <summary>
+    /// キャラクターが死んだ際に各キャラクターから送信される
+    /// </summary>
+    public struct ActorDeathMessage
+    { 
+    }
+
     // 以下は汎用性など要検証
 
     /// <summary>
@@ -104,17 +111,5 @@ namespace PSB.InGame
     public struct BreedingPartnerMessage
     {
         public int ID { get; set; }
-    }
-
-
-
-    /// <summary>
-    /// キャラクターが死んだ際に各キャラクターから送信される
-    /// 生成をカウントするスポナーと、エフェクトを表示させるためのエフェクターが受信する
-    /// </summary>
-    public struct ActorDeathMessage
-    {
-        public Vector3 Pos { get; set; }
-        public ActionType Type { get; set; }
     }
 }

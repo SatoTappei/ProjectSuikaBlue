@@ -21,9 +21,7 @@ namespace PSB.InGame
         void ReceiveMessage()
         {
             // 死んだメッセージを受信した際に生成数を1減らす
-            MessageBroker.Default.Receive<ActorDeathMessage>()
-                .Where(msg => msg.Type == ActionType.Killed || msg.Type == ActionType.Senility)
-                .Subscribe(_ => _count--).AddTo(this);
+            MessageBroker.Default.Receive<ActorDeathMessage>().Subscribe(_ => _count--).AddTo(this);
         }
 
         /// <summary>
