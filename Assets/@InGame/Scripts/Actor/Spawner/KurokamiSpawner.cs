@@ -15,11 +15,9 @@ namespace PSB.InGame
 
         void Spawn(Vector3 pos)
         {
-            if (!CheckSpawn()) return;
-
             pos += Vector3.up * _spawnHeight;
             // TODO:–{—ˆ‚Í•”¯‚àˆâ“`q‚ğ“n‚·
-            InstantiateActor(ActorType.Kurokami, pos);
+            TryInstantiate(ActorType.Kurokami, pos, out Actor actor);
         }
     }
 }

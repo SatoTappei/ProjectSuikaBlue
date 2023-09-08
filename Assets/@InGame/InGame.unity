@@ -1077,7 +1077,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _holder: {fileID: 477467199}
   _spawnHeight: 0.5
-  _totalSpawn: 9
+  _totalSpawn: 2
 --- !u!1 &509570507
 GameObject:
   m_ObjectHideFlags: 0
@@ -1901,6 +1901,8 @@ MonoBehaviour:
     type: 3}
   _spawn: {fileID: 8913673984012576777, guid: 502df2543382aad44b74d1d35be979ba, type: 3}
   _eat: {fileID: 2991550679624626151, guid: 9aed5e87257af3c458a7baabdb28b73e, type: 3}
+  _mating: {fileID: -1903543458832065606, guid: bb041c6660af0674da8fa316cc1caf97,
+    type: 3}
   _height: 0.6
 --- !u!1 &890936711
 GameObject:
@@ -3352,7 +3354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnRadius: 10
-  _interval: 0.05
+  _interval: 10000.05
   _isDebug: 1
 --- !u!4 &1462247248
 Transform:

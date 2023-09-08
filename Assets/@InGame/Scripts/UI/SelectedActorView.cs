@@ -45,7 +45,7 @@ namespace PSB.InGame
         void SyncParamsToUI()
         {
             _nameText.text = _name;
-            _stateNameText.text = Filtering(_stateNameText.text, _actor.StateName);
+            _stateNameText.text = Filtering(_stateNameText.text, _actor.State.ToString());
             _foodBar.localScale         = new Vector3(_actor.Food, 1, 1);
             _waterBar.localScale        = new Vector3(_actor.Water, 1, 1);
             _hpBar.localScale           = new Vector3(_actor.HP, 1, 1);

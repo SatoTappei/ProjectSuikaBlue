@@ -44,11 +44,11 @@ namespace PSB.InGame
             _kinpatsuList.RemoveAll(actor => actor.IsDead);
             _kurokamiList.RemoveAll(actor => actor.IsDead);
 
-            DebugLog();
-
+            // キャラクターの更新
             ForEachAll(actor => actor.StepParams());
-            ForEachAll(actor => actor.Evaluate(new float[Utility.GetEnumLength<ActionType>() - 1]));
             ForEachAll(actor => actor.StepAction());
+            ForEachEvaluate(actor => actor.ResetOnEvaluateState());
+            ForEachEvaluate(actor => actor.Evaluate(new float[Utility.GetEnumLength<ActionType>() - 1]));
 
             // 一定間隔で黒髪を生成する
             _kurokamiSpawnModule.Step(transform.position);
@@ -114,6 +114,23 @@ namespace PSB.InGame
                 action.Invoke(kinpatsu);
             }
             foreach (Actor kurokami in _kurokamiList)
+            {
+                action.Invoke(kurokami);
+            }
+        }
+
+        void ForEachEvaluate(UnityAction<Actor> action)
+        {
+            if (_kinpatsuLeader != null && _kinpatsuLeader.State == StateType.Evaluate)
+            {
+                action.Invoke(_kinpatsuLeader);
+            }
+
+            foreach (Actor kinpatsu in _kinpatsuList.Where(a => a.State == StateType.Evaluate))
+            {
+                action.Invoke(kinpatsu);
+            }
+            foreach (Actor kurokami in _kurokamiList.Where(a => a.State == StateType.Evaluate))
             {
                 action.Invoke(kurokami);
             }

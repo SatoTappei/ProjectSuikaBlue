@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,13 +18,12 @@ namespace PSB.InGame
         readonly MoveModule _move;
         readonly FieldModule _field;
         readonly EatParticleModule _particle;
-
         readonly ResourceType _resourceType;
         readonly UnityAction _stepEatAction;
         Stage _stage;
-        List<Vector3> _path = new();
         float _healingProgress;
-        bool _hasPath;
+        // 経路のスタート地点から次のセルに移動する状態のフラグ
+        bool _firstStep;
 
         public SearchResourceState(DataContext context, StateType stateType, ResourceType resourceType, 
             UnityAction stepEatAction) : base(context, stateType)
@@ -41,31 +38,33 @@ namespace PSB.InGame
         protected override void Enter()
         {
             _move.Reset();
+            TryStepNextCell();
+            _field.SetActorOnCell();
             _particle.Reset();
             _stage = Stage.Move;
             _healingProgress = 0;
-
-            _field.SetActorOnCell();
-
-            _hasPath = TryPathfinding();
-            TryStepNextCell();
+            _firstStep = true;
         }
 
         protected override void Exit()
         {
+            Context.Path.Clear();
         }
 
         protected override void Stay()
         {
-            if (!_hasPath) { ToEvaluateState(); return; }
-
             // 移動
             if (_stage == Stage.Move)
             {
                 if (_move.OnNextCell)
                 {
-                    // 次のセルに到着したタイミングで移動前のセルの情報を消す
-                    _field.DeleteActorOnCell(_move.CurrentCellPos);
+                    // 経路のスタート地点は予約されているので次のセルに移動した際に消す
+                    // 全てのセルに対して行うと別のキャラクターで予約したセルまで消してしまう。
+                    if (_firstStep)
+                    {
+                        _firstStep = false;
+                        _field.DeleteActorOnCell(_move.CurrentCellPos);
+                    }
 
                     // 別のステートが選択されていた場合は遷移する
                     if (Context.ShouldChangeState(this)) { ToEvaluateState(); return; }
@@ -85,62 +84,13 @@ namespace PSB.InGame
                 }
             }
             // 食べる
-            else
+            else if (_stage == Stage.Eat)
             {
                 if (!StepEatProgress()) { ToEvaluateState(); return; }
 
                 // 一定間隔でパーティクル
                 _particle.Update();
             }
-        }
-
-        bool TryPathfinding()
-        {
-            _path.Clear();
-
-            // 食料のセルがあるか調べる
-            if (FieldManager.Instance.TryGetResourceCells(_resourceType, out List<Cell> cellList))
-            {
-                // 食料のセルを近い順に経路探索
-                Vector3 pos = Context.Transform.position;
-                foreach (Cell food in cellList.OrderBy(c => Vector3.SqrMagnitude(c.Pos - pos)))
-                {
-                    // TODO:全ての食料に対して経路探索をすると重いのである程度の所で打ち切る処理
-
-                    Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(pos);
-                    Vector2Int foodIndex = FieldManager.Instance.WorldPosToGridIndex(food.Pos);
-
-                    int dx = Mathf.Abs(currentIndex.x - foodIndex.x);
-                    int dy = Mathf.Abs(currentIndex.y - foodIndex.y);
-                    if (dx <= 1 && dy <= 1)
-                    {
-                        // 隣のセルに食料がある場合は移動しないので、現在地を経路として追加する
-                        _path.Add(Context.Transform.position);
-                        _field.SetActorOnCell();
-                        return true;
-                    }
-                    else
-                    {
-                        // 対象のセル + 周囲八近傍に対して経路探索
-                        foreach (Vector2Int dir in Utility.SelfAndEightDirections)
-                        {
-                            Vector2Int targetIndex = foodIndex + dir;
-                            if (FieldManager.Instance.TryGetPath(currentIndex, targetIndex, out _path))
-                            {
-                                // 経路の末端(資源のセルの隣)にキャラクターがいる場合は弾く
-                                if (FieldManager.Instance.IsActorOnCell(_path[^1], out ActorType _)) continue;
-                                
-                                _field.SetActorOnCell(_path[^1]);
-                                return true;
-                            }
-                        }
-                    }
-                }
-
-                return false;
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -152,11 +102,11 @@ namespace PSB.InGame
         {
             _move.Reset();
 
-            if (_path.Count > 0)
+            if (Context.Path.Count > 0)
             {
                 // 経路の末尾から1つ取り出す
-                _move.NextCellPos = _path[0];
-                _path.RemoveAt(0);
+                _move.NextCellPos = Context.Path[0];
+                Context.Path.RemoveAt(0);
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 _move.NextCellPos.y = Context.Transform.position.y;
                 

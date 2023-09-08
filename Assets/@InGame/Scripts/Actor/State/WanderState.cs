@@ -31,13 +31,14 @@ namespace PSB.InGame
 
         protected override void Stay()
         {
-            if (!_hasNextCell) ToEvaluateState();
+            if (!_hasNextCell) { ToEvaluateState(); return; }
 
             if (_move.OnNextCell)
             {
-                ToEvaluateState();
                 // 次のセルに到着したタイミングで移動前のセルの情報を消す
                 _field.DeleteActorOnCell(_move.CurrentCellPos);
+
+                ToEvaluateState();
             }
             else
             {

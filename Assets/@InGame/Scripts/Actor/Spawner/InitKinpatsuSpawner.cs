@@ -76,9 +76,10 @@ namespace PSB.InGame
                 ActorType type = m == 0 ? ActorType.KinpatsuLeader : ActorType.Kinpatsu;
                 // キャラクターの生成
                 Vector3 pos = new Vector3(cell.Pos.x, _spawnHeight, cell.Pos.z);
-                Actor actor = InstantiateActor(type, pos);
-
-                SendSpawnMessage(actor.name);
+                if(TryInstantiate(type, pos, out Actor actor))
+                {
+                    SendSpawnMessage(actor.name);
+                }
             }
 
             temp.Clear();

@@ -8,6 +8,12 @@ namespace PSB.InGame
     /// </summary>
     public class ChildSpawner : ActorSpawner
     {
+        enum Result
+        {
+            Normal,
+            Mutation,
+        }
+
         [Header("’Êí‚ÌU‚ê•")]
         [SerializeField] byte _randomRange = 2;
         [Header("“Ë‘R•ÏˆÙ‚µ‚½Û‚ÌU‚ê•‚Ì”{—¦")]
@@ -58,17 +64,17 @@ namespace PSB.InGame
         /// </summary>
         void Execute(SpawnChildMessage msg)
         {
-            // Å‘å”‚É’B‚µ‚Ä‚¢‚½‚ç¶¬‚µ‚È‚¢
-            if (!CheckSpawn()) return;
+            Result result = CalcChildGene(msg, out uint childGene);
 
-            uint childGene = CalcChildGene(msg);
-            Actor actor = InstantiateActor(ActorType.Kinpatsu, msg.Pos, childGene);
-
-            SendSpawnMessage(actor);
-            SendEventLogMessage(actor);
+            if (TryInstantiate(ActorType.Kinpatsu, msg.Pos, out Actor actor, childGene))
+            {
+                SendSpawnMessage(actor);
+                SendEventLogMessage(actor, result);
+                PlaySE(result);
+            }
         }
 
-        uint CalcChildGene(SpawnChildMessage msg)
+        Result CalcChildGene(SpawnChildMessage msg, out uint gene)
         {
             uint gene1 = msg.Gene1;
             uint gene2 = msg.Gene2;
@@ -105,10 +111,8 @@ namespace PSB.InGame
             byte g = Clamp(tempG);
             byte b = Clamp(tempB);
 
-            // ‰¹‚ÌÄ¶
-            AudioManager.PlayAudio(isMutation ? AudioKey.BreedingMutationSE : AudioKey.BreedingSE);
-
-            return (uint)(r << 24 | g << 16 | b << 8 | size);
+            gene = (uint)(r << 24 | g << 16 | b << 8 | size);
+            return isMutation ? Result.Mutation : Result.Normal;
         }
 
         float CalcScore(SpawnChildMessage msg)
@@ -140,11 +144,25 @@ namespace PSB.InGame
             MessageBroker.Default.Publish(new ActorSpawnMessage() { Pos = actor.transform.position });
         }
 
-        void SendEventLogMessage(Actor actor)
+        void SendEventLogMessage(Actor actor, Result result)
         {
             string color = Utility.ColorCodeGreen;
-            string log = $"<color={color}>{actor.name}</color>‚ª‚±‚Ì•…”s‚µ‚½¢ŠE‚ÉY‚İ—‚Æ‚³‚ê‚½‚Å‚·B";
+            string log = string.Empty;
+            if (result == Result.Normal)
+            {
+                log = $"<color={color}>{actor.name}</color>‚ª‚±‚Ì•…”s‚µ‚½¢ŠE‚ÉY‚İ—‚Æ‚³‚ê‚½‚Å‚·B";
+            }
+            else if (result == Result.Mutation)
+            {
+                log = $"<color={color}>{actor.name}</color>‚ª‚±‚Ì•…”s‚µ‚½¢ŠE‚ÉY‚İ—‚Æ‚³‚ê‚½‚Å‚·B“Ë‘R•ÏˆÙI";
+            }
             MessageBroker.Default.Publish(new EventLogMessage() { Message = log });
+        }
+
+        void PlaySE(Result result)
+        {
+            // ‰¹‚ÌÄ¶
+            AudioManager.PlayAudio(result == Result.Mutation ? AudioKey.BreedingMutationSE : AudioKey.BreedingSE);
         }
 
         // ƒfƒoƒbƒO—p

@@ -6,6 +6,9 @@ namespace PSB.InGame
 {
     public class DataContext : MonoBehaviour, IDamageReceiver
     {
+        // 次の性別を交互に設定するための変数
+        static Sex NextSex;
+
         [SerializeField] ActorType _type;
         [SerializeField] Transform _model;
         [Header("ギズモへの描画を行う")]
@@ -14,6 +17,8 @@ namespace PSB.InGame
         // プールに返却する処理。生成時にプールから登録される
         [HideInInspector] public UnityAction ReturnToPool;
         // Actor側が書き込んでState側で読み取る値
+        [HideInInspector] public List<Vector3> Path;
+        [HideInInspector] public DataContext Partner;
         [HideInInspector] public DataContext Enemy;
         [HideInInspector] public Transform Leader;
         [HideInInspector] public ActionType NextAction;
@@ -27,6 +32,10 @@ namespace PSB.InGame
         Transform _transform;
         StatusBase _base;
         Dictionary<ActionType, BaseState> _stateDict;
+        Sex _sex;
+        // 繁殖ステート
+        MaleBreedState _maleBreedState;
+        FemaleBreedState _femaleBreedState;
         // 評価は対応する行動が無い特別な状態なので別途保持する
         EvaluateState _evaluateState;
         // 8ビット区切りの遺伝子(カラーR カラーG カラーB サイズ)
@@ -39,6 +48,7 @@ namespace PSB.InGame
         public EvaluateState EvaluateState => _evaluateState;
         public Transform Transform => _transform;
         public StatusBase Base => _base;
+        public Sex Sex => _sex;
         public string EnemyTag => _type == ActorType.Kurokami ? "Kinpatsu" : "Kurokami";
         public uint Gene => _gene;
         public byte ColorR => (byte)(Gene >> 24 & 0xFF);
@@ -92,6 +102,9 @@ namespace PSB.InGame
 
             _base ??= StatusBaseHolder.Get(_type);
             _gene = gene ?? Base.DefaultGene;
+            // 性別を交互に設定する
+            _sex = NextSex;
+            NextSex = 1 - NextSex;
             // 全てのパラメータの最大値は全種類＆全個体同じ
             Food = new Param(StatusBase.Max);
             Water = new Param(StatusBase.Max);
@@ -101,6 +114,7 @@ namespace PSB.InGame
             BreedingRate = new Param(0);
 
             if (!_initialized) CreateState();
+            AddBreedState();
 
             // 最初の1回、呼び出しが行われると初期化完了
             _initialized = true;
@@ -138,11 +152,24 @@ namespace PSB.InGame
             _stateDict.Add(ActionType.Attack, new AttackState(this));
             _stateDict.Add(ActionType.Escape, new EscapeState(this));
             _stateDict.Add(ActionType.Gather, new GatherState(this));
-            _stateDict.Add(ActionType.Breed, new BreedState(this));
+            //_stateDict.Add(ActionType.Breed, new MaleBreedState(this));
             _stateDict.Add(ActionType.SearchFood, new SearchFoodState(this));
             _stateDict.Add(ActionType.SearchWater, new SearchWaterState(this));
             _stateDict.Add(ActionType.Wander, new WanderState(this));
             _stateDict.Add(ActionType.None, new IdleState(this));
+            // 繁殖ステートは性別によって変わるのでプールから取り出す度にどちらかを追加する
+            _maleBreedState = new(this);
+            _femaleBreedState = new(this);
+        }
+
+        /// <summary>
+        /// 雄と雌で繁殖時の行動が違うので、プールから取り出して初期化する際に
+        /// 繁殖ステートのみ辞書から削除、再度性別ごとに追加する
+        /// </summary>
+        void AddBreedState()
+        {
+            _stateDict.Remove(ActionType.Breed);
+            _stateDict.Add(ActionType.Breed, _sex == Sex.Male ? _maleBreedState : _femaleBreedState);
         }
 
         public void StepFood()         => Food.Value         -= Base.DeltaFood         * Time.deltaTime;

@@ -28,30 +28,36 @@ namespace PSB.InGame
         /// 生成して親の遺伝子を子に渡す初期化メソッドを呼んで返す。
         /// 第三引数ががnullの場合、遺伝子が無いので親無しになる。
         /// </summary>
-        /// <returns>通常:初期化済みのActor 最大数生成済みの場合:null</returns>
-        protected Actor InstantiateActor(ActorType type, Vector3 pos, uint? gene = null)
+        /// <returns>生成した:true 最大数に達しており生成不可能:false</returns>
+        protected bool TryInstantiate(ActorType type, Vector3 pos, out Actor actor, uint? gene = null)
         {
-            // 生成数を増やす
-            _count++;
-
             if (_parent == null) _parent = new GameObject("ActorParent").transform;
 
-            Actor actor = _holder.Rent(type);
-            actor.transform.position = pos;
-            actor.transform.rotation = Quaternion.identity;
-            actor.transform.SetParent(_parent);
-            actor.Init(gene);
-            // ランダムな名前
-            actor.name = Utility.GetRandomString();
+            if (CheckSpawn())
+            {
+                _count++;
 
-            return actor;
+                actor = _holder.Rent(type);
+                actor.transform.position = pos;
+                actor.transform.rotation = Quaternion.identity;
+                actor.transform.SetParent(_parent);
+                // ランダムな名前
+                actor.name = Utility.GetRandomString();
+
+                actor.Init(gene);
+
+                return true;
+            }
+
+            actor = null;
+            return false;
         }
 
         /// <summary>
-        /// 生成数を調べたい場合に呼ぶ
+        /// 生成可能かどうか
         /// </summary>
         /// <returns>生成可能:true 生成上限:false</returns>
-        protected bool CheckSpawn()
+        bool CheckSpawn()
         {
             if (_count >= InvalidActorHolder.PoolSize)
             {

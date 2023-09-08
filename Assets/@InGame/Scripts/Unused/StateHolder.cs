@@ -42,7 +42,7 @@ namespace PSB.InGame
             _stateDict.Add(ActionType.Attack, new AttackState(context));
             _stateDict.Add(ActionType.Escape, new EscapeState(context));
             _stateDict.Add(ActionType.Gather, new GatherState(context));
-            _stateDict.Add(ActionType.Breed, new BreedState(context));
+            _stateDict.Add(ActionType.Breed, new MaleBreedState(context));
             _stateDict.Add(ActionType.SearchFood, new SearchFoodState(context));
             _stateDict.Add(ActionType.SearchWater, new SearchWaterState(context));
             _stateDict.Add(ActionType.Wander, new WanderState(context));

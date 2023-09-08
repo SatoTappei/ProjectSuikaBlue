@@ -8,54 +8,97 @@ namespace PSB.InGame
 {
     public class BreedingProvider : MonoBehaviour
     {
+        public static BreedingProvider Instance;
+
 #if UNITY_EDITOR
         [Header("デバッグ用")]
         [SerializeField] Text _debugText;
         [SerializeField] bool _isDebug;
 #endif
 
-        List<Actor> _actorList = new();
+        List<DataContext> _maleList = new();
+        List<DataContext> _femaleList = new();
 
         void Awake()
         {
-            SubscribeBreedMessage();
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                Destroy(this);
+            }
         }
 
         void Update()
         {
-            if (_actorList.Count >= 2)
+            if (_maleList.Count >= 2)
             {
-                Matching();
+                //Matching();
                 Shuffle();
             }
 
 #if UNITY_EDITOR
-            if(_isDebug) DebugPrint();
+            //if(_isDebug) DebugPrint();
 #endif
         }
 
-        void SubscribeBreedMessage()
+        public void Add(DataContext context)
         {
-            MessageBroker.Default.Receive<BreedingMessage>().Subscribe(Add).AddTo(this);
-            MessageBroker.Default.Receive<CancelBreedingMessage>().Subscribe(Remove).AddTo(this);
+            if (context.Sex == Sex.Male) _maleList.Add(context);
+            else if (context.Sex == Sex.Female) _femaleList.Add(context);
         }
 
-        void Add(BreedingMessage msg)
+        public void Remove(DataContext context)
         {
-            Actor actor = msg.Actor.GetComponent<Actor>();
-            _actorList.Add(actor);
+            if (context.Sex == Sex.Male) _maleList.Remove(context);
+            else if (context.Sex == Sex.Female) _femaleList.Remove(context);
         }
 
-        void Matching()
+        //public bool TryMatching(DataContext context, out DataContext partner)
+        //{
+        //    if (context.Sex == Sex.Male)
+        //    {
+        //        // 雌のリストの先頭を抜き出す
+        //        partner = _femaleList[0];
+        //        _femaleList.RemoveAt(0);
+        //        // 経路があるか調べる
+        //        Vector3 actorPos = context.Transform.position;
+        //        Vector3 partnerPos = partner.Transform.position;
+        //        if (FieldManager.Instance.TryGetPath(actorPos, partnerPos, out List<Vector3> _))
+        //        {
+        //            // 自身にはパートナーを、パートナーには自身をセットする
+        //            context.Partner = partner;
+        //            partner.Partner = context;
+        //            // マッチしたのでリストから削除
+        //            _maleList.Remove(context);
+        //            _femaleList.Remove(partner);
+
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            _femaleList.Add(partner);
+        //        }
+        //    }
+        //    else if (context.Sex == Sex.Female)
+        //    {
+
+        //    }
+        //}
+
+        public void Matching(MaleBreedState actor)
         {
-            Actor male = _actorList[0];
-            _actorList.RemoveAt(0);
-            Actor female = _actorList[0];
-            _actorList.RemoveAt(0);
+            // 先頭を取得して経路探索、経路が無い場合は戻す？
+            //Actor male = _actorList[0];
+            //_actorList.RemoveAt(0);
+            //Actor female = _actorList[0];
+            //_actorList.RemoveAt(0);
 
             // 2人の間に経路があるか調べる
-            Vector3 m = male.transform.position;
-            Vector3 f = female.transform.position;
+            //Vector3 m = male.transform.position;
+            //Vector3 f = female.transform.position;
             //if (FieldManager.Instance.TryGetPath(m, f, out Stack<Vector3> _))
             //{
             //    // 経路があればマッチング
@@ -82,24 +125,24 @@ namespace PSB.InGame
 
         void Shuffle()
         {
-            _actorList = _actorList.OrderBy(_ => System.Guid.NewGuid()).ToList();
+            _maleList = _maleList.OrderBy(_ => System.Guid.NewGuid()).ToList();
         }
 
         void Remove(CancelBreedingMessage msg)
         {
             Actor actor = msg.Actor.GetComponent<Actor>();
-            _actorList.Remove(actor);
+            //_maleList.Remove(actor);
         }
 
-        void DebugPrint()
-        {
-            string str = "";
-            foreach (Actor a in _actorList)
-            {
-                str += a.name;
-                str += "\n";
-            }
-            _debugText.text = str;
-        }
+        //void DebugPrint()
+        //{
+        //    string str = "";
+        //    foreach (Actor a in _maleList)
+        //    {
+        //        str += a.name;
+        //        str += "\n";
+        //    }
+        //    _debugText.text = str;
+        //}
     }
 }

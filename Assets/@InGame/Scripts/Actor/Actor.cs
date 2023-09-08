@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UniRx;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
+using System;
 
 namespace PSB.InGame
 {
@@ -10,6 +14,12 @@ namespace PSB.InGame
         Kinpatsu,
         KinpatsuLeader,
         Kurokami,
+    }
+
+    public enum Sex
+    {
+        Male,
+        Female,
     }
 
     /// <summary>
@@ -26,10 +36,13 @@ namespace PSB.InGame
         [SerializeField] Material _defaultMaterial;
 
         ActionEvaluator _evaluator;
-        SightSensor _sightSensor;
         BaseState _currentState;
+        Collider[] _detected = new Collider[8];
+        Coroutine _spawnChild; // 交尾をキャンセル可能にするため
+        SpawnChildMessage _spawnChildMessage = new();
         bool _initialized;
         bool _isDead;
+        bool _isMating; // 交尾中フラグ
 
         // キャラクターの各種パラメータ。初期化前に読み取った場合は仮の値を返す。
         public float Food         => _initialized ? _context.Food.Percentage : default;
@@ -37,8 +50,9 @@ namespace PSB.InGame
         public float HP           => _initialized ? _context.HP.Percentage : default;
         public float LifeSpan     => _initialized ? _context.LifeSpan.Percentage : default;
         public float BreedingRate => _initialized ? _context.BreedingRate.Percentage : default;
-        public string StateName   => _initialized ? _currentState.Type.ToString() : string.Empty;
+        public StateType State    => _initialized ? _currentState.Type : StateType.Base;
         public ActorType Type     => _initialized ? _context.Type : ActorType.None;
+        public Sex Sex            => _initialized ? _context.Sex : Sex.Male;
         // 死んだ場合(プールに返却した)のフラグ
         public bool IsDead => _initialized ? _isDead : false;
 
@@ -53,7 +67,10 @@ namespace PSB.InGame
             ApplyGene();
             _currentState = _context.EvaluateState;
             _evaluator ??= new(_context);
-            _sightSensor ??= new(_context);
+            // 初期位置のセル上に居るという情報を書き込む
+            FieldManager.Instance.SetActorOnCell(transform.position, _context.Type);
+            // わかりやすいように名前に性別を反映しておく
+            name += _context.Sex == Sex.Male ? "♂" : "♀";
 
             OnSpawned?.Invoke(this);
             _initialized = true;
@@ -63,7 +80,6 @@ namespace PSB.InGame
         void OnDisable()
         {
             _isDead = true;
-
             // 死亡したメッセージの送信
             MessageBroker.Default.Publish(new ActorDeathMessage());
         }
@@ -113,74 +129,278 @@ namespace PSB.InGame
         }
 
         /// <summary>
+        /// 評価ステートだった場合にリセットする処理
+        /// </summary>
+        public void ResetOnEvaluateState()
+        {
+            // 子供を産むコルーチンを停止
+            if (_spawnChild != null) StopCoroutine(_spawnChild);
+            _isMating = false;
+        }
+
+        /// <summary>
+        /// 評価ステート以外では評価しないことで、毎フレーム評価処理を行うのを防ぐ
         /// 自身の情報とリーダーの評価値を元に次の行動を決める。
         /// </summary>
         public void Evaluate(float[] leaderEvaluate)
         {
-            // 評価ステート以外では評価しないことで、毎フレーム評価処理を行うのを防ぐ
-            if (_currentState != _context.EvaluateState) return;
+            // 周囲の敵を検知
+            //_sightSensor.TrySearchTarget(_context.EnemyTag, out _context.Enemy);
 
-            // 周囲の敵と物を検知
-            _context.Enemy = _sightSensor.SearchTarget(_context.EnemyTag);
-            
-            // TODO:追加の評価リソースがある場合はここに書く
-            
-            // 黒板に書き込む
-            _context.NextAction = _evaluator.SelectAction(leaderEvaluate);
+            // 視界で捉えるもの
+            // 敵･･･経路があれば攻撃/逃げる
+            // 繁殖相手
+            // 資源･･･経路があれば向かう
+
+            // 評価値を用いて評価を行う
+            // 繁殖が選択された場合
+            //  雄は繁殖可能な雌を探す。
+            //  雌は繁殖相手がいる場合は･･･
+            //  繁殖可能なら繁殖相手を検知
+            //  検知した相手までの経路がある
+
+            // 敵に狙われている場合は、攻撃もしくは逃げることが最優先なので、評価値より先に判定する
+            //if (_context.IsTargeted)
+
+            // 評価値を用いて次の行動を選択
+            ActionType action = _evaluator.SelectAction(leaderEvaluate);
+            // 死亡はそのまま死ぬ
+            if (action == ActionType.Killed) _context.NextAction = ActionType.Killed;
+            else if (action == ActionType.Senility) _context.NextAction = ActionType.Senility;
+            // 繁殖する場合は雄と雌で取る行動が違う。
+            else if (action == ActionType.Breed)
+            {
+                if (_context.Sex == Sex.Male && TryDetectPartner())
+                {
+                    _context.NextAction = ActionType.Breed;
+                }
+                else if (_context.Sex == Sex.Female)
+                {
+                    _context.NextAction = ActionType.Breed;
+                }
+            }
+            // 水もしくは食料を探す場合、対象の資源までの経路が必要
+            else if (action == ActionType.SearchWater && TryDetectResource(ResourceType.Water))
+            {
+                _context.NextAction = ActionType.SearchWater;
+            }
+            else if (action == ActionType.SearchFood && TryDetectResource(ResourceType.Tree))
+            {
+                _context.NextAction = ActionType.SearchFood;
+            }
+            else
+            {
+                // ランダムに隣のセルに移動する
+                _context.NextAction = ActionType.Wander;
+            }
         }
 
-        // ↓リーダーのみのメソッド
-        public float[] LeaderEvaluate()
+        /// <summary>
+        /// 現在の経路を削除(空にする)し、末端の予約を削除する。
+        /// 経路を探索する際に呼ばないと以前の経路の末端の予約が残ったままになってしまう。
+        /// </summary>
+        public void DeletePath()
         {
-            // 本来はpublicな黒板を見て行動を評価する
-            float[] eval = new float[Utility.GetEnumLength<ActionType>() - 1];
-            eval[(int)ActionType.Gather] = 1;
+            if (_context.Path.Count > 0)
+            {
+                int goal = _context.Path.Count - 1;
+                FieldManager.Instance.SetActorOnCell(_context.Path[goal], _context.Type);
+                _context.Path.Clear();
+            }
+        }
 
-            return eval;
+        /// <summary>
+        /// 雌を検知し、経路探索を行う。経路が見つかった場合はゴールのセルを予約する。
+        /// 雌のセル + 周囲八近傍 のセルへの経路が存在するか調べる
+        /// </summary>
+        /// <returns>雌への経路がある:true 雌がいないof雌への経路が無い:false</returns>
+        public bool TryDetectPartner()
+        {
+            Array.Clear(_detected, 0, _detected.Length);
+            DeletePath();
+
+            Vector3 pos = transform.position;
+            float radius = _context.Base.SightRadius;
+            LayerMask layer = _context.Base.SightTargetLayer;
+            int count = Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer);
+            if (count == 0) return false;
+
+            foreach (Collider collider in _detected)
+            {
+                if (collider == null) break;
+                if (collider.transform == transform) continue; // 自分を弾く
+                // 雌以外を弾く
+                if (collider.TryGetComponent(out DataContext target) && target.Sex == Sex.Female)
+                {
+                    // グリッド上で距離比較
+                    Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(pos);
+                    Vector2Int targetIndex = FieldManager.Instance.WorldPosToGridIndex(target.Transform.position);
+                    int dx = Mathf.Abs(currentIndex.x - targetIndex.x);
+                    int dy = Mathf.Abs(currentIndex.y - targetIndex.y);
+                    if (dx <= 1 && dy <= 1)
+                    {
+                        // 隣のセルにある場合は移動しないので、現在地を経路として追加する
+                        _context.Path.Add(pos);
+                        FieldManager.Instance.SetActorOnCell(pos, _context.Type);
+                        return true;
+                    }
+                    else
+                    {
+                        // 対象のセル + 周囲八近傍に対して経路探索
+                        foreach (Vector2Int dir in Utility.SelfAndEightDirections)
+                        {
+                            Vector2Int dirIndex = targetIndex + dir;
+                            // 経路が見つからなかった場合は弾く
+                            if (!FieldManager.Instance.TryGetPath(currentIndex, dirIndex, out _context.Path)) continue;
+                            // 経路の末端(資源のセルの隣)にキャラクターがいる場合は弾く
+                            int goal = _context.Path.Count - 1;
+                            if (FieldManager.Instance.IsActorOnCell(_context.Path[goal], out ActorType _)) continue;
+
+                            FieldManager.Instance.SetActorOnCell(_context.Path[goal], _context.Type);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 資源までの経路探索
+        /// 経路が見つかった場合はゴールのセルを予約する
+        /// </summary>
+        /// <returns>経路あり:true 経路無し:false</returns>
+        bool TryDetectResource(ResourceType resource)
+        {
+            DeletePath();
+
+            // 食料のセルがあるか調べる
+            if (FieldManager.Instance.TryGetResourceCells(resource, out List<Cell> cellList))
+            {
+                // 食料のセルを近い順に経路探索
+                Vector3 pos = transform.position;
+                foreach (Cell food in cellList.OrderBy(c => Vector3.SqrMagnitude(c.Pos - pos)))
+                {
+                    // TODO:全ての食料に対して経路探索をすると重いのである程度の所で打ち切る処理
+
+                    Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(pos);
+                    Vector2Int foodIndex = FieldManager.Instance.WorldPosToGridIndex(food.Pos);
+
+                    int dx = Mathf.Abs(currentIndex.x - foodIndex.x);
+                    int dy = Mathf.Abs(currentIndex.y - foodIndex.y);
+                    if (dx <= 1 && dy <= 1)
+                    {
+                        // 隣のセルに食料がある場合は移動しないので、現在地を経路として追加する
+                        _context.Path.Add(pos);
+                        FieldManager.Instance.SetActorOnCell(pos, _context.Type);
+                        return true;
+                    }
+                    else
+                    {
+                        // 対象のセル + 周囲八近傍に対して経路探索
+                        foreach (Vector2Int dir in Utility.SelfAndEightDirections)
+                        {
+                            Vector2Int targetIndex = foodIndex + dir;
+                            // 経路が見つからなかった場合は弾く
+                            if (!FieldManager.Instance.TryGetPath(currentIndex, targetIndex, out _context.Path)) continue;
+                            // 経路の末端(資源のセルの隣)にキャラクターがいる場合は弾く
+                            int goal = _context.Path.Count - 1;
+                            if (FieldManager.Instance.IsActorOnCell(_context.Path[goal], out ActorType _)) continue;
+
+                            FieldManager.Instance.SetActorOnCell(_context.Path[goal], _context.Type);
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 雄が雌を呼び出す。
+        /// 交尾中でない場合、一定時間経過後、子供を産む処理を呼び出す。
+        /// キャンセルすることが出来る。
+        /// </summary>
+        public void SpawnChild(uint maleGene, UnityAction callback = null)
+        {           
+            if (_currentState.Type != StateType.FemaleBreed)
+            {
+                Debug.LogWarning($"{name} 雌の繁殖ステート以外で子供を産む処理が呼ばれている。");
+            }
+
+            if (!_isMating)
+            {
+                _isMating = true;
+                _spawnChild = StartCoroutine(SpawnChildCoroutine(maleGene, callback));
+            }
+        }
+
+        IEnumerator SpawnChildCoroutine(uint maleGene, UnityAction callback = null)
+        {
+            // 演出としてパーティクルを何回か出す
+            int c = 3; // 繰り返す回数は適当
+            for (int i = 0; i < c; i++) 
+            {
+                MessageBroker.Default.Publish(new PlayParticleMessage()
+                {
+                    Type = ParticleType.Mating,
+                    Pos = transform.position,
+                });
+                yield return new WaitForSeconds(_context.Base.MatingTime / c);
+            }
+            // 子供を産む
+            _spawnChildMessage.Gene1 = maleGene;
+            _spawnChildMessage.Gene2 = _context.Gene;
+            _spawnChildMessage.Food = _context.Food.Value;
+            _spawnChildMessage.Water = _context.Water.Value;
+            _spawnChildMessage.HP = _context.HP.Value;
+            _spawnChildMessage.LifeSpan = _context.LifeSpan.Value;
+            _spawnChildMessage.Pos = transform.position; // 雌と同じ位置に生成している
+            MessageBroker.Default.Publish(_spawnChildMessage);
+
+            yield return null;
+            _isMating = false;
+            callback?.Invoke();
+        }
+
+        void OnDrawGizmos()
+        {
+            // 周囲八近傍のセルの距離を描画
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, MaleBreedState.NeighbourCellRadius);
         }
     }
 
-    // バグ:経路が見つからないエラーが出るバグ
     // 出来れば: 他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
+    // 出来れば: 生成数による生成の判定がバグっている
+    // 変更案: 個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う。
     // 次タスク: リーダーが死んだ際の処理、群れの長がいないといけない
     // 次タスク: リーダーが死ぬとランダムで次のリーダーが決まる。群れの最後の1匹が死ぬとがめおべら
-    // 次タスク: 個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う。
 
-    // うろうろのStayから寿命のStay？寿命のEnterが呼ばれていないのにStayが呼ばれている。
-    // なぜ？しかも1度プールに戻してから取り出した個体のみ。
+    // うろうろ
+    //  何もない場合に遷移。外部の依存は無し。
+    // 水分/食料
+    //  辿り着ける(経路がある)資源が必要。
+    //  辿り着ける資源が無い場合は評価ステートに戻るが、またすぐに遷移してきてしまう。
+    // 繁殖
+    //  雄と雌で行動が違う。
+    //  雄は雌を探すが、雌は繁殖ステートにいる必要がある？。雌は雄の任意のタイミングで処理が出来る必要がある。
+    //   雄は雌の、雌は雄の参照を持っているので、任意のタイミングで処理が出来る？
+    //  雄はその場で雌を探すので居なかった場合に、またすぐに遷移してきてしまう。
+    //  辿り着ける繁殖相手が必要。
+    //  繁殖相手が死亡した場合の対処が必要。
+    // 攻撃/逃げる
+    //  辿り着ける敵が必要。
+    // 死亡･･･なし
 
-    // 繁殖時のバグ(修正済み？)
-    // 餓死ステートに遷移した状態でも繁殖候補として残ってしまっている
-    // なので餓死ステートでも死なない？
-    // しかし、餓死ステートに入れば強制的にレンダラが無効化され、表示しなくなるはず
-    // 餓死状態になると餓死ステートに遷移はする
-    // マッチング待機状態でバグっている
-    // 餓死ステートに遷移したまま番まで移動している
-    // 餓死ステートのまま繁殖の番を待っている
-
-    // Exitが呼ばれないで餓死ステートに遷移している？
-    // 進捗:Stateを表示していると思っていたテキストが評価したアクションを表示していた。
-
-    // 一定間隔で評価 or 毎フレーム評価
-    //  ステートの更新タイミングはセルの上にいる時
-    //  毎フレーム評価しても大丈夫？なはず
-    //  リーダーからの命令はどうする？ステートの更新タイミングは一定間隔なので、
-    //   1フレームだけの命令の送信は正常に動かない可能性がある。
-
-    // ステートマシンはどうする？
-    // 評価 -> 行動 ->
-    // タイミングについて。
-    // 評価 -> 書き込むは同一フレームで行う。
-
-    // 水分: 時間経過で減る、飲んで回復
-    // 食料: 時間経過で減る、食べて回復
-    // 体力: 0になると死ぬ
-    // 水分と食料が0の時は減っていく
-    // 攻撃されると体力が減る
-    // 水分と体力が満たされている場合、回復していく
-    // 繁殖率: 体力が高い状態だと加算されていく。繁殖したらリセットされる
-    // 一度繁殖した個体は繁殖しないようにすると子供が死んだらゲームが詰む
-    // 寿命: 0になったら死ぬ。他のパラメータに影響されず常に一定量減少していく。
+    // 評価値で次何をしたいか選択。
+    // Actor側での敵の検知。
+    // 案:1つではなく、優先度でソートして次の行動を保持。
+    // Actor側で諸々の検知を行い、行動を選択できればステート側で検知や分岐をしなくて済む？
 
     // リーダーが死ぬとランダムで次のリーダーが決まる。
     // 群れの最後の1匹が死ぬとがめおべら

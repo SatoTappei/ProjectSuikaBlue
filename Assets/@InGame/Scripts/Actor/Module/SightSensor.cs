@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 namespace PSB.InGame
 {
@@ -12,18 +13,20 @@ namespace PSB.InGame
             _context = context;
         }
 
-        /// <summary>
-        /// タグで取得
-        /// </summary>
-        /// <returns>黒髪、金髪、金髪リーダーの場合:Actor それ以外:null</returns>
-        public DataContext SearchTarget(string tag)
+        public bool TrySearchTarget(string tag, out DataContext target)
         {
+            Array.Clear(_results, 0, _results.Length);
+
             Transform transform = _context.Transform;
             float radius = _context.Base.SightRadius;
             LayerMask layer = _context.Base.SightTargetLayer;
 
             int count = Physics.OverlapSphereNonAlloc(transform.position, radius, _results, layer);
-            if (count == 0) return null;
+            if (count == 0)
+            {
+                target = null;
+                return false;
+            }
 
             foreach (Collider collider in _results)
             {
@@ -31,10 +34,11 @@ namespace PSB.InGame
                 if (collider.transform == transform) continue; // 自分を弾く
                 if (!collider.CompareTag(tag)) continue;
 
-                if (collider.TryGetComponent(out DataContext actor)) return actor;
+                if (collider.TryGetComponent(out target)) return true;
             }
 
-            return null;
+            target = null;
+            return false;
         }
     }
 }

@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Status_Kinpatsu
   m_EditorClassIdentifier: Assembly-CSharp::Gene
   _type: 1
-  _deltaFood: 20
-  _deltaWater: 20
-  _deltaHp: 10.4
-  _deltaLifeSpan: 20
-  _deltaBreedingRate: 0.8
+  _deltaFood: 13.2
+  _deltaWater: 13.3
+  _deltaHp: 13.9
+  _deltaLifeSpan: 9.6
+  _deltaBreedingRate: 20
   _minSize: 0.5
   _maxSize: 1.5
   _breedingThreshold: 0.7
@@ -29,20 +29,20 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: 1
+      outSlope: 1
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
+      outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      value: 1
+      inSlope: 1
+      outSlope: 1
       tangentMode: 34
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -52,21 +52,21 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 34
+      value: 0.9
+      inSlope: 0.004528427
+      outSlope: 0.004528427
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
+      outWeight: 0.20833333
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 34
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0.15416664
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -76,7 +76,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.9
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -124,9 +124,10 @@ MonoBehaviour:
   _hpEvalFactor: 2
   _attackHpThreshold: 0.75
   _escapeHpThreshold: 0.33
-  _sightRadius: 3
+  _sightRadius: 17
   _sightTargetLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   _meleeDamage: 10
   _healingRate: 100
+  _matingTime: 1
