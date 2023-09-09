@@ -74,14 +74,13 @@ namespace PSB.InGame
 
             OnSpawned?.Invoke(this);
             _initialized = true;
+            MessageBroker.Default.Publish(new ActorSpawnMessage() { Type = _context.Type });
         }
 
         // 死亡する際に非表示になる
         void OnDisable()
         {
             _isDead = true;
-            // 死亡したメッセージの送信
-            MessageBroker.Default.Publish(new ActorDeathMessage());
         }
 
         /// <summary>
@@ -170,14 +169,8 @@ namespace PSB.InGame
             // 繁殖する場合は雄と雌で取る行動が違う。
             else if (action == ActionType.Breed)
             {
-                if (_context.Sex == Sex.Male && TryDetectPartner())
-                {
-                    _context.NextAction = ActionType.Breed;
-                }
-                else if (_context.Sex == Sex.Female)
-                {
-                    _context.NextAction = ActionType.Breed;
-                }
+                if (_context.Sex == Sex.Male && TryDetectPartner()) _context.NextAction = ActionType.Breed;
+                else if (_context.Sex == Sex.Female) _context.NextAction = ActionType.Breed;
             }
             // 水もしくは食料を探す場合、対象の資源までの経路が必要
             else if (action == ActionType.SearchWater && TryDetectResource(ResourceType.Water))
@@ -204,7 +197,7 @@ namespace PSB.InGame
             if (_context.Path.Count > 0)
             {
                 int goal = _context.Path.Count - 1;
-                FieldManager.Instance.SetActorOnCell(_context.Path[goal], _context.Type);
+                FieldManager.Instance.SetActorOnCell(_context.Path[goal], ActorType.None);
                 _context.Path.Clear();
             }
         }
@@ -304,9 +297,10 @@ namespace PSB.InGame
                             Vector2Int targetIndex = foodIndex + dir;
                             // 経路が見つからなかった場合は弾く
                             if (!FieldManager.Instance.TryGetPath(currentIndex, targetIndex, out _context.Path)) continue;
-                            // 経路の末端(資源のセルの隣)にキャラクターがいる場合は弾く
+                            // 経路の末端(資源のセルの隣)に資源キャラクターがいる場合は弾く
                             int goal = _context.Path.Count - 1;
-                            if (FieldManager.Instance.IsActorOnCell(_context.Path[goal], out ActorType _)) continue;
+                            FieldManager.Instance.TryGetCell(_context.Path[goal], out Cell cell);
+                            if (!cell.IsEmpty) continue;
 
                             FieldManager.Instance.SetActorOnCell(_context.Path[goal], _context.Type);
                             return true;
@@ -352,19 +346,49 @@ namespace PSB.InGame
                 });
                 yield return new WaitForSeconds(_context.Base.MatingTime / c);
             }
-            // 子供を産む
-            _spawnChildMessage.Gene1 = maleGene;
-            _spawnChildMessage.Gene2 = _context.Gene;
-            _spawnChildMessage.Food = _context.Food.Value;
-            _spawnChildMessage.Water = _context.Water.Value;
-            _spawnChildMessage.HP = _context.HP.Value;
-            _spawnChildMessage.LifeSpan = _context.LifeSpan.Value;
-            _spawnChildMessage.Pos = transform.position; // 雌と同じ位置に生成している
-            MessageBroker.Default.Publish(_spawnChildMessage);
+            // 周囲八近傍のセルに子供を産む
+            if (TryGetNeighbourPos(out Vector3 pos))
+            {
+                _spawnChildMessage.Gene1 = maleGene;
+                _spawnChildMessage.Gene2 = _context.Gene;
+                _spawnChildMessage.Food = _context.Food.Value;
+                _spawnChildMessage.Water = _context.Water.Value;
+                _spawnChildMessage.HP = _context.HP.Value;
+                _spawnChildMessage.LifeSpan = _context.LifeSpan.Value;
+                _spawnChildMessage.Pos = pos;
+                MessageBroker.Default.Publish(_spawnChildMessage);
+            }
 
             yield return null;
             _isMating = false;
             callback?.Invoke();
+        }
+
+        /// <summary>
+        /// 周囲八近傍のセルを調べ、子を生成する位置を取得する
+        /// </summary>
+        /// <returns>取得出来た:true 生成するセルが無い:false</returns>
+        bool TryGetNeighbourPos(out Vector3 pos)
+        {
+            Vector2Int index = FieldManager.Instance.WorldPosToGridIndex(transform.position);
+            foreach (Vector2Int dir in Utility.EightDirections)
+            {
+                Vector2Int neighbourIndex = index + dir;
+                // 陸地かつ資源が無く、キャラクターがいないセル
+                if (!FieldManager.Instance.IsWithInGrid(neighbourIndex)) continue;
+                if (!FieldManager.Instance.TryGetCell(neighbourIndex, out Cell cell)) continue;
+                if (!cell.IsWalkable) continue;
+                if (!cell.IsEmpty) continue;
+
+                // 生成する高さを自身の高さに合わせる
+                pos = cell.Pos;
+                pos.y = transform.position.y;
+
+                return true;
+            }
+
+            pos = Vector3.zero;
+            return false;
         }
 
         void OnDrawGizmos()
@@ -380,22 +404,6 @@ namespace PSB.InGame
     // 変更案: 個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う。
     // 次タスク: リーダーが死んだ際の処理、群れの長がいないといけない
     // 次タスク: リーダーが死ぬとランダムで次のリーダーが決まる。群れの最後の1匹が死ぬとがめおべら
-
-    // うろうろ
-    //  何もない場合に遷移。外部の依存は無し。
-    // 水分/食料
-    //  辿り着ける(経路がある)資源が必要。
-    //  辿り着ける資源が無い場合は評価ステートに戻るが、またすぐに遷移してきてしまう。
-    // 繁殖
-    //  雄と雌で行動が違う。
-    //  雄は雌を探すが、雌は繁殖ステートにいる必要がある？。雌は雄の任意のタイミングで処理が出来る必要がある。
-    //   雄は雌の、雌は雄の参照を持っているので、任意のタイミングで処理が出来る？
-    //  雄はその場で雌を探すので居なかった場合に、またすぐに遷移してきてしまう。
-    //  辿り着ける繁殖相手が必要。
-    //  繁殖相手が死亡した場合の対処が必要。
-    // 攻撃/逃げる
-    //  辿り着ける敵が必要。
-    // 死亡･･･なし
 
     // 評価値で次何をしたいか選択。
     // Actor側での敵の検知。

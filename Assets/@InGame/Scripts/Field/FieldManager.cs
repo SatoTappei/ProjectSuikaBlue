@@ -177,7 +177,6 @@ namespace PSB.InGame
         }
 
         /// <summary>
-        /// 開始地点もしくは目的地にグリッド外を指定した場合はPathがnullになる。
         /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
         /// </summary>
         /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
@@ -195,15 +194,15 @@ namespace PSB.InGame
             }
             else
             {
-                path = null;
+                path = new(); // TODO:経路の両端がグリッド内に無い場合はnewしている。
                 return false;
             }
         }
 
         /// <summary>
-        /// 添え字に対応したセルの位置をStackに詰めていく
+        /// 添え字に対応したセルの位置を経路に詰めていく
         /// </summary>
-        /// <returns>通るセルの位置のスタック</returns>
+        /// <returns>通るセルの位置の経路</returns>
         List<Vector3> CreatePath(List<Vector2Int> indexes)
         {     
             List<Vector3> path = new(indexes.Count); // TODO: 経路を作る度にnewしている

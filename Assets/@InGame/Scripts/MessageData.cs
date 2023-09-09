@@ -53,23 +53,22 @@ namespace PSB.InGame
     }
 
     /// <summary>
+    /// キャラクターが生成された際に各キャラクターから送信される
+    /// </summary>
+    public struct ActorSpawnMessage
+    {
+        public ActorType Type { get; set; }
+    }
+
+    /// <summary>
     /// キャラクターが死んだ際に各キャラクターから送信される
     /// </summary>
     public struct ActorDeathMessage
     { 
+        public ActorType Type { get; set; }
     }
 
     // 以下は汎用性など要検証
-
-    /// <summary>
-    /// キャラクターが生成された際にスポナーから送信される
-    /// エフェクトを表示させるためのエフェクターが受信する
-    /// </summary>
-    public struct ActorSpawnMessage
-    {
-        public Vector3 Pos { get; set; }
-        public ActionType Type { get; set; }
-    }
 
     /// <summary>
     /// 生成するタイミングで送信される

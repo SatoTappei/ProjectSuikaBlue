@@ -109,7 +109,21 @@ namespace PSB.InGame
                 Context.Path.RemoveAt(0);
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 _move.NextCellPos.y = Context.Transform.position.y;
-                
+
+                // デバッグ
+                Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(_move.CurrentCellPos);
+                Vector2Int targetIndex = FieldManager.Instance.WorldPosToGridIndex(_move.NextCellPos);
+                int dx = Mathf.Abs(currentIndex.x - targetIndex.x);
+                int dy = Mathf.Abs(currentIndex.y - targetIndex.y);
+                if (dx > 1 && dy > 1)
+                {
+                    Debug.Log("資源探し距離がおかしい");
+                    var g1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    g1.transform.position = _move.CurrentCellPos + Vector3.up;
+                    var g2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    g2.transform.position = _move.NextCellPos + Vector3.up;
+                }
+
                 _move.Modify();
                 _move.Look();
 

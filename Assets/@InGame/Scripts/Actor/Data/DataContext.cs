@@ -17,8 +17,7 @@ namespace PSB.InGame
         // プールに返却する処理。生成時にプールから登録される
         [HideInInspector] public UnityAction ReturnToPool;
         // Actor側が書き込んでState側で読み取る値
-        [HideInInspector] public List<Vector3> Path;
-        [HideInInspector] public DataContext Partner;
+        [HideInInspector] public List<Vector3> Path = new();
         [HideInInspector] public DataContext Enemy;
         [HideInInspector] public Transform Leader;
         [HideInInspector] public ActionType NextAction;

@@ -43,6 +43,8 @@ namespace PSB.InGame
             Context.ReturnToPool?.Invoke();
             // Enterのタイミングでプールに戻すので、次に取り出した際にEnterから始まるようにリセットする
             ResetStage();
+
+            MessageBroker.Default.Publish(new ActorDeathMessage() { Type = Context.Type });
         }
 
         void SendParticleMessage()

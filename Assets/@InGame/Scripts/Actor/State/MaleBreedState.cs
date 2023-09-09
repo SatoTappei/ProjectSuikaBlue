@@ -129,6 +129,20 @@ namespace PSB.InGame
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 _move.NextCellPos.y = Context.Transform.position.y;
 
+                // デバッグ
+                Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(_move.CurrentCellPos);
+                Vector2Int targetIndex = FieldManager.Instance.WorldPosToGridIndex(_move.NextCellPos);
+                int dx = Mathf.Abs(currentIndex.x - targetIndex.x);
+                int dy = Mathf.Abs(currentIndex.y - targetIndex.y);
+                if (dx > 1 && dy > 1)
+                {
+                    Debug.Log("雄繁殖距離がおかしい");
+                    var g1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    g1.transform.position = _move.CurrentCellPos + Vector3.up;
+                    var g2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    g2.transform.position = _move.NextCellPos + Vector3.up;
+                }
+
                 _move.Modify();
                 _move.Look();
                 return true;
@@ -157,10 +171,6 @@ namespace PSB.InGame
                 if (collider.transform == Context.Transform) continue; // 自分を弾く
                 // 雌以外を弾く
                 if (!(collider.TryGetComponent(out Actor female) && female.Sex == Sex.Female)) continue;
-                // セルの情報が必要ないので、雌と隣り合っているかどうかの判定を距離の2乗で行う。
-                Vector3 vec = Context.Transform.position - female.transform.position;
-                float sq = NeighbourCellRadius * NeighbourCellRadius;
-                if (Vector3.SqrMagnitude(vec) > sq) continue;
                 // 雌が繁殖ステートの場合のみ
                 if (female.State != StateType.FemaleBreed) continue;
 

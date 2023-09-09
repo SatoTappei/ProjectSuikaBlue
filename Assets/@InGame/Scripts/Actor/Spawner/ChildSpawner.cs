@@ -68,7 +68,6 @@ namespace PSB.InGame
 
             if (TryInstantiate(ActorType.Kinpatsu, msg.Pos, out Actor actor, childGene))
             {
-                SendSpawnMessage(actor);
                 SendEventLogMessage(actor, result);
                 PlaySE(result);
             }
@@ -138,11 +137,6 @@ namespace PSB.InGame
         int Sign(float score) => Random.value <= score ? 1 : -1;
         bool NextBool() => Random.Range(0, 2) == 0;
         byte Clamp(int value) => (byte)Mathf.Clamp(value, byte.MinValue, byte.MaxValue);
-
-        void SendSpawnMessage(Actor actor)
-        {
-            MessageBroker.Default.Publish(new ActorSpawnMessage() { Pos = actor.transform.position });
-        }
 
         void SendEventLogMessage(Actor actor, Result result)
         {
