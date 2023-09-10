@@ -3354,7 +3354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnRadius: 10
-  _interval: 10000.05
+  _interval: 0.5
   _isDebug: 1
 --- !u!4 &1462247248
 Transform:

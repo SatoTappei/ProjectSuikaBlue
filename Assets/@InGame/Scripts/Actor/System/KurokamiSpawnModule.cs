@@ -8,10 +8,8 @@ namespace PSB.InGame
     {
         [SerializeField] float _spawnRadius = 10.0f;
         [SerializeField] float _interval = 0.5f;
-#if UNITY_EDITOR
         [Header("デバッグ用:キー入力で敵を生成する")]
         [SerializeField] bool _isDebug;
-#endif
 
         float _timer;
 
@@ -27,6 +25,9 @@ namespace PSB.InGame
 
         public void Step(in Vector3 spawnPos)
         {
+            // デバッグ時は時間経過で生成させない
+            if (_isDebug) return;
+
             _timer += Time.deltaTime;
             if (_timer > _interval)
             {

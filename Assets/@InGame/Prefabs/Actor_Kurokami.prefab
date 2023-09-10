@@ -230,7 +230,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 3
   _model: {fileID: 8157654629027130002}
+  _bikkuriPrefab: {fileID: 6183851572045148839, guid: 377e46539c65d3246a23632a0d9afec5,
+    type: 3}
   _isDrawGizmos: 1
+  Path: []
   Enemy: {fileID: 0}
   Leader: {fileID: 0}
   NextAction: 0

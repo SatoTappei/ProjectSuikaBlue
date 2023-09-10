@@ -60,6 +60,8 @@ namespace PSB.InGame
         [SerializeField] float _healingRate = 100;
         [Header("交尾にかかる時間")]
         [SerializeField] float _matingTime = 1.0f;
+        [Header("敵のタグ")]
+        [SerializeField] string _enemyTag;
 
         public ActorType Type => _type;
         public float DeltaFood => _deltaFood;
@@ -82,6 +84,7 @@ namespace PSB.InGame
         public LayerMask SightTargetLayer => _sightTargetLayer;
         public int MeleeDamage => _meleeDamage;
         public float MatingTime => _matingTime;
+        public string EnemyTag => _enemyTag;
         /// <summary>
         /// 親が無い場合のデフォルトの遺伝子。カラーが白でサイズがほぼ1になる値
         /// </summary>

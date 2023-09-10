@@ -11,6 +11,7 @@ namespace PSB.InGame
 
         [SerializeField] ActorType _type;
         [SerializeField] Transform _model;
+        [SerializeField] ParticleSystem _bikkuriPrefab;
         [Header("ギズモへの描画を行う")]
         [SerializeField] bool _isDrawGizmos;
 
@@ -30,6 +31,7 @@ namespace PSB.InGame
 
         Transform _transform;
         StatusBase _base;
+        ParticleSystem _bikkuri;
         Dictionary<ActionType, BaseState> _stateDict;
         Sex _sex;
         // 繁殖ステート
@@ -112,7 +114,12 @@ namespace PSB.InGame
             // 繁殖率だけは増加していくので0で初期化
             BreedingRate = new Param(0);
 
-            if (!_initialized) CreateState();
+            if (!_initialized)
+            {
+                CreateState();
+                CreateBikkuri();
+            }
+
             AddBreedState();
 
             // 最初の1回、呼び出しが行われると初期化完了
@@ -126,7 +133,7 @@ namespace PSB.InGame
 
         void OnDrawGizmos()
         {
-            if (_isDrawGizmos)
+            if (_isDrawGizmos && Application.isPlaying)
             {
                 DrawSightRadius();
             }
@@ -161,6 +168,13 @@ namespace PSB.InGame
             _femaleBreedState = new(this);
         }
 
+        void CreateBikkuri()
+        {
+            _bikkuri = Instantiate(_bikkuriPrefab);
+            _bikkuri.transform.position = transform.position + Vector3.up * 0.5f; // 適当な値
+            _bikkuri.transform.SetParent(transform);
+        }
+
         /// <summary>
         /// 雄と雌で繁殖時の行動が違うので、プールから取り出して初期化する際に
         /// 繁殖ステートのみ辞書から削除、再度性別ごとに追加する
@@ -179,6 +193,7 @@ namespace PSB.InGame
 
         public void Damage(int value) => HP.Value -= value;
         public bool ShouldChangeState(BaseState state) => NextState != state;
+        public void PlayBikkuri() => _bikkuri.Play();
 
         // 以下デバッグ用
         public void Log()

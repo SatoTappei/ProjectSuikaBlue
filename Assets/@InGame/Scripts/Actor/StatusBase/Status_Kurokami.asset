@@ -16,7 +16,7 @@ MonoBehaviour:
   _deltaFood: 0
   _deltaWater: 0
   _deltaHp: 0
-  _deltaLifeSpan: 20
+  _deltaLifeSpan: 10
   _deltaBreedingRate: 0
   _minSize: 0.5
   _maxSize: 1.5
@@ -130,3 +130,5 @@ MonoBehaviour:
     m_Bits: 0
   _meleeDamage: 10
   _healingRate: 100
+  _matingTime: 1
+  _enemyTag: Kinpatsu

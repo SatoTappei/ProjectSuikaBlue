@@ -10,6 +10,9 @@ namespace PSB.InGame
         public const string ColorCodeGreen = "#21ff37";
         public const string ColorCodeRed = "#ff6759";
 
+        // セルのScaleが 1 の場合に、隣接するセルをレイキャストで取得できる半径
+        public const float NeighbourCellRadius = 1.45f;
+
         /// <summary>
         /// 周囲八近傍を指定する用の方向の配列
         /// </summary>

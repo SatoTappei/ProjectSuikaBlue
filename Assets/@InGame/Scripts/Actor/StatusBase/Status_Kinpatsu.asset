@@ -131,3 +131,4 @@ MonoBehaviour:
   _meleeDamage: 10
   _healingRate: 100
   _matingTime: 1
+  _enemyTag: Kurokami

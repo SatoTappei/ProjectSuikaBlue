@@ -159,14 +159,27 @@ namespace PSB.InGame
             //  検知した相手までの経路がある
 
             // 敵に狙われている場合は、攻撃もしくは逃げることが最優先なので、評価値より先に判定する
-            //if (_context.IsTargeted)
+            
+            // 敵を探す
+            SearchEnemy();
 
             // 評価値を用いて次の行動を選択
             ActionType action = _evaluator.SelectAction(leaderEvaluate);
             // 死亡はそのまま死ぬ
-            if (action == ActionType.Killed) _context.NextAction = ActionType.Killed;
+            if      (action == ActionType.Killed) _context.NextAction = ActionType.Killed;
             else if (action == ActionType.Senility) _context.NextAction = ActionType.Senility;
-            // 繁殖する場合は雄と雌で取る行動が違う。
+            // 攻撃/逃げる場合は経路が必要
+            else if (action == ActionType.Attack)
+            {
+                if (TryPathfindingToEnemy()) _context.NextAction = ActionType.Attack;
+                else _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
+            }
+            else if (action == ActionType.Escape)
+            {
+                if (TryPathfindingToEscapePoint()) _context.NextAction = ActionType.Escape;
+                else _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
+            }
+            // 繁殖する場合は雄と雌で取る行動が違う
             else if (action == ActionType.Breed)
             {
                 if (_context.Sex == Sex.Male && TryDetectPartner()) _context.NextAction = ActionType.Breed;
@@ -189,10 +202,119 @@ namespace PSB.InGame
         }
 
         /// <summary>
+        /// 視界内の敵を探す
+        /// 複数検知した場合は一番手近い敵を対象とする
+        /// </summary>
+        void SearchEnemy()
+        {
+            Array.Clear(_detected, 0, _detected.Length);
+
+            Vector3 pos = transform.position;
+            float radius = _context.Base.SightRadius;
+            LayerMask layer = _context.Base.SightTargetLayer;
+            if (Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer) == 0) return;
+
+            // 近い順に配列に入っているので、一番近い敵を対象の敵として書き込む。
+            foreach (Collider collider in _detected)
+            {
+                if (collider == null) break;
+                if (collider.CompareTag(_context.EnemyTag))
+                {
+                    collider.TryGetComponent(out _context.Enemy);
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 敵までの経路を探索する
+        /// </summary>
+        /// <returns>経路あり:true なし:false</returns>
+        bool TryPathfindingToEnemy()
+        {
+            DeletePath();
+
+            // グリッド上で距離比較
+            Vector3 pos = transform.position;
+            Vector3 enemyPos = _context.Enemy.transform.position;
+            Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(pos);
+            Vector2Int enemyIndex = FieldManager.Instance.WorldPosToGridIndex(enemyPos);
+            int dx = Mathf.Abs(currentIndex.x - enemyIndex.x);
+            int dy = Mathf.Abs(currentIndex.y - enemyIndex.y);
+            if (dx <= 1 && dy <= 1)
+            {
+                // 隣のセルにある場合は移動しないので、現在地を経路として追加する
+                _context.Path.Add(pos);
+                FieldManager.Instance.SetActorOnCell(pos, _context.Type);
+                return true;
+            }
+            else
+            {
+                // 対象のセル + 周囲八近傍に対して経路探索
+                foreach (Vector2Int dir in Utility.SelfAndEightDirections)
+                {
+                    Vector2Int dirIndex = enemyIndex + dir;
+                    // 経路が見つからなかった場合は弾く
+                    if (!FieldManager.Instance.TryGetPath(currentIndex, dirIndex, out _context.Path)) continue;
+                    // 経路の末端(敵のセルの隣)にキャラクターがいる場合は弾く
+                    int goal = _context.Path.Count - 1;
+                    if (FieldManager.Instance.IsActorOnCell(_context.Path[goal], out ActorType _)) continue;
+
+                    FieldManager.Instance.SetActorOnCell(_context.Path[goal], _context.Type);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 逃げる経路を探索する
+        /// </summary>
+        /// <returns>経路あり:true なし:false</returns>
+        bool TryPathfindingToEscapePoint()
+        {
+            DeletePath();
+
+            // グリッド上で距離比較
+            Vector3 pos = transform.position;
+            Vector3 enemyPos = _context.Enemy.transform.position;
+            Vector3 dir = (pos - enemyPos).normalized;
+            Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(pos);
+            for (int i = 10; i >= 1; i--) // 適当な値
+            {
+                Vector3 escapePos = dir * i;
+                Vector2Int escapeIndex = FieldManager.Instance.WorldPosToGridIndex(escapePos);
+                int dx = Mathf.Abs(currentIndex.x - escapeIndex.x);
+                int dy = Mathf.Abs(currentIndex.y - escapeIndex.y);
+                if (dx <= 1 && dy <= 1)
+                {
+                    // 隣のセルにある場合は移動しないので、現在地を経路として追加する
+                    _context.Path.Add(pos);
+                    FieldManager.Instance.SetActorOnCell(pos, _context.Type);
+                    return true;
+                }
+                else
+                {
+                    // 経路が見つからなかった場合は弾く
+                    if (!FieldManager.Instance.TryGetPath(currentIndex, escapeIndex, out _context.Path)) continue;
+                    // 経路の末端(敵のセルの隣)にキャラクターがいる場合は弾く
+                    int goal = _context.Path.Count - 1;
+                    if (FieldManager.Instance.IsActorOnCell(_context.Path[goal], out ActorType _)) continue;
+
+                    FieldManager.Instance.SetActorOnCell(_context.Path[goal], _context.Type);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// 現在の経路を削除(空にする)し、末端の予約を削除する。
         /// 経路を探索する際に呼ばないと以前の経路の末端の予約が残ったままになってしまう。
         /// </summary>
-        public void DeletePath()
+        void DeletePath()
         {
             if (_context.Path.Count > 0)
             {
@@ -215,8 +337,7 @@ namespace PSB.InGame
             Vector3 pos = transform.position;
             float radius = _context.Base.SightRadius;
             LayerMask layer = _context.Base.SightTargetLayer;
-            int count = Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer);
-            if (count == 0) return false;
+            if (Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer) == 0) return false;
 
             foreach (Collider collider in _detected)
             {
@@ -395,7 +516,7 @@ namespace PSB.InGame
         {
             // 周囲八近傍のセルの距離を描画
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, MaleBreedState.NeighbourCellRadius);
+            Gizmos.DrawWireSphere(transform.position, Utility.NeighbourCellRadius);
         }
     }
 

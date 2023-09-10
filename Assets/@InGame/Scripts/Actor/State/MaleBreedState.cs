@@ -10,9 +10,6 @@ namespace PSB.InGame
             Mating,
         }
 
-        // セルのScaleが 1 の場合に、隣接するセルをレイキャストで取得できる半径
-        public const float NeighbourCellRadius = 1.45f;
-
         readonly MoveModule _move;
         readonly FieldModule _field;
         Stage _stage;
@@ -129,20 +126,6 @@ namespace PSB.InGame
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 _move.NextCellPos.y = Context.Transform.position.y;
 
-                // デバッグ
-                Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(_move.CurrentCellPos);
-                Vector2Int targetIndex = FieldManager.Instance.WorldPosToGridIndex(_move.NextCellPos);
-                int dx = Mathf.Abs(currentIndex.x - targetIndex.x);
-                int dy = Mathf.Abs(currentIndex.y - targetIndex.y);
-                if (dx > 1 && dy > 1)
-                {
-                    Debug.Log("雄繁殖距離がおかしい");
-                    var g1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    g1.transform.position = _move.CurrentCellPos + Vector3.up;
-                    var g2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    g2.transform.position = _move.NextCellPos + Vector3.up;
-                }
-
                 _move.Modify();
                 _move.Look();
                 return true;
@@ -162,7 +145,7 @@ namespace PSB.InGame
         {
             Vector3 pos = Context.Transform.position;
             LayerMask layer = Context.Base.SightTargetLayer;
-            int count = Physics.OverlapSphereNonAlloc(pos, NeighbourCellRadius, _detected, layer);
+            int count = Physics.OverlapSphereNonAlloc(pos, Utility.NeighbourCellRadius, _detected, layer);
             if (count == 0) return false;
 
             foreach (Collider collider in _detected)

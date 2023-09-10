@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System;
+using UniRx;
 
 namespace PSB.InGame
 {
@@ -12,40 +14,73 @@ namespace PSB.InGame
             Attack,
         }
 
-        Stack<Vector3> _path = new();
-        Transform _actor;
-        Actor _enemy;
-        Vector3 _currentCellPos;
-        Vector3 _nextCellPos;
+        readonly MoveModule _move;
+        readonly FieldModule _field;
         Stage _stage;
-        float _lerpProgress;
-        float _speedModify = 1;
-        // 攻撃間隔のタイマー
-        float _attackTimer;
-
-        bool HasPath => _path.Count > 0;
-        bool OnNextCell => _actor.position == _nextCellPos;
+        // 周囲八近傍のセルの分だけ判定するので 8 で固定
+        Collider[] _detected = new Collider[8];
+        bool _firstStep; // 経路のスタート地点から次のセルに移動中
 
         public AttackState(DataContext context) : base(context, StateType.Attack)
         {
-            _actor = Context.Transform;
+            _move = new(context);
+            _field = new(context);
         }
 
         protected override void Enter()
         {
-            //_enemy = Context.Enemy;
-            _stage = Stage.Move;
-            _attackTimer = 0;
-            //sTryPathfinding();
             TryStepNextCell();
+            _field.SetActorOnCell();
+            _stage = Stage.Move;
+            _firstStep = true;
+
+            // びっくりマーク再生
+            Context.PlayBikkuri();
         }
 
         protected override void Exit()
         {
+            // 使い終わった経路を消す
+            Context.Path.Clear();
         }
 
         protected override void Stay()
         {
+            // 移動
+            if (_stage == Stage.Move)
+            {
+                if (_move.OnNextCell)
+                {
+                    // 経路のスタート地点は予約されているので、次のセルに移動した際に消す
+                    // 全てのセルに対して行うと、別のキャラクターで予約したセルまで消してしまう。
+                    if (_firstStep)
+                    {
+                        _firstStep = false;
+                        _field.DeleteActorOnCell(_move.CurrentCellPos);
+                    }
+
+                    // 別のステートが選択されていた場合は遷移する
+                    if (Context.ShouldChangeState(this)) { ToEvaluateState(); return; }
+
+                    // 現在のセルに他のキャラクターがいないかつ、周囲八近傍に敵がいた場合は攻撃
+                    if (IsCellEmpty() && TryAttackNeighbour()) _stage = Stage.Attack;
+                    else
+                    {
+                        if (!TryStepNextCell()) { ToEvaluateState(); return; }
+                    }
+                }
+                else
+                {
+                    _move.Move();
+                }
+            }
+            // 攻撃
+            else if (_stage == Stage.Attack)
+            {
+                { ToEvaluateState(); return; }
+            }
+            // 1セル移動 -> 周囲八近傍に敵がいるか -> 居たら攻撃居なかったら次のセルへ
+
             // 近接攻撃どうする？
             //  敵に向かって歩いていく
             //  その場で敵が来たら攻撃
@@ -63,123 +98,80 @@ namespace PSB.InGame
 
             // 虚無に向かって攻撃しないか <- 死んだ場合はコライダーとレンダラが消えるので大丈夫
             // キャラクターのプーリングしたい
-
-            if (OnNextCell)
-            {
-                // 違うステートなら遷移する
-                // 敵に殴られて死んだ場合など
-                if(Context.NextState.Type != StateType.Attack)
-                {
-                    ToEvaluateState();
-                }
-            }
-
-            switch (_stage)
-            {
-                case Stage.Move: MoveStage(); break;
-                case Stage.Attack: AttackStage(); break;
-            }
         }
-
-        void MoveStage()
-        {
-            if (OnNextCell)
-            {
-                if (TryStepNextCell())
-                {
-                    // 経路の途中のセルの場合の処理
-                }
-                else
-                {
-                    _stage = Stage.Attack;
-                    _attackTimer = 3.1f; // 攻撃間隔を超える適当な値、最初に一発殴る
-                }
-            }
-            else
-            {
-                Move();
-            }
-        }
-
-        void AttackStage()
-        {
-            _attackTimer += Time.deltaTime;
-            if (_attackTimer > 3) // 適当な値
-            {
-                _attackTimer = 0;
-                float d =  Vector3.Distance(_actor.position, _enemy.transform.position);
-
-                // 1マスとなりなのでこのくらい
-                if (d <= 1.5f)
-                {
-                    // 1発殴ったら遷移
-                    //_enemy.Damaged();
-                    ToEvaluateState();
-                }
-                else
-                {
-                    _stage = Stage.Move;
-
-                    //TryPathfinding();
-                    TryStepNextCell();
-                }
-            }
-        }
-
-        void ToEvaluateState() => TryChangeState(Context.EvaluateState);
 
         /// <summary>
-        /// 現在のセルの位置を自身の位置で更新する。
+        /// 各値を既定値に戻すことで、現在のセルの位置を自身の位置で更新する。
         /// 次のセルの位置をあれば次のセルの位置、なければ自身の位置で更新する。
         /// </summary>
         /// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
         bool TryStepNextCell()
         {
-            _currentCellPos = _actor.position;
+            _move.Reset();
 
-            if (_path.TryPop(out _nextCellPos))
+            if (Context.Path.Count > 0)
             {
+                // 経路の先頭(次のセル)から1つ取り出す
+                _move.NextCellPos = Context.Path[0];
+                Context.Path.RemoveAt(0);
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
-                _nextCellPos.y = _actor.position.y;
-                Modify();
-                Look();
-                _lerpProgress = 0;
+                _move.NextCellPos.y = Context.Transform.position.y;
+
+                _move.Modify();
+                _move.Look();
+                return true;
+            }
+            else
+            {
+                _move.NextCellPos = Context.Transform.position;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 現在のセルに他のキャラクターがいるかどうかをレイキャストで判定する
+        /// 経路の途中のセルは予約されていないのでレイキャストを用いる
+        /// </summary>
+        /// <returns>自分しかいない:true 誰かいる:false</returns>
+        bool IsCellEmpty()
+        {
+            Vector3 pos = Context.Transform.position;
+            float radius = 0.5f; // Scaleが1の場合の1セルの半径
+            LayerMask layer = Context.Base.SightTargetLayer;
+            Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer);
+
+            // 配列の中身でコンポーネントを取得出来た数が1の場合は自分しかいない
+            return _detected.Where(c => c != null && c.TryGetComponent(out DataContext _)).Count() == 1;
+        }
+
+        /// <summary>
+        /// 周囲八近傍の敵に対して攻撃を試みる
+        /// </summary>
+        /// <returns>攻撃成功:true 敵がいない:false</returns>
+        bool TryAttackNeighbour()
+        {
+            Array.Clear(_detected, 0, _detected.Length);
+
+            Vector3 pos = Context.Transform.position;
+            LayerMask layer = Context.Base.SightTargetLayer;
+            int count = Physics.OverlapSphereNonAlloc(pos, Utility.NeighbourCellRadius, _detected, layer);
+            if (count == 0) return false;
+
+            foreach (Collider collider in _detected)
+            {
+                if (collider == null) break;
+                // 周囲八近傍に敵がいる場合は攻撃
+                if (collider.CompareTag(Context.EnemyTag)) Attack();
 
                 return true;
             }
 
-            _nextCellPos = _actor.position;
-
             return false;
         }
 
-        //bool TryPathfinding()
-        //{
-        //    _path.Clear();
-        //    return FieldManager.Instance.TryGetPath(_actor.position, _enemy.transform.position, out _path);
-        //}
-
-        void Move()
+        void Attack()
         {
-            //_lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
-            _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
-        }
-
-        void Look()
-        {
-            Vector3 dir = _nextCellPos - _currentCellPos;
-            Context.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
-        }
-
-        /// <summary>
-        /// 斜め移動の速度を補正する
-        /// </summary>
-        void Modify()
-        {
-            bool dx = Mathf.Approximately(_currentCellPos.x, _nextCellPos.x);
-            bool dz = Mathf.Approximately(_currentCellPos.z, _nextCellPos.z);
-
-            _speedModify = (dx || dz) ? 1 : 0.7f;
+            Debug.Log("攻撃！");
         }
     }
 }
