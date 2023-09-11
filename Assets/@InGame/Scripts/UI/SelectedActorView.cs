@@ -25,7 +25,17 @@ namespace PSB.InGame
 
         protected override void OnUpdate()
         {
-            if (_actor != null) SyncParamsToUI();
+            if (_actor != null)
+            {
+                if (_actor.State == StateType.Senility || _actor.State == StateType.Killed)
+                {
+                    Invalid();
+                }
+                else
+                {
+                    SyncParamsToUI();
+                }
+            }
         }
 
         protected override void OnSelected(GameObject actor) 
@@ -36,6 +46,11 @@ namespace PSB.InGame
         }
 
         protected override void OnDeselected() 
+        {
+            Invalid();
+        }
+
+        void Invalid()
         {
             _root.localScale = Vector3.zero;
             _actor = null;

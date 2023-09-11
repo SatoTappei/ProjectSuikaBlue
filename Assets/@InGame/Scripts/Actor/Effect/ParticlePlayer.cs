@@ -10,6 +10,7 @@ namespace PSB.InGame
         Spawn,
         Eat,
         Mating,
+        Damage,
     }
 
     public class ParticlePlayer : MonoBehaviour
@@ -19,6 +20,7 @@ namespace PSB.InGame
         [SerializeField] Particle _spawn;
         [SerializeField] Particle _eat;
         [SerializeField] Particle _mating;
+        [SerializeField] Particle _damage;
         [SerializeField] float _height = 0.6f;
 
         ParticlePool _killedPool;
@@ -26,6 +28,7 @@ namespace PSB.InGame
         ParticlePool _spawnPool;
         ParticlePool _eatPool;
         ParticlePool _matingPool;
+        ParticlePool _damagePool;
 
         void Awake()
         {
@@ -40,6 +43,7 @@ namespace PSB.InGame
             _spawnPool.Dispose();
             _eatPool.Dispose();
             _matingPool.Dispose();
+            _damagePool.Dispose();
         }
 
         void CreatePool()
@@ -49,6 +53,7 @@ namespace PSB.InGame
             _spawnPool = new(_spawn, "SpawnParticlePool");
             _eatPool = new(_eat, "EatParticlePool");
             _matingPool = new(_mating, "MatingParticlePool");
+            _damagePool = new(_damage, "DamageParticlePool");
         }
 
         void ReceiveMessage()
@@ -64,7 +69,8 @@ namespace PSB.InGame
             else if (msg.Type == ParticleType.Spawn) particle = _spawnPool.Rent();
             else if (msg.Type == ParticleType.Eat) particle = _eatPool.Rent();
             else if (msg.Type == ParticleType.Mating) particle = _matingPool.Rent();
-            
+            else if (msg.Type == ParticleType.Damage) particle = _damagePool.Rent();
+
             particle.transform.position = new Vector3(msg.Pos.x, _height, msg.Pos.z);
         }
     }

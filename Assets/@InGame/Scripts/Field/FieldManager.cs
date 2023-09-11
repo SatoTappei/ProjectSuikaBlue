@@ -245,6 +245,12 @@ namespace PSB.InGame
             return index;
         }
 
+        public bool IsWithInGrid(in Vector3 pos)
+        {
+            Vector2Int index = WorldPosToGridIndex(pos);
+            return FieldUtility.IsWithinGrid(_field, index);
+        }
+
         /// <summary>
         /// 外部からFieldの生成前にセルの情報や経路を探索しようとしてるケースを検知する
         /// </summary>

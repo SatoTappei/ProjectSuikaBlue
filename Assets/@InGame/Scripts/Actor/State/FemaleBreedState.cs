@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace PSB.InGame
@@ -9,9 +10,12 @@ namespace PSB.InGame
     public class FemaleBreedState : BaseState
     {
         const float TimeOut = 10.0f;
+        const float SearchRate = 1.0f;
 
         FieldModule _field;
+        Collider[] _detected = new Collider[8];
         float _timer;
+        float _nextSearchTime;
 
         public FemaleBreedState(DataContext context) : base(context, StateType.FemaleBreed)
         {
@@ -22,6 +26,7 @@ namespace PSB.InGame
         {
             _field.SetActorOnCell();
             _timer = 0;
+            _nextSearchTime = SearchRate;
         }
 
         protected override void Exit()
@@ -30,15 +35,42 @@ namespace PSB.InGame
 
         protected override void Stay()
         {
-            // ŽžŠÔØ‚ê‚Å•]‰¿ƒXƒe[ƒg‚É‘JˆÚ
             _timer += Time.deltaTime;
-            if (_timer > TimeOut)
+
+            // ˆê’èŠÔŠu‚Å“G‚ðŒŸ’m‚µA“G‚ªŽüˆÍ‚É‚¢‚½ê‡‚Í•]‰¿ƒXƒe[ƒg‚É‘JˆÚ
+            if (_timer > _nextSearchTime)
+            {
+                if (SearchEnemy()) { ToEvaluateState(); return; }
+                else _nextSearchTime += SearchRate;
+            }
+
+            // ŽžŠÔØ‚êA‚à‚µ‚­‚ÍH—¿/…•ª‹¤‚É0‚Å•]‰¿ƒXƒe[ƒg‚É‘JˆÚ
+            if (_timer > TimeOut || (Context.Water.Value <= 0 && Context.Food.Value <= 0))
             {
                 // ”ÉB—¦‚ð50“‚É‚µ‚Ä˜A‘±‚Å‚±‚ÌƒXƒe[ƒg‚É‘JˆÚ‚µ‚È‚¢‚æ‚¤‚É‚·‚é
                 Context.BreedingRate.Value = StatusBase.Max / 2;
                 ToEvaluateState();
                 return;
             }
+        }
+
+        bool SearchEnemy()
+        {
+            Array.Clear(_detected, 0, _detected.Length);
+
+            Vector3 pos = Context.Transform.position;
+            float radius = Context.Base.SightRadius;
+            LayerMask layer = Context.Base.SightTargetLayer;
+            if (Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer) == 0) return false;
+
+            // ‹ß‚¢‡‚É”z—ñ‚É“ü‚Á‚Ä‚¢‚é‚Ì‚ÅAˆê”Ô‹ß‚¢“G‚ð‘ÎÛ‚Ì“G‚Æ‚µ‚Ä‘‚«ž‚ÞB
+            foreach (Collider collider in _detected)
+            {
+                if (collider == null) return false;
+                if (collider.CompareTag(Context.EnemyTag)) return true;
+            }
+
+            return false;
         }
     }
 }

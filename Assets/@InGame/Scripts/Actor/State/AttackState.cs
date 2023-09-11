@@ -1,8 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using System;
+using System.Linq;
 using UniRx;
+using UnityEngine;
 
 namespace PSB.InGame
 {
@@ -40,9 +39,10 @@ namespace PSB.InGame
 
         protected override void Exit()
         {
+            Context.Enemy = null;
             // 使い終わった経路を消す
             Context.Path.Clear();
-        }
+        }       
 
         protected override void Stay()
         {
@@ -79,25 +79,6 @@ namespace PSB.InGame
             {
                 { ToEvaluateState(); return; }
             }
-            // 1セル移動 -> 周囲八近傍に敵がいるか -> 居たら攻撃居なかったら次のセルへ
-
-            // 近接攻撃どうする？
-            //  敵に向かって歩いていく
-            //  その場で敵が来たら攻撃
-
-            // 攻撃は黒髪、金髪、金髪リーダー全部同じ
-            // 経路を取得
-            // 資源に向かうと違うのは資源と違い相手は動く
-            //  つまり、経路探索を繰り返す必要がある。
-
-            // 1対多の状況はどうする？
-            // 敵を倒した際にも評価ステートに遷移する必要がある。
-            //  案1:1発殴ったら評価ステートに遷移 <- 体力が減ったら自動で逃げるはず。
-            //  殺した場合は敵を検知せずこのステートに遷移してこないはず。
-            //  必要な値:総合スコア(色、サイズ) <- この値によって攻撃力が変わる.
-
-            // 虚無に向かって攻撃しないか <- 死んだ場合はコライダーとレンダラが消えるので大丈夫
-            // キャラクターのプーリングしたい
         }
 
         /// <summary>
@@ -135,11 +116,13 @@ namespace PSB.InGame
         /// <returns>自分しかいない:true 誰かいる:false</returns>
         bool IsCellEmpty()
         {
+            Array.Clear(_detected, 0, _detected.Length);
+
             Vector3 pos = Context.Transform.position;
             float radius = 0.5f; // Scaleが1の場合の1セルの半径
             LayerMask layer = Context.Base.SightTargetLayer;
             Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer);
-
+            
             // 配列の中身でコンポーネントを取得出来た数が1の場合は自分しかいない
             return _detected.Where(c => c != null && c.TryGetComponent(out DataContext _)).Count() == 1;
         }
@@ -154,24 +137,29 @@ namespace PSB.InGame
 
             Vector3 pos = Context.Transform.position;
             LayerMask layer = Context.Base.SightTargetLayer;
+
             int count = Physics.OverlapSphereNonAlloc(pos, Utility.NeighbourCellRadius, _detected, layer);
             if (count == 0) return false;
-
+            
             foreach (Collider collider in _detected)
             {
                 if (collider == null) break;
                 // 周囲八近傍に敵がいる場合は攻撃
-                if (collider.CompareTag(Context.EnemyTag)) Attack();
-
-                return true;
+                if (collider.CompareTag(Context.EnemyTag))
+                {
+                    if (TryAttack()) return true;
+                }
             }
 
             return false;
         }
 
-        void Attack()
+        bool TryAttack()
         {
-            Debug.Log("攻撃！");
+            if (Context.Enemy == null) return false;
+
+            Context.Enemy.Damage(33);
+            return true;
         }
     }
 }

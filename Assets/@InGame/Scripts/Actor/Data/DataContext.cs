@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UniRx;
 
 namespace PSB.InGame
 {
@@ -158,7 +159,6 @@ namespace PSB.InGame
             _stateDict.Add(ActionType.Attack, new AttackState(this));
             _stateDict.Add(ActionType.Escape, new EscapeState(this));
             _stateDict.Add(ActionType.Gather, new GatherState(this));
-            //_stateDict.Add(ActionType.Breed, new MaleBreedState(this));
             _stateDict.Add(ActionType.SearchFood, new SearchFoodState(this));
             _stateDict.Add(ActionType.SearchWater, new SearchWaterState(this));
             _stateDict.Add(ActionType.Wander, new WanderState(this));
@@ -171,7 +171,7 @@ namespace PSB.InGame
         void CreateBikkuri()
         {
             _bikkuri = Instantiate(_bikkuriPrefab);
-            _bikkuri.transform.position = transform.position + Vector3.up * 0.5f; // 適当な値
+            _bikkuri.transform.position = transform.position + Vector3.up * (Size + 0.5f); // 適当な値
             _bikkuri.transform.SetParent(transform);
         }
 
@@ -191,9 +191,17 @@ namespace PSB.InGame
         public void StepLifeSpan()     => LifeSpan.Value     -= Base.DeltaLifeSpan     * Time.deltaTime;    
         public void StepBreedingRate() => BreedingRate.Value += Base.DeltaBreedingRate * Time.deltaTime; // 足し算
 
-        public void Damage(int value) => HP.Value -= value;
         public bool ShouldChangeState(BaseState state) => NextState != state;
         public void PlayBikkuri() => _bikkuri.Play();
+        public void Damage(int value)
+        {
+            HP.Value -= value;
+            MessageBroker.Default.Publish(new PlayParticleMessage()
+            {
+                Type = ParticleType.Damage,
+                Pos = Transform.position,
+            });
+        }
 
         // 以下デバッグ用
         public void Log()

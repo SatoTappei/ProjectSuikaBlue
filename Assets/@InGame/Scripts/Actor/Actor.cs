@@ -6,6 +6,49 @@ using System.Collections;
 using System.Linq;
 using System;
 
+# region メモ
+// 出来れば: 他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
+// 出来れば: 生成数による生成の判定がバグっている
+// 変更案: 個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う。
+// 変更案:1つではなく、優先度でソートして次の行動を保持。
+// 次タスク: リーダーが死んだ際の処理、群れの長がいないといけない
+// 次タスク: リーダーが死ぬとランダムで次のリーダーが決まる。群れの最後の1匹が死ぬとがめおべら
+
+// ◎攻撃
+// 1対多の状況はどうする？
+// 敵を倒した際にも評価ステートに遷移する必要がある。
+//  案1:1発殴ったら評価ステートに遷移 <- 体力が減ったら自動で逃げるはず。
+//  殺した場合は敵を検知せずこのステートに遷移してこないはず。
+//  必要な値:総合スコア(色、サイズ) <- この値によって攻撃力が変わる
+// ◎リーダー
+// リーダーが死ぬとランダムで次のリーダーが決まる。
+// 群れの最後の1匹が死ぬとがめおべら
+// ◎食事/水分
+// 一定間隔で水分と食料のうち少ないほうを満たそうとする
+// 具体的には何回かセルを移動したらチェック
+// 満たされているかチェック。満たされている場合は何もしない。
+// 近くの水源もしくは食料のマスを取得
+// ハムで経路探索。経路があれば向かう。無い場合はなにもしない
+// ◎行動
+// 行動の単位はアニメーション
+// アニメーションが終わったら次の行動を選択する
+// つまり、行動A -> 判断 -> 行動B と行動毎に中央の状態に戻って次の行動をチェックする必要がある。
+// 通常のステートベースでは無い。
+// 外部からの攻撃などで行動中に死ぬ場合がある？
+// ◎繁殖
+// 繁殖する際は親の特徴を受け継ぐ(遺伝)
+// 遺伝的アルゴリズム
+// 遺伝子は4つ、RGB+サイズ、
+// ◎敵
+// キャラクター:黒髪
+// リーダーがいない。各々が勝手に行動する。
+// 金髪を見つけると攻撃してくる。
+// 攻撃で死ぬ。
+// 繁殖はしない。
+// ランダムで沸く。
+// 死ぬたびに遺伝的な変異をする？強くなったり弱くなったり
+#endregion
+
 namespace PSB.InGame
 {
     public enum ActorType
@@ -143,62 +186,67 @@ namespace PSB.InGame
         /// </summary>
         public void Evaluate(float[] leaderEvaluate)
         {
-            // 周囲の敵を検知
-            //_sightSensor.TrySearchTarget(_context.EnemyTag, out _context.Enemy);
-
-            // 視界で捉えるもの
-            // 敵･･･経路があれば攻撃/逃げる
-            // 繁殖相手
-            // 資源･･･経路があれば向かう
-
-            // 評価値を用いて評価を行う
-            // 繁殖が選択された場合
-            //  雄は繁殖可能な雌を探す。
-            //  雌は繁殖相手がいる場合は･･･
-            //  繁殖可能なら繁殖相手を検知
-            //  検知した相手までの経路がある
-
             // 敵に狙われている場合は、攻撃もしくは逃げることが最優先なので、評価値より先に判定する
-            
-            // 敵を探す
             SearchEnemy();
 
             // 評価値を用いて次の行動を選択
             ActionType action = _evaluator.SelectAction(leaderEvaluate);
             // 死亡はそのまま死ぬ
-            if      (action == ActionType.Killed) _context.NextAction = ActionType.Killed;
-            else if (action == ActionType.Senility) _context.NextAction = ActionType.Senility;
+            if (action == ActionType.Killed) 
+            { 
+                _context.NextAction = ActionType.Killed; return; 
+            }
+            else if (action == ActionType.Senility) 
+            { 
+                _context.NextAction = ActionType.Senility; return;
+            }
             // 攻撃/逃げる場合は経路が必要
             else if (action == ActionType.Attack)
             {
-                if (TryPathfindingToEnemy()) _context.NextAction = ActionType.Attack;
-                else _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
+                if (TryPathfindingToEnemy()) 
+                { 
+                    _context.NextAction = ActionType.Attack; return;
+                }
+                else
+                {
+                    _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
+                }
             }
             else if (action == ActionType.Escape)
             {
-                if (TryPathfindingToEscapePoint()) _context.NextAction = ActionType.Escape;
-                else _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
+                if (TryPathfindingToEscapePoint()) 
+                { 
+                    _context.NextAction = ActionType.Escape; return; 
+                }
+                else
+                {
+                    _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
+                }
             }
             // 繁殖する場合は雄と雌で取る行動が違う
             else if (action == ActionType.Breed)
             {
-                if (_context.Sex == Sex.Male && TryDetectPartner()) _context.NextAction = ActionType.Breed;
-                else if (_context.Sex == Sex.Female) _context.NextAction = ActionType.Breed;
+                if (_context.Sex == Sex.Male && TryDetectPartner()) 
+                { 
+                    _context.NextAction = ActionType.Breed; return; 
+                }
+                else if (_context.Sex == Sex.Female)
+                { 
+                    _context.NextAction = ActionType.Breed; return;
+                }
             }
             // 水もしくは食料を探す場合、対象の資源までの経路が必要
             else if (action == ActionType.SearchWater && TryDetectResource(ResourceType.Water))
             {
-                _context.NextAction = ActionType.SearchWater;
+                _context.NextAction = ActionType.SearchWater; return;
             }
             else if (action == ActionType.SearchFood && TryDetectResource(ResourceType.Tree))
             {
-                _context.NextAction = ActionType.SearchFood;
+                _context.NextAction = ActionType.SearchFood; return;
             }
-            else
-            {
-                // ランダムに隣のセルに移動する
-                _context.NextAction = ActionType.Wander;
-            }
+
+            // ランダムに隣のセルに移動する
+            _context.NextAction = ActionType.Wander;
         }
 
         /// <summary>
@@ -478,6 +526,8 @@ namespace PSB.InGame
                 _spawnChildMessage.LifeSpan = _context.LifeSpan.Value;
                 _spawnChildMessage.Pos = pos;
                 MessageBroker.Default.Publish(_spawnChildMessage);
+                // 子供を産んだので繁殖率を0にする
+                _context.BreedingRate.Value = 0;
             }
 
             yield return null;
@@ -519,42 +569,4 @@ namespace PSB.InGame
             Gizmos.DrawWireSphere(transform.position, Utility.NeighbourCellRadius);
         }
     }
-
-    // 出来れば: 他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
-    // 出来れば: 生成数による生成の判定がバグっている
-    // 変更案: 個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う。
-    // 次タスク: リーダーが死んだ際の処理、群れの長がいないといけない
-    // 次タスク: リーダーが死ぬとランダムで次のリーダーが決まる。群れの最後の1匹が死ぬとがめおべら
-
-    // 評価値で次何をしたいか選択。
-    // Actor側での敵の検知。
-    // 案:1つではなく、優先度でソートして次の行動を保持。
-    // Actor側で諸々の検知を行い、行動を選択できればステート側で検知や分岐をしなくて済む？
-
-    // リーダーが死ぬとランダムで次のリーダーが決まる。
-    // 群れの最後の1匹が死ぬとがめおべら
-
-    // 一定間隔で水分と食料のうち少ないほうを満たそうとする
-    // 具体的には何回かセルを移動したらチェック
-    // 満たされているかチェック。満たされている場合は何もしない。
-    // 近くの水源もしくは食料のマスを取得
-    // ハムで経路探索。経路があれば向かう。無い場合はなにもしない
-
-    // 行動の単位はアニメーション
-    // アニメーションが終わったら次の行動を選択する
-    // つまり、行動A -> 判断 -> 行動B と行動毎に中央の状態に戻って次の行動をチェックする必要がある。
-    // 通常のステートベースでは無い。
-    // 外部からの攻撃などで行動中に死ぬ場合がある？
-
-    // 繁殖する際は親の特徴を受け継ぐ(遺伝)
-    // 遺伝的アルゴリズム
-    // 遺伝子は4つ、RGB+サイズ、
-
-    // キャラクター:黒髪
-    // リーダーがいない。各々が勝手に行動する。
-    // 金髪を見つけると攻撃してくる。
-    // 攻撃で死ぬ。
-    // 繁殖はしない。
-    // ランダムで沸く。
-    // 死ぬたびに遺伝的な変異をする？強くなったり弱くなったり
 }

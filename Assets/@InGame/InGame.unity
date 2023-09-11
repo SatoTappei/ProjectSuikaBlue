@@ -1903,6 +1903,7 @@ MonoBehaviour:
   _eat: {fileID: 2991550679624626151, guid: 9aed5e87257af3c458a7baabdb28b73e, type: 3}
   _mating: {fileID: -1903543458832065606, guid: bb041c6660af0674da8fa316cc1caf97,
     type: 3}
+  _damage: {fileID: 6023171640297845773, guid: 88834c0559f7d2c4da9995ea4436de8e, type: 3}
   _height: 0.6
 --- !u!1 &890936711
 GameObject:
@@ -3354,8 +3355,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnRadius: 10
-  _interval: 0.5
-  _isDebug: 1
+  _interval: 5
+  _isDebug: 0
 --- !u!4 &1462247248
 Transform:
   m_ObjectHideFlags: 0

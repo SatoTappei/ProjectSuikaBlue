@@ -51,7 +51,7 @@ namespace PSB.InGame
             ForEachEvaluate(actor => actor.Evaluate(new float[Utility.GetEnumLength<ActionType>() - 1]));
 
             // ˆê’èŠÔŠu‚Å•”¯‚ğ¶¬‚·‚é
-            _kurokamiSpawnModule.Step(transform.position);
+            _kurokamiSpawnModule.StepSpawnFromCandidate(_kinpatsuList);
         }
 
         void OnDestroy()
