@@ -62,6 +62,11 @@ namespace PSB.InGame
         [SerializeField] float _matingTime = 1.0f;
         [Header("敵のタグ")]
         [SerializeField] string _enemyTag;
+        [Range(0, 1)]
+        [Header("死亡時に増加する集合の評価値")]
+        [SerializeField] float _deathGatherScore = 0.1f;
+        [Header("リーダー時: 一定間隔で集合させる間隔")]
+        [SerializeField] float _gatherInterval = 10.0f;
 
         public ActorType Type => _type;
         public float DeltaFood => _deltaFood;
@@ -85,6 +90,8 @@ namespace PSB.InGame
         public int MeleeDamage => _meleeDamage;
         public float MatingTime => _matingTime;
         public string EnemyTag => _enemyTag;
+        public float DeathGatherScore => _deathGatherScore;
+        public float GatherInterval => _gatherInterval;
         /// <summary>
         /// 親が無い場合のデフォルトの遺伝子。カラーが白でサイズがほぼ1になる値
         /// </summary>

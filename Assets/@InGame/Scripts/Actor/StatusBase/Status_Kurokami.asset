@@ -16,7 +16,7 @@ MonoBehaviour:
   _deltaFood: 0
   _deltaWater: 0
   _deltaHp: 0
-  _deltaLifeSpan: 10
+  _deltaLifeSpan: 1.2
   _deltaBreedingRate: 0
   _minSize: 0.5
   _maxSize: 1.5
@@ -52,9 +52,9 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
+      value: 0.9
+      inSlope: -0.9
+      outSlope: -0.9
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
@@ -62,8 +62,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -1
-      outSlope: -1
+      inSlope: -0.9
+      outSlope: -0.9
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -76,21 +76,21 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      value: 0.9
+      inSlope: -0.9
+      outSlope: -0.9
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -0.006901349
-      outSlope: -0.006901349
-      tangentMode: 0
+      inSlope: -0.9
+      outSlope: -0.9
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0.3125
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -124,11 +124,13 @@ MonoBehaviour:
   _hpEvalFactor: 2
   _attackHpThreshold: 0.75
   _escapeHpThreshold: 0.33
-  _sightRadius: 3
+  _sightRadius: 6
   _sightTargetLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   _meleeDamage: 10
   _healingRate: 100
   _matingTime: 1
   _enemyTag: Kinpatsu
+  _deathGatherScore: 0.1
+  _gatherInterval: 10

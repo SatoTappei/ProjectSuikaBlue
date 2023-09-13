@@ -115,6 +115,10 @@ namespace PSB.InGame
             return _evaluate;
         }
 
+        /// <summary>
+        /// 自身の評価の各値と追加の評価の各値を単純に加算し、評価値が最大の行動を選ぶ
+        /// </summary>
+        /// <returns>評価値が一番高い行動</returns>
         ActionType SelectMax(float[] addEvaluate)
         {
             if (_evaluate.Length != addEvaluate.Length)

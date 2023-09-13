@@ -2,6 +2,17 @@ using UnityEngine;
 
 public class Leader : MonoBehaviour
 {
+    [SerializeField] GameObject _symbolPrefab;
+
+    GameObject _symbol;
+
+    void Awake()
+    {
+        _symbol = Instantiate(_symbolPrefab);
+        _symbol.transform.SetParent(transform);
+        _symbol.transform.localPosition = Vector3.up;
+    }
+
     void Start()
     {
         

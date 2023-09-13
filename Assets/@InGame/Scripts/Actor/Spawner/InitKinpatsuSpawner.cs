@@ -38,8 +38,8 @@ namespace PSB.InGame
                 int index = sideCount % 4;
                 for(int k = 0; k < sideLength; k++)
                 {
-                    y += Dirs[index].y * 3;
-                    x += Dirs[index].x * 3;
+                    y += Dirs[index].y * 3; // 3*3の範囲をチェックする
+                    x += Dirs[index].x * 3; // 3*3の範囲をチェックする
 
                     if (TrySpawn(temp, field, y, x)) return;
                 }

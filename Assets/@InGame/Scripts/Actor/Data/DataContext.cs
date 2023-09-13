@@ -23,6 +23,7 @@ namespace PSB.InGame
         [HideInInspector] public DataContext Enemy;
         [HideInInspector] public Transform Leader;
         [HideInInspector] public ActionType NextAction;
+        [HideInInspector] public bool IsLeader;
         // パラメータ
         [HideInInspector] public Param Food;
         [HideInInspector] public Param Water;
@@ -59,6 +60,17 @@ namespace PSB.InGame
         public Color32 Color => new Color32(ColorR, ColorG, ColorB, 255);
         public bool IsEnemyDetected => Enemy != null;
 
+        public int Score
+        {
+            get
+            {
+                int max = byte.MaxValue;
+                // 色とサイズの重みは平等
+                float cs = (max - ColorR + max - ColorG + max - ColorB) / max * 3;
+                float ss = (Size - Base.MinSize) / (Base.MaxSize - Base.MinSize);
+                return (int)((cs * 0.5f + ss * 0.5f) * 1000); // 1000は小数部分を削除するための適当な値
+            }
+        }
         public float Size
         {
             get
@@ -190,8 +202,6 @@ namespace PSB.InGame
         public void StepHp()           => HP.Value           -= Base.DeltaHp           * Time.deltaTime;
         public void StepLifeSpan()     => LifeSpan.Value     -= Base.DeltaLifeSpan     * Time.deltaTime;    
         public void StepBreedingRate() => BreedingRate.Value += Base.DeltaBreedingRate * Time.deltaTime; // 足し算
-
-        public bool ShouldChangeState(BaseState state) => NextState != state;
         public void PlayBikkuri() => _bikkuri.Play();
         public void Damage(int value)
         {
@@ -202,6 +212,11 @@ namespace PSB.InGame
                 Pos = Transform.position,
             });
         }
+        /// <summary>
+        /// うろうろ以外で別のステートが選択されているかどうか
+        /// </summary>
+        /// <returns>うろうろ以外のステートが選択されている:true 選択されていない/うろうろステート:false</returns>
+        public bool ShouldChangeState(BaseState state) => NextState != state && NextAction != ActionType.Wander;
 
         // 以下デバッグ用
         public void Log()

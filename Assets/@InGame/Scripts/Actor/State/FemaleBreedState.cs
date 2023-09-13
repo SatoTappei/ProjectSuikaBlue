@@ -1,4 +1,5 @@
 using System;
+using UniRx;
 using UnityEngine;
 
 namespace PSB.InGame
@@ -42,6 +43,8 @@ namespace PSB.InGame
             {
                 if (SearchEnemy()) { ToEvaluateState(); return; }
                 else _nextSearchTime += SearchRate;
+
+                PlayParticle();
             }
 
             // 時間切れ、もしくは食料/水分共に0で評価ステートに遷移
@@ -71,6 +74,15 @@ namespace PSB.InGame
             }
 
             return false;
+        }
+
+        void PlayParticle()
+        {
+            MessageBroker.Default.Publish(new PlayParticleMessage()
+            {
+                Type = ParticleType.MatingReady,
+                Pos = Context.Transform.position,
+            });
         }
     }
 }

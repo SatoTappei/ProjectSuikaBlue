@@ -158,7 +158,7 @@ namespace PSB.InGame
         {
             if (Context.Enemy == null) return false;
 
-            Context.Enemy.Damage(33);
+            Context.Enemy.Damage(Context.Base.MeleeDamage);
             return true;
         }
     }

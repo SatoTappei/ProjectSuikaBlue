@@ -10,9 +10,8 @@ using System;
 // 出来れば: 他のステートも繁殖ステートと同じく途中で餓死＆殺害されるよう修正
 // 出来れば: 生成数による生成の判定がバグっている
 // 変更案: 個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う。
-// 変更案:1つではなく、優先度でソートして次の行動を保持。
-// 次タスク: リーダーが死んだ際の処理、群れの長がいないといけない
-// 次タスク: リーダーが死ぬとランダムで次のリーダーが決まる。群れの最後の1匹が死ぬとがめおべら
+// 変更案: 1つではなく、優先度でソートして次の行動を保持。
+// バグ: 集合を選択した際に、経路の末端に2体のキャラクターが被ってしまう。初期状態9人で発生
 
 // ◎攻撃
 // 1対多の状況はどうする？
@@ -77,8 +76,10 @@ namespace PSB.InGame
         [SerializeField] DataContext _context;
         [SerializeField] SkinnedMeshRenderer _renderer;
         [SerializeField] Material _defaultMaterial;
+        [SerializeField] GameObject _leaderMarker;
 
         ActionEvaluator _evaluator;
+        LeaderEvaluator _leaderEvaluator;
         BaseState _currentState;
         Collider[] _detected = new Collider[8];
         Coroutine _spawnChild; // 交尾をキャンセル可能にするため
@@ -96,8 +97,19 @@ namespace PSB.InGame
         public StateType State    => _initialized ? _currentState.Type : StateType.Base;
         public ActorType Type     => _initialized ? _context.Type : ActorType.None;
         public Sex Sex            => _initialized ? _context.Sex : Sex.Male;
+        public int Score => _initialized ? _context.Score : default;
         // 死んだ場合(プールに返却した)のフラグ
         public bool IsDead => _initialized ? _isDead : false;
+
+        public bool IsLeader
+        {
+            get => _context.IsLeader;
+            set
+            {
+                _context.IsLeader = value;
+                _leaderMarker.SetActive(_context.IsLeader);
+            }
+        }
 
         /// <summary>
         /// スポナーから生成された際にスポナー側が呼び出して初期化する必要がある。
@@ -105,11 +117,13 @@ namespace PSB.InGame
         public void Init(uint? gene = null) 
         {
             _isDead = false;
+            IsLeader = false;
 
             _context.Init(gene);
             ApplyGene();
             _currentState = _context.EvaluateState;
             _evaluator ??= new(_context);
+            _leaderEvaluator ??= new(_context);
             // 初期位置のセル上に居るという情報を書き込む
             FieldManager.Instance.SetActorOnCell(transform.position, _context.Type);
             // わかりやすいように名前に性別を反映しておく
@@ -186,63 +200,45 @@ namespace PSB.InGame
         /// </summary>
         public void Evaluate(float[] leaderEvaluate)
         {
+
             // 敵に狙われている場合は、攻撃もしくは逃げることが最優先なので、評価値より先に判定する
             SearchEnemy();
 
             // 評価値を用いて次の行動を選択
             ActionType action = _evaluator.SelectAction(leaderEvaluate);
             // 死亡はそのまま死ぬ
-            if (action == ActionType.Killed) 
-            { 
-                _context.NextAction = ActionType.Killed; return; 
-            }
-            else if (action == ActionType.Senility) 
-            { 
-                _context.NextAction = ActionType.Senility; return;
-            }
+            if (action == ActionType.Killed) { _context.NextAction = ActionType.Killed; return; }
+            else if (action == ActionType.Senility) { _context.NextAction = ActionType.Senility; return; }
             // 攻撃/逃げる場合は経路が必要
             else if (action == ActionType.Attack)
             {
-                if (TryPathfindingToEnemy()) 
-                { 
-                    _context.NextAction = ActionType.Attack; return;
-                }
-                else
-                {
-                    _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
-                }
+                if (TryPathfindingToEnemy()) { _context.NextAction = ActionType.Attack; return; }
+                else _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
             }
             else if (action == ActionType.Escape)
             {
-                if (TryPathfindingToEscapePoint()) 
-                { 
-                    _context.NextAction = ActionType.Escape; return; 
-                }
-                else
-                {
-                    _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
-                }
+                if (TryPathfindingToEscapePoint()) { _context.NextAction = ActionType.Escape; return; }
+                else _context.Enemy = null; // 他のステートに遷移するので敵への参照を削除
             }
             // 繁殖する場合は雄と雌で取る行動が違う
             else if (action == ActionType.Breed)
             {
-                if (_context.Sex == Sex.Male && TryDetectPartner()) 
-                { 
-                    _context.NextAction = ActionType.Breed; return; 
-                }
-                else if (_context.Sex == Sex.Female)
-                { 
-                    _context.NextAction = ActionType.Breed; return;
-                }
+                if (_context.Sex == Sex.Male && TryDetectPartner()) { _context.NextAction = ActionType.Breed; return; }
+                else if (_context.Sex == Sex.Female) { _context.NextAction = ActionType.Breed; return; }
             }
             // 水もしくは食料を探す場合、対象の資源までの経路が必要
-            else if (action == ActionType.SearchWater && TryDetectResource(ResourceType.Water))
+            else if (action == ActionType.SearchWater)
             {
-                _context.NextAction = ActionType.SearchWater; return;
+                if (TryDetectResource(ResourceType.Water)) { _context.NextAction = ActionType.SearchWater; return; }
             }
-            else if (action == ActionType.SearchFood && TryDetectResource(ResourceType.Tree))
+            else if (action == ActionType.SearchFood)
             {
-                _context.NextAction = ActionType.SearchFood; return;
+                if (TryDetectResource(ResourceType.Tree)) { _context.NextAction = ActionType.SearchFood; return; }
+            }
+            // 集合
+            else if (action == ActionType.Gather)
+            {
+                if (TryPathfindingToGatherPoint()) { _context.NextAction = ActionType.Gather; return; }
             }
 
             // ランダムに隣のセルに移動する
@@ -561,6 +557,77 @@ namespace PSB.InGame
             pos = Vector3.zero;
             return false;
         }
+
+        /// <summary>
+        /// 集合地点への経路を探索する
+        /// 集合地点からスパイラルに探索していく。
+        /// </summary>
+        /// <returns>集合地点への経路がある:true 集合地点への経路が無い:false</returns>
+        bool TryPathfindingToGatherPoint()
+        {
+            DeletePath();
+            
+            Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(transform.position);
+            Vector2Int gatherIndex = FieldManager.Instance.WorldPosToGridIndex(PublicBlackBoard.GatherPos);
+
+            int dx = Mathf.Abs(currentIndex.x - gatherIndex.x);
+            int dy = Mathf.Abs(currentIndex.y - gatherIndex.y);
+            if (dx <= 1 && dy <= 1)
+            {
+                // 隣のセルに食料がある場合は移動しないので、現在地を経路として追加する
+                _context.Path.Add(transform.position);
+                FieldManager.Instance.SetActorOnCell(transform.position, _context.Type);
+                return true;
+            }
+            else
+            {
+                Vector2Int[] dirs =
+                {
+                    Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down,
+                };
+
+                int count = 0;
+                int sideLength = 1;
+                int sideCount = 0;
+                // キャラクターの最大数分繰り返す
+                while (count++ < InvalidActorHolder.PoolSize)
+                {
+                    int index = sideCount % 4;
+                    for (int k = 0; k < sideLength; k++)
+                    {
+                        gatherIndex.y += dirs[index].y;
+                        gatherIndex.x += dirs[index].x;
+
+                        // 経路が存在するか？
+                        if (!FieldManager.Instance.TryGetPath(currentIndex, gatherIndex, out _context.Path)) continue;
+                        // 経路の末端(資源のセルの隣)に資源キャラクターがいる場合は弾く
+                        int goal = _context.Path.Count - 1;
+                        // TODO:経路の長さが0の場合がある
+                        if (goal < 0) continue;
+                        // 経路の末端のセルが空かどうか
+                        FieldManager.Instance.TryGetCell(_context.Path[goal], out Cell cell);
+                        if (!cell.IsEmpty) continue;
+
+                        FieldManager.Instance.SetActorOnCell(_context.Path[goal], _context.Type);
+                        return true;
+                    }
+
+                    // 2辺移動したら一辺当たりの長さが1増える
+                    if (index == 1 || index == 3) sideLength++;
+
+                    sideCount++;
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// リーダーとしての評価を行う
+        /// 群れの共通の黒板を用いて評価を行う
+        /// </summary>
+        /// <returns>各行動に対しての評価値</returns>
+        public float[] LeaderEvaluate() => _leaderEvaluator.Evaluate();
 
         void OnDrawGizmos()
         {

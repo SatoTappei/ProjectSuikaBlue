@@ -22,6 +22,8 @@ namespace PSB.InGame
 
         protected override void Enter()
         {
+            // €–S‚ÉW‡‚Ì•]‰¿’l‚ğ‘‰Á‚³‚¹‚é
+            PublicBlackBoard.DeathRate += Context.Base.DeathGatherScore;
         }
 
         protected override void Exit()

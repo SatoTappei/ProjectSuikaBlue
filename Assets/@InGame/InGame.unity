@@ -1904,6 +1904,10 @@ MonoBehaviour:
   _mating: {fileID: -1903543458832065606, guid: bb041c6660af0674da8fa316cc1caf97,
     type: 3}
   _damage: {fileID: 6023171640297845773, guid: 88834c0559f7d2c4da9995ea4436de8e, type: 3}
+  _gather: {fileID: -3614283210948760874, guid: e10d3c5cbefaa7e4f93dd4443f7c8aa3,
+    type: 3}
+  _matingReady: {fileID: -3614283210948760874, guid: 540e52f5c3569b9448b999970650a2a7,
+    type: 3}
   _height: 0.6
 --- !u!1 &890936711
 GameObject:
@@ -3355,7 +3359,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnRadius: 10
-  _interval: 5
+  _interval: 4
   _isDebug: 0
 --- !u!4 &1462247248
 Transform:

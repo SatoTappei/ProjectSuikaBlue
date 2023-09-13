@@ -1,115 +1,90 @@
-using System.Collections.Generic;
-using UnityEngine;
+using UniRx;
 
 namespace PSB.InGame
 {
     public class GatherState : BaseState
     {
-        enum Stage
-        {
-            Move,
-            Attack,
-        }
-
-        Stack<Vector3> _path = new();
-        Transform _actor;
-        Transform _leader;
-        Vector3 _currentCellPos;
-        Vector3 _nextCellPos;
-        float _lerpProgress;
-        float _speedModify = 1;
-
-        bool OnNextCell => _actor.position == _nextCellPos;
+        readonly MoveModule _move;
+        readonly FieldModule _field;
+        bool _firstStep; // 経路のスタート地点から次のセルに移動中
 
         public GatherState(DataContext context) : base(context, StateType.Gather)
         {
-            _actor = Context.Transform;
+            _move = new(context);
+            _field = new(context);
         }
 
         protected override void Enter()
         {
-            _leader = Context.Leader.transform;
-            //TryPathfinding();
             TryStepNextCell();
+            _field.SetActorOnCell();
+            _firstStep = true;
+
+            PlayParticle();
         }
 
         protected override void Exit()
         {
+            Context.Path.Clear();
         }
 
         protected override void Stay()
         {
-            if (OnNextCell)
+            if (_move.OnNextCell)
             {
-                if (TryStepNextCell())
+                // 経路のスタート地点は予約されているので、次のセルに移動した際に消す
+                // 全てのセルに対して行うと、別のキャラクターで予約したセルまで消してしまう。
+                if (_firstStep)
                 {
-                    // 経路の途中のセルの場合の処理
+                    _firstStep = false;
+                    _field.DeleteActorOnCell(_move.CurrentCellPos);
                 }
-                else
-                {
-                    ToEvaluateState();
-                }
+
+                if (!TryStepNextCell()) { ToEvaluateState(); return; }
+                // 別のステートが選択されていた場合は遷移する
+                if (Context.ShouldChangeState(this)) { ToEvaluateState(); return; }
             }
             else
             {
-                Move();
+                _move.Move();
             }
         }
 
-        //bool TryPathfinding()
-        //{
-        //    _path.Clear();
-        //    return FieldManager.Instance.TryGetPath(_actor.position, _leader.transform.position, out _path);
-        //}
-
-        void ToEvaluateState() => TryChangeState(Context.EvaluateState);
-
         /// <summary>
-        /// 現在のセルの位置を自身の位置で更新する。
+        /// 各値を既定値に戻すことで、現在のセルの位置を自身の位置で更新する。
         /// 次のセルの位置をあれば次のセルの位置、なければ自身の位置で更新する。
         /// </summary>
         /// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
         bool TryStepNextCell()
         {
-            _currentCellPos = _actor.position;
+            _move.Reset();
 
-            if (_path.TryPop(out _nextCellPos))
+            if (Context.Path.Count > 0)
             {
+                // 経路の先頭(次のセル)から1つ取り出す
+                _move.NextCellPos = Context.Path[0];
+                Context.Path.RemoveAt(0);
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
-                _nextCellPos.y = _actor.position.y;
-                Modify();
-                Look();
-                _lerpProgress = 0;
+                _move.NextCellPos.y = Context.Transform.position.y;
 
+                _move.Modify();
+                _move.Look();
                 return true;
             }
-
-            _nextCellPos = _actor.position;
-
-            return false;
+            else
+            {
+                _move.NextCellPos = Context.Transform.position;
+                return false;
+            }
         }
 
-        void Move()
+        void PlayParticle()
         {
-            //_lerpProgress += Time.deltaTime * Context.Speed * _speedModify;
-            _actor.position = Vector3.Lerp(_currentCellPos, _nextCellPos, _lerpProgress);
-        }
-
-        void Look()
-        {
-            Vector3 dir = _nextCellPos - _currentCellPos;
-            Context.Model.rotation = Quaternion.LookRotation(dir, Vector3.up);
-        }
-
-        /// <summary>
-        /// 斜め移動の速度を補正する
-        /// </summary>
-        void Modify()
-        {
-            bool dx = Mathf.Approximately(_currentCellPos.x, _nextCellPos.x);
-            bool dz = Mathf.Approximately(_currentCellPos.z, _nextCellPos.z);
-
-            _speedModify = (dx || dz) ? 1 : 0.7f;
+            MessageBroker.Default.Publish(new PlayParticleMessage()
+            {
+                Type = ParticleType.Gather,
+                Pos = Context.Transform.position,
+            });
         }
     }
 }
