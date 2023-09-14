@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace PSB.InGame
 {
-    public class LeaderSelector
+    public class LeaderSelector : MonoBehaviour
     {
-        const float Rate = 1.0f;
+        [SerializeField] float Rate = 1.0f;
 
         float _timer;
 
@@ -14,7 +14,7 @@ namespace PSB.InGame
         /// スコアが一番高い個体のリーダーフラグを立てる
         /// </summary>
         /// <returns>次のリーダーが選出:true 選出タイミング以外もしくは個体がいない:false</returns>
-        public bool StepTryLeaderSelect(IReadOnlyList<Actor> candidate, out Actor leader)
+        public bool Tick(IReadOnlyList<Actor> candidate, out Actor leader)
         {
             _timer += Time.deltaTime;
             if (_timer > Rate)

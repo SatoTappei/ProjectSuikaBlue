@@ -95,12 +95,17 @@ namespace PSB.InGame
                 int nx = x + dir.x;
                 int ny = y + dir.y;
                 
-                if (!FieldUtility.IsWithinGrid(field, y, x)) continue;
+                if (!IsWithinGrid(field, y, x)) continue;
                 // ŠC‚â‘Œ¹‚Ì‚ ‚éƒZƒ‹‚ğœ‚­
                 if (!field[ny, nx].IsWalkable) continue;
 
                 temp.Enqueue(field[ny, nx]);
             }
+        }
+
+        bool IsWithinGrid(Cell[,] field, int y, int x)
+        {
+            return 0 <= y && y < field.GetLength(0) && 0 <= x && x < field.GetLength(1);
         }
 
         void SendSpawnMessage(string name)

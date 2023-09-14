@@ -9,7 +9,7 @@ namespace PSB.InGame
         public static FieldManager Instance { get; private set; }
 
         [SerializeField] FieldBuilder _builder;
-        [SerializeField] ResourceDataHolder _dataHolder;
+        [SerializeField] ResourceDataHolder _resourceDataHolder;
         [Header("Startのタイミングで生成する")]
         [SerializeField] bool _buildOnStart;
 
@@ -17,14 +17,7 @@ namespace PSB.InGame
         Dictionary<ResourceType, List<Cell>> _resourceCellDict = new();
         Bresenham _bresenham;
 
-        public Cell[,] Field
-        {
-            get
-            {
-                _field ??= _builder.Build();
-                return _field;
-            }
-        }
+        public ResourceDataHolder Resource => _resourceDataHolder;
 
         void Awake()
         {
@@ -78,8 +71,18 @@ namespace PSB.InGame
             }
         }
 
-        public int GetResourceHealingLimit(ResourceType type) => _dataHolder.GetHealingLimit(type);
-        public bool IsWithInGrid(Vector2Int index)=> FieldUtility.IsWithinGrid(_field, index);
+        public bool IsWithInGrid(in Vector3 pos)
+        {
+            Vector2Int index = WorldPosToGridIndex(pos);
+            return IsWithinGrid(index);
+        }
+
+        public bool IsWithinGrid(Vector2Int index)
+        {
+            int y = index.y;
+            int x = index.x;
+            return 0 <= y && y < _field.GetLength(0) && 0 <= x && x < _field.GetLength(1);
+        }
 
         /// <summary>
         /// キャラクターが存在するという情報をセルにセットする
@@ -91,11 +94,14 @@ namespace PSB.InGame
             cell.ActorType = type;
         }
 
-        public void SetActorOnCell(in Vector2Int index, ActorType type)
+        public void SetActorOnCell(Vector2Int index, ActorType type)
         {
             TryGetCell(index, out Cell cell);
             cell.ActorType = type;
         }
+
+        public void DeleteActorOnCell(in Vector3 pos) => SetActorOnCell(pos, ActorType.None);
+        public void DeleteActorOnCell(Vector2Int index) => SetActorOnCell(index, ActorType.None);
 
         /// <summary>
         /// 指定した座標のセルにキャラクターが存在するかどうかを判定する
@@ -105,13 +111,13 @@ namespace PSB.InGame
         {
             TryGetCell(pos, out Cell cell);
             type = cell.ActorType;
-            return cell.ActorType != ActorType.None;
+            return type != ActorType.None;
         }
 
         public bool IsActorOnCell(Vector2Int index, out ActorType type)
         {
             // TryGetCellメソッドはVector3をVector2Intに変換しているのでそれを省略する
-            if (FieldUtility.IsWithinGrid(_field, index))
+            if (IsWithinGrid(index))
             {
                 Cell cell = _field[index.y, index.x];
                 type = cell.ActorType;
@@ -126,7 +132,7 @@ namespace PSB.InGame
         }
 
         /// <summary>
-        /// 資源に対応したセルを全て返す。セルが無い場合はリストを作成し返すのでnullを返すことが無い。
+        /// 資源に対応したセルを全て返す。セルが無い場合は空のリストを返すのでnullを返すことが無い。
         /// </summary>
         /// <returns>セルが1個以上:true 0個:false</returns>
         public bool TryGetResourceCells(ResourceType type, out List<Cell> list)
@@ -134,7 +140,7 @@ namespace PSB.InGame
             if (_resourceCellDict.ContainsKey(type))
             {
                 list = _resourceCellDict[type];
-                list ??= new();
+                list ??= new(); // TODO:資源のセルが無い場合にnewしている
                 return list.Count > 0;
             }
             else
@@ -151,7 +157,7 @@ namespace PSB.InGame
 
         public bool TryGetCell(Vector2Int index, out Cell cell)
         {
-            if (FieldUtility.IsWithinGrid(_field, index))
+            if (IsWithinGrid(index))
             {
                 cell = _field[index.y, index.x];
                 return true;
@@ -169,26 +175,33 @@ namespace PSB.InGame
         /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
         /// </summary>
         /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
-        public bool TryGetPath(in Vector3 startPos, in Vector3 goalPos, out List<Vector3> path)
+        public bool TryGetPath(in Vector3 startPos, in Vector3 goalPos, ref List<Vector3> path)
         {
             Vector2Int startIndex = WorldPosToGridIndex(startPos);
             Vector2Int goalIndex = WorldPosToGridIndex(goalPos);
-            return TryGetPath(startIndex, goalIndex, out path);
+            return TryGetPath(startIndex, goalIndex, ref path);
         }
 
         /// <summary>
+        /// Pathの中身をクリアし、経路を詰めていく。
         /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
         /// </summary>
         /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
-        public bool TryGetPath(Vector2Int startIndex, Vector2Int goalIndex, out List<Vector3> path)
+        public bool TryGetPath(Vector2Int startIndex, Vector2Int goalIndex, ref List<Vector3> path)
         {
-            bool hasStart = FieldUtility.IsWithinGrid(_field, startIndex);
-            bool hasGoal = FieldUtility.IsWithinGrid(_field, goalIndex);
+            path.Clear();
+
+            bool hasStart = IsWithinGrid(startIndex);
+            bool hasGoal = IsWithinGrid(goalIndex);
 
             if (hasStart && hasGoal)
             {
                 bool isGoal = _bresenham.TryGetPath(startIndex, goalIndex, out List<Vector2Int> indexes);
-                path = CreatePath(indexes);
+                // 経路を詰めていく
+                foreach (Vector2Int index in indexes)
+                {
+                    path.Add(_field[index.y, index.x].Pos);
+                }
 
                 return isGoal;
             }
@@ -197,21 +210,6 @@ namespace PSB.InGame
                 path = new(); // TODO:経路の両端がグリッド内に無い場合はnewしている。
                 return false;
             }
-        }
-
-        /// <summary>
-        /// 添え字に対応したセルの位置を経路に詰めていく
-        /// </summary>
-        /// <returns>通るセルの位置の経路</returns>
-        List<Vector3> CreatePath(List<Vector2Int> indexes)
-        {     
-            List<Vector3> path = new(indexes.Count); // TODO: 経路を作る度にnewしている
-            foreach (Vector2Int index in indexes)
-            {
-                path.Add(_field[index.y, index.x].Pos);
-            }
-
-            return path;
         }
 
         /// <summary>
@@ -243,12 +241,6 @@ namespace PSB.InGame
             };
 
             return index;
-        }
-
-        public bool IsWithInGrid(in Vector3 pos)
-        {
-            Vector2Int index = WorldPosToGridIndex(pos);
-            return FieldUtility.IsWithinGrid(_field, index);
         }
 
         /// <summary>

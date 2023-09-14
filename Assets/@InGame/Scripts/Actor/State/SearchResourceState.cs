@@ -129,7 +129,8 @@ namespace PSB.InGame
         {
             _stepEatAction?.Invoke();
             _healingProgress += Time.deltaTime * Context.Base.HealingRate;
-            return _healingProgress <= FieldManager.Instance.GetResourceHealingLimit(_resourceType);
+            int limit = FieldManager.Instance.Resource[_resourceType].HealingLimit;
+            return _healingProgress <= limit;
         }
     }
 }

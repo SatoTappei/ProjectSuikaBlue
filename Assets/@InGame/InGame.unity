@@ -1270,7 +1270,7 @@ GameObject:
   - component: {fileID: 527925671}
   - component: {fileID: 527925672}
   m_Layer: 0
-  m_Name: DataHolder
+  m_Name: ResourceDataHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1305,9 +1305,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _data:
   - _type: 2
-    _value: 100
+    _healingLimit: 100
   - _type: 4
-    _value: 100
+    _healingLimit: 100
 --- !u!1 &591331113
 GameObject:
   m_ObjectHideFlags: 0
@@ -2155,6 +2155,8 @@ GameObject:
   m_Component:
   - component: {fileID: 953902822}
   - component: {fileID: 953902823}
+  - component: {fileID: 953902825}
+  - component: {fileID: 953902824}
   m_Layer: 0
   m_Name: GameLogic
   m_TagString: Untagged
@@ -2174,9 +2176,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1462247248}
   - {fileID: 477467196}
-  - {fileID: 1892587112}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2193,7 +2193,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _initKinpatsuSpawner: {fileID: 477467200}
-  _kurokamiSpawnModule: {fileID: 1462247247}
+  _kurokamiSpawnModule: {fileID: 953902825}
+  _leaderSelector: {fileID: 953902824}
+--- !u!114 &953902824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953902821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2be6c00e7eae0504a9fe77ad87fa88cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Rate: 1
+--- !u!114 &953902825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953902821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66985ca96f765fb4dbd58156beaaecce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spawnRadius: 10
+  _interval: 4
+  _isDebug: 0
 --- !u!1 &1016443260
 GameObject:
   m_ObjectHideFlags: 0
@@ -2403,7 +2432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _builder: {fileID: 1090166008}
-  _dataHolder: {fileID: 527925672}
+  _resourceDataHolder: {fileID: 0}
   _buildOnStart: 0
 --- !u!1 &1045590258
 GameObject:
@@ -3329,53 +3358,6 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.8235294}
   m_EffectDistance: {x: 3, y: -3}
   m_UseGraphicAlpha: 1
---- !u!1 &1462247246
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1462247248}
-  - component: {fileID: 1462247247}
-  m_Layer: 0
-  m_Name: KurokamiSpawnModule
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1462247247
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1462247246}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66985ca96f765fb4dbd58156beaaecce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _spawnRadius: 10
-  _interval: 4
-  _isDebug: 0
---- !u!4 &1462247248
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1462247246}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 953902822}
-  m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1471366997
 GameObject:
   m_ObjectHideFlags: 0
@@ -4025,52 +4007,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1836460362}
   m_CullTransparentMesh: 1
---- !u!1 &1892587110
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1892587112}
-  - component: {fileID: 1892587111}
-  m_Layer: 0
-  m_Name: BreedingProvider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
---- !u!114 &1892587111
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1892587110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d03722c5501ba2d4ea4721ecf7f758cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _debugText: {fileID: 950818057}
-  _isDebug: 0
---- !u!4 &1892587112
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1892587110}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 953902822}
-  m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1939791997
 GameObject:
   m_ObjectHideFlags: 0

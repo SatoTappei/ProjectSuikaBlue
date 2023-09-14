@@ -16,13 +16,12 @@ namespace PSB.InGame
     public class GameLogic : MonoBehaviour
     {
         [SerializeField] InitKinpatsuSpawner _initKinpatsuSpawner;
-        [SerializeField] KurokamiSpawnModule _kurokamiSpawnModule;
+        [SerializeField] KurokamiSpawnController _kurokamiSpawnModule;
+        [SerializeField] LeaderSelector _leaderSelector;
 
-        LeaderSelector _leaderSelector = new();
         Actor _leader;
         List<Actor> _kinpatsuList = new();
         List<Actor> _kurokamiList = new();
-
         bool _initialized;
         // 任意のタイミングでキャラクターのリストを更新するための一時保存用のキュー
         Queue<Actor> _temp = new();
@@ -40,35 +39,20 @@ namespace PSB.InGame
 
             // 制御するキャラクターのリストの更新
             AddControledActorFromTemp();
-
             // 死んだキャラクターをリストから削除
-            if (_leader != null && _leader.IsDead) _leader = null;
-            _kinpatsuList.RemoveAll(actor => actor.IsDead);
-            _kurokamiList.RemoveAll(actor => actor.IsDead);
-
+            ReleaseDeadActor();
             // 全キャラクター共通
             ForEachAll(actor => actor.StepParams());
             ForEachAll(actor => actor.StepAction());
             ForEachEvaluate(actor => actor.ResetOnEvaluateState());
             // リーダーの評価を元に金髪の評価を行う
-            float[] leaderEval = _leader != null ? _leader.LeaderEvaluate() : _dummyEvaluate;
-            foreach (Actor kinpatsu in _kinpatsuList.Where(a => a.State == StateType.Evaluate))
-            {
-                kinpatsu.Evaluate(leaderEval);
-            }
-            // 黒髪の評価はリーダーがいないのでダミーの配列を使用
-            foreach (Actor kurokami in _kurokamiList.Where(a => a.State == StateType.Evaluate))
-            {
-                kurokami.Evaluate(_dummyEvaluate);
-            }
-
+            EvaluateKinpatsuFromLeader();
+            // 黒髪の評価
+            EvaluateKurokami();
             // 一定間隔で黒髪を生成する
-            _kurokamiSpawnModule.StepSpawnFromCandidate(_kinpatsuList);
+            TickSpawnKurokami();
             // 一定間隔でリーダーを選出する
-            if (_leaderSelector.StepTryLeaderSelect(_kinpatsuList, out Actor nextLeader))
-            {
-                _leader = nextLeader;
-            }
+            TickSelectLeader();
         }
 
         void OnDestroy()
@@ -92,7 +76,7 @@ namespace PSB.InGame
 
         /// <summary>
         /// ループ中にキャラクターの数が増加してリストの要素数が変わる事を防ぐために
-        /// キャラクター生成時に一時保存用のキューに追加する
+        /// キャラクター生成時に一時保存用のキューに追加する という処理をコールバックに追加する
         /// </summary>
         void RegisterActorCallback()
         {
@@ -109,7 +93,7 @@ namespace PSB.InGame
             {
                 Actor actor = _temp.Dequeue();
 
-                if (actor.Type == ActorType.KinpatsuLeader) _leader = actor;
+                if      (actor.Type == ActorType.KinpatsuLeader) _leader = actor;
                 else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.Add(actor);
                 else if (actor.Type == ActorType.Kurokami) _kurokamiList.Add(actor);
                 else
@@ -118,6 +102,16 @@ namespace PSB.InGame
                     throw new System.ArgumentException(msg);
                 }
             }
+        }
+
+        /// <summary>
+        /// 死亡したフラグが立っているキャラクターを操作するキャラクターのリストから削除する
+        /// </summary>
+        void ReleaseDeadActor()
+        {
+            if (_leader != null && _leader.IsDead) _leader = null;
+            _kinpatsuList.RemoveAll(actor => actor.IsDead);
+            _kurokamiList.RemoveAll(actor => actor.IsDead);
         }
 
         void ForEachAll(UnityAction<Actor> action)
@@ -141,6 +135,37 @@ namespace PSB.InGame
             foreach (Actor kurokami in _kurokamiList.Where(a => a.State == StateType.Evaluate))
             {
                 action.Invoke(kurokami);
+            }
+        }
+
+        void EvaluateKinpatsuFromLeader()
+        {
+            float[] leaderEval = _leader != null ? _leader.LeaderEvaluate() : _dummyEvaluate;
+            foreach (Actor kinpatsu in _kinpatsuList.Where(a => a.State == StateType.Evaluate))
+            {
+                kinpatsu.Evaluate(leaderEval);
+            }
+        }
+
+        void EvaluateKurokami()
+        {
+            foreach (Actor kurokami in _kurokamiList.Where(a => a.State == StateType.Evaluate))
+            {
+                // 黒髪はリーダーがいないのでダミーの配列を使用
+                kurokami.Evaluate(_dummyEvaluate);
+            }
+        }
+
+        void TickSpawnKurokami()
+        {
+            _kurokamiSpawnModule.Tick(_kinpatsuList);
+        }
+
+        void TickSelectLeader()
+        {
+            if (_leaderSelector.Tick(_kinpatsuList, out Actor nextLeader))
+            {
+                _leader = nextLeader;
             }
         }
 

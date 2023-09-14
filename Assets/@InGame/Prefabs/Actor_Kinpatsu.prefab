@@ -592,6 +592,7 @@ GameObject:
   - component: {fileID: 3813120796897894460}
   - component: {fileID: 3697286503333623935}
   - component: {fileID: -2571926374511651681}
+  - component: {fileID: -8165546158724898726}
   - component: {fileID: 7448872370978080667}
   m_Layer: 0
   m_Name: Actor_Kinpatsu
@@ -652,9 +653,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _context: {fileID: 7448872370978080667}
+  _childSpawn: {fileID: -8165546158724898726}
   _renderer: {fileID: 1944416678927653220}
   _defaultMaterial: {fileID: 2100000, guid: 668913a9385e1104d90442f9e9f95eed, type: 2}
   _leaderMarker: {fileID: 5761053209535114277}
+--- !u!114 &-8165546158724898726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7272666755009121259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 409fd7a2c1b7aa54bb02668104e8cc6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _context: {fileID: 7448872370978080667}
 --- !u!114 &7448872370978080667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -676,6 +691,7 @@ MonoBehaviour:
   Enemy: {fileID: 0}
   Leader: {fileID: 0}
   NextAction: 0
+  IsLeader: 0
 --- !u!1 &7474314334066899040
 GameObject:
   m_ObjectHideFlags: 0
