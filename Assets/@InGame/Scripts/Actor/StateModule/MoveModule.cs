@@ -32,7 +32,6 @@ namespace PSB.InGame
         }
         Quaternion Rotation
         {
-            get => _context.Model.rotation;
             set => _context.Model.rotation = value;
         }
 

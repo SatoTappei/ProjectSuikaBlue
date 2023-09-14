@@ -16,6 +16,7 @@ namespace PSB.InGame
         readonly MoveModule _move;
         readonly FieldModule _field;
         readonly DetectModule _detect;
+        readonly RuleModule _rule;
         
         Stage _stage;
         bool _firstStep; // 経路のスタート地点から次のセルに移動中
@@ -25,6 +26,7 @@ namespace PSB.InGame
             _move = new(context);
             _field = new(context);
             _detect = new(context);
+            _rule = new(context);
         }
 
         Collider[] Detecetd => Context.Detected;
@@ -47,7 +49,6 @@ namespace PSB.InGame
         protected override void Exit()
         {
             Enemy = null;
-            // 使い終わった経路を消す
             Path.Clear();
         }       
 
@@ -66,8 +67,8 @@ namespace PSB.InGame
                         _field.DeleteOnCell(_move.CurrentCellPos);
                     }
 
-                    // 別のステートが選択されていた場合は遷移する
-                    if (Context.ShouldChangeState(this)) { ToEvaluateState(); return; }
+                    // 死亡した場合は遷移する
+                    if (_rule.IsDead()) { ToEvaluateState(); return; }
 
                     // 現在のセルに他のキャラクターがいないかつ、周囲八近傍に敵がいた場合は攻撃
                     if (IsCellEmpty() && TryAttackNeighbour()) _stage = Stage.Attack;
