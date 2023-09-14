@@ -17,7 +17,7 @@ namespace PSB.InGame
         protected override void Enter()
         {
             TryStepNextCell();
-            _field.SetActorOnCell();
+            _field.SetOnCell();
             _firstStep = true;
 
             PlayParticle();
@@ -37,7 +37,7 @@ namespace PSB.InGame
                 if (_firstStep)
                 {
                     _firstStep = false;
-                    _field.DeleteActorOnCell(_move.CurrentCellPos);
+                    _field.DeleteOnCell(_move.CurrentCellPos);
                 }
 
                 if (!TryStepNextCell()) { ToEvaluateState(); return; }

@@ -12,7 +12,7 @@ namespace PSB.InGame
 
         [SerializeField] ActorType _type;
         [SerializeField] Transform _model;
-        [SerializeField] ParticleSystem _bikkuriPrefab;
+        [SerializeField] ParticleSystem _discoverPrefab;
         [Header("ギズモへの描画を行う")]
         [SerializeField] bool _isDrawGizmos;
 
@@ -33,9 +33,12 @@ namespace PSB.InGame
 
         Transform _transform;
         StatusBase _base;
-        ParticleSystem _bikkuri;
+        ParticleSystem _discover;
         Dictionary<ActionType, BaseState> _stateDict;
         Sex _sex;
+        // 各ステートでレイキャストを使用する際に使用する
+        // 周囲八近傍のセルの分だけ判定するので 8 で固定
+        Collider[] _detected = new Collider[8];
         // 繁殖ステート
         MaleBreedState _maleBreedState;
         FemaleBreedState _femaleBreedState;
@@ -47,6 +50,7 @@ namespace PSB.InGame
         bool _initialized;
 
         public ActorType Type => _type;
+        public Collider[] Detected => _detected;
         public Transform Model => _model;
         public EvaluateState EvaluateState => _evaluateState;
         public Transform Transform => _transform;
@@ -182,9 +186,9 @@ namespace PSB.InGame
 
         void CreateBikkuri()
         {
-            _bikkuri = Instantiate(_bikkuriPrefab);
-            _bikkuri.transform.position = transform.position + Vector3.up * (Size + 0.5f); // 適当な値
-            _bikkuri.transform.SetParent(transform);
+            _discover = Instantiate(_discoverPrefab);
+            _discover.transform.position = transform.position + Vector3.up * (Size + 0.5f); // 適当な値
+            _discover.transform.SetParent(transform);
         }
 
         /// <summary>
@@ -202,7 +206,7 @@ namespace PSB.InGame
         public void StepHp()           => HP.Value           -= Base.DeltaHp           * Time.deltaTime;
         public void StepLifeSpan()     => LifeSpan.Value     -= Base.DeltaLifeSpan     * Time.deltaTime;    
         public void StepBreedingRate() => BreedingRate.Value += Base.DeltaBreedingRate * Time.deltaTime; // 足し算
-        public void PlayBikkuri() => _bikkuri.Play();
+        public void PlayDiscoverEffect() => _discover.Play();
         public void Damage(int value)
         {
             HP.Value -= value;

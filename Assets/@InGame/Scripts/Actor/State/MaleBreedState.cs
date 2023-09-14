@@ -30,7 +30,7 @@ namespace PSB.InGame
         protected override void Enter()
         {
             TryStepNextCell();
-            _field.SetActorOnCell();
+            _field.SetOnCell();
             _stage = Stage.Move;
             _matingTimer = 0;
             _firstStep = true;
@@ -56,7 +56,7 @@ namespace PSB.InGame
                     if (_firstStep)
                     {
                         _firstStep = false;
-                        _field.DeleteActorOnCell(_move.CurrentCellPos);
+                        _field.DeleteOnCell(_move.CurrentCellPos);
                     }
 
                     // 別のステートが選択されていた場合は遷移する

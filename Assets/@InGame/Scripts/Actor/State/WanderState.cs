@@ -21,7 +21,7 @@ namespace PSB.InGame
         protected override void Enter()
         {
             _move.Reset();
-            _field.SetActorOnCell();
+            _field.SetOnCell();
             _hasNextCell = SetTargetCell();
         }
 
@@ -36,7 +36,7 @@ namespace PSB.InGame
             if (_move.OnNextCell)
             {
                 // 次のセルに到着したタイミングで移動前のセルの情報を消す
-                _field.DeleteActorOnCell(_move.CurrentCellPos);
+                _field.DeleteOnCell(_move.CurrentCellPos);
 
                 ToEvaluateState();
             }
@@ -66,7 +66,7 @@ namespace PSB.InGame
                     _move.NextCellPos = cell.Pos;
                     _move.NextCellPos.y = Context.Transform.position.y;
                     // 移動先のセルを予約する
-                    _field.SetActorOnCell(_move.NextCellPos);
+                    _field.SetOnCell(_move.NextCellPos);
 
                     _move.Modify();
                     _move.Look();

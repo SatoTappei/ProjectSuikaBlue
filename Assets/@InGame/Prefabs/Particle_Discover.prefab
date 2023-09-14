@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6183851572045148839}
   - component: {fileID: 3879126663247147954}
   m_Layer: 0
-  m_Name: Particle_Bikkuri
+  m_Name: Particle_Discover
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

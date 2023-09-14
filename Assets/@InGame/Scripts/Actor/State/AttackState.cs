@@ -1,6 +1,6 @@
-using System;
 using System.Linq;
 using UniRx;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PSB.InGame
@@ -15,33 +15,40 @@ namespace PSB.InGame
 
         readonly MoveModule _move;
         readonly FieldModule _field;
+        readonly DetectModule _detect;
+        
         Stage _stage;
-        // 周囲八近傍のセルの分だけ判定するので 8 で固定
-        Collider[] _detected = new Collider[8];
         bool _firstStep; // 経路のスタート地点から次のセルに移動中
 
         public AttackState(DataContext context) : base(context, StateType.Attack)
         {
             _move = new(context);
             _field = new(context);
+            _detect = new(context);
         }
+
+        Collider[] Detecetd => Context.Detected;
+        List<Vector3> Path => Context.Path;
+        string EnemyTag => Context.EnemyTag;
+        int MeleeDamage => Context.Base.MeleeDamage;
+        DataContext Enemy { set => Context.Enemy = value; }
 
         protected override void Enter()
         {
-            TryStepNextCell();
-            _field.SetActorOnCell();
+            _move.TryStepNextCell();
+            _field.SetOnCell();
             _stage = Stage.Move;
             _firstStep = true;
 
             // びっくりマーク再生
-            Context.PlayBikkuri();
+            Context.PlayDiscoverEffect();
         }
 
         protected override void Exit()
         {
-            Context.Enemy = null;
+            Enemy = null;
             // 使い終わった経路を消す
-            Context.Path.Clear();
+            Path.Clear();
         }       
 
         protected override void Stay()
@@ -56,7 +63,7 @@ namespace PSB.InGame
                     if (_firstStep)
                     {
                         _firstStep = false;
-                        _field.DeleteActorOnCell(_move.CurrentCellPos);
+                        _field.DeleteOnCell(_move.CurrentCellPos);
                     }
 
                     // 別のステートが選択されていた場合は遷移する
@@ -64,10 +71,8 @@ namespace PSB.InGame
 
                     // 現在のセルに他のキャラクターがいないかつ、周囲八近傍に敵がいた場合は攻撃
                     if (IsCellEmpty() && TryAttackNeighbour()) _stage = Stage.Attack;
-                    else
-                    {
-                        if (!TryStepNextCell()) { ToEvaluateState(); return; }
-                    }
+                    // 経路の末端まで辿り着いた場合は遷移
+                    else if (!_move.TryStepNextCell()) { ToEvaluateState(); return; }
                 }
                 else
                 {
@@ -77,35 +82,9 @@ namespace PSB.InGame
             // 攻撃
             else if (_stage == Stage.Attack)
             {
-                { ToEvaluateState(); return; }
-            }
-        }
-
-        /// <summary>
-        /// 各値を既定値に戻すことで、現在のセルの位置を自身の位置で更新する。
-        /// 次のセルの位置をあれば次のセルの位置、なければ自身の位置で更新する。
-        /// </summary>
-        /// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
-        bool TryStepNextCell()
-        {
-            _move.Reset();
-
-            if (Context.Path.Count > 0)
-            {
-                // 経路の先頭(次のセル)から1つ取り出す
-                _move.NextCellPos = Context.Path[0];
-                Context.Path.RemoveAt(0);
-                // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
-                _move.NextCellPos.y = Context.Transform.position.y;
-
-                _move.Modify();
-                _move.Look();
-                return true;
-            }
-            else
-            {
-                _move.NextCellPos = Context.Transform.position;
-                return false;
+                // Damageメソッドを呼び出すタイミングでパーティクルが再生されるので
+                // アニメーションの再生等をしない場合、このまま評価ステートに遷移
+                ToEvaluateState();
             }
         }
 
@@ -116,15 +95,10 @@ namespace PSB.InGame
         /// <returns>自分しかいない:true 誰かいる:false</returns>
         bool IsCellEmpty()
         {
-            Array.Clear(_detected, 0, _detected.Length);
-
-            Vector3 pos = Context.Transform.position;
-            float radius = 0.5f; // Scaleが1の場合の1セルの半径
-            LayerMask layer = Context.Base.SightTargetLayer;
-            Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer);
-            
+            // 半径はScaleが1の場合の1セルの半径
+            _detect.OverlapSphere(0.5f); 
             // 配列の中身でコンポーネントを取得出来た数が1の場合は自分しかいない
-            return _detected.Where(c => c != null && c.TryGetComponent(out DataContext _)).Count() == 1;
+            return Detecetd.Where(c => c != null && c.TryGetComponent(out DataContext _)).Count() == 1;
         }
 
         /// <summary>
@@ -133,22 +107,13 @@ namespace PSB.InGame
         /// <returns>攻撃成功:true 敵がいない:false</returns>
         bool TryAttackNeighbour()
         {
-            Array.Clear(_detected, 0, _detected.Length);
-
-            Vector3 pos = Context.Transform.position;
-            LayerMask layer = Context.Base.SightTargetLayer;
-
-            int count = Physics.OverlapSphereNonAlloc(pos, Utility.NeighbourCellRadius, _detected, layer);
-            if (count == 0) return false;
+            _detect.OverlapSphere(Utility.NeighbourCellRadius);
             
-            foreach (Collider collider in _detected)
+            foreach (Collider collider in Detecetd)
             {
                 if (collider == null) break;
                 // 周囲八近傍に敵がいる場合は攻撃
-                if (collider.CompareTag(Context.EnemyTag))
-                {
-                    if (TryAttack()) return true;
-                }
+                if (collider.CompareTag(EnemyTag) && TryAttack()) return true;
             }
 
             return false;
@@ -158,7 +123,7 @@ namespace PSB.InGame
         {
             if (Context.Enemy == null) return false;
 
-            Context.Enemy.Damage(Context.Base.MeleeDamage);
+            Context.Enemy.Damage(MeleeDamage);
             return true;
         }
     }

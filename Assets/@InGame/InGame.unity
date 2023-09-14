@@ -2432,7 +2432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _builder: {fileID: 1090166008}
-  _resourceDataHolder: {fileID: 0}
+  _resourceDataHolder: {fileID: 527925672}
   _buildOnStart: 0
 --- !u!1 &1045590258
 GameObject:

@@ -39,7 +39,7 @@ namespace PSB.InGame
         {
             _move.Reset();
             TryStepNextCell();
-            _field.SetActorOnCell();
+            _field.SetOnCell();
             _particle.Reset();
             _stage = Stage.Move;
             _healingProgress = 0;
@@ -63,7 +63,7 @@ namespace PSB.InGame
                     if (_firstStep)
                     {
                         _firstStep = false;
-                        _field.DeleteActorOnCell(_move.CurrentCellPos);
+                        _field.DeleteOnCell(_move.CurrentCellPos);
                     }
 
                     // 別のステートが選択されていた場合は遷移する

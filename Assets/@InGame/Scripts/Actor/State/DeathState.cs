@@ -41,7 +41,7 @@ namespace PSB.InGame
 
         void Invalid()
         {
-            _field.DeleteActorOnCell();
+            _field.DeleteOnCell();
             Context.ReturnToPool?.Invoke();
             // Enterのタイミングでプールに戻すので、次に取り出した際にEnterから始まるようにリセットする
             ResetStage();

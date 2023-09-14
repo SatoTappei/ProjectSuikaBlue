@@ -14,32 +14,32 @@ namespace PSB.InGame
             _context = context;
         }
 
-        public void SetActorOnCell()
+        public void SetOnCell()
         {
             FieldManager.Instance.SetActorOnCell(_context.Transform.position, _context.Type);
         }
 
-        public void SetActorOnCell(Vector3 pos)
+        public void SetOnCell(Vector3 pos)
         {
             FieldManager.Instance.SetActorOnCell(pos, _context.Type);
         }
 
-        public void SetActorOnCell(Vector2Int index)
+        public void SetOnCell(Vector2Int index)
         {
             FieldManager.Instance.SetActorOnCell(index, _context.Type);
         }
 
-        public void DeleteActorOnCell()
+        public void DeleteOnCell()
         {
             FieldManager.Instance.SetActorOnCell(_context.Transform.position, ActorType.None);
         }
 
-        public void DeleteActorOnCell(Vector3 pos)
+        public void DeleteOnCell(Vector3 pos)
         {
             FieldManager.Instance.SetActorOnCell(pos, ActorType.None);
         }
 
-        public void DeleteActorOnCell(Vector2Int index)
+        public void DeleteOnCell(Vector2Int index)
         {
             FieldManager.Instance.SetActorOnCell(index, ActorType.None);
         }

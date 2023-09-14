@@ -25,7 +25,7 @@ namespace PSB.InGame
 
         protected override void Enter()
         {
-            _field.SetActorOnCell();
+            _field.SetOnCell();
             _timer = 0;
             _nextSearchTime = SearchRate;
         }
