@@ -41,6 +41,7 @@ namespace PSB.InGame
         protected override void Exit()
         {
             // g‚¢I‚í‚Á‚½Œo˜H‚ğÁ‚·
+            _field.DeletePathGoalOnCell();
             Context.Path.Clear();
         }
 

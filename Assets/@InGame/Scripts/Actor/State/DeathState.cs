@@ -41,6 +41,7 @@ namespace PSB.InGame
 
         void Invalid()
         {
+            // 現座のセルの予約を消し、プールに戻す
             _field.DeleteOnCell();
             Context.ReturnToPool?.Invoke();
             // Enterのタイミングでプールに戻すので、次に取り出した際にEnterから始まるようにリセットする

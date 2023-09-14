@@ -67,6 +67,9 @@ namespace PSB.InGame
         [SerializeField] float _deathGatherScore = 0.1f;
         [Header("リーダー時: 一定間隔で集合させる間隔")]
         [SerializeField] float _gatherInterval = 10.0f;
+        [Header("性別が雌時:繁殖ステートの設定")]
+        [SerializeField] float _timeOut = 10.0f;
+        [SerializeField] float _searchRate = 1.0f;
 
         public ActorType Type => _type;
         public float DeltaFood => _deltaFood;
@@ -92,6 +95,8 @@ namespace PSB.InGame
         public string EnemyTag => _enemyTag;
         public float DeathGatherScore => _deathGatherScore;
         public float GatherInterval => _gatherInterval;
+        public float TimeOut => _timeOut;
+        public float SearchRate => _searchRate;
         /// <summary>
         /// 親が無い場合のデフォルトの遺伝子。カラーが白でサイズがほぼ1になる値
         /// </summary>

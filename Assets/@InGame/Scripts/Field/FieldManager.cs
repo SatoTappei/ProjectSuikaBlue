@@ -12,6 +12,8 @@ namespace PSB.InGame
         [SerializeField] ResourceDataHolder _resourceDataHolder;
         [Header("Startのタイミングで生成する")]
         [SerializeField] bool _buildOnStart;
+        [Header("デバッグ用:セルの状態を描画する")]
+        [SerializeField] bool _isDebug = false;
 
         Cell[,] _field;
         Dictionary<ResourceType, List<Cell>> _resourceCellDict = new();
@@ -45,6 +47,13 @@ namespace PSB.InGame
             _resourceCellDict = null;
             _bresenham = null;
             Instance = null;
+        }
+
+        void OnDrawGizmos()
+        {
+#if UNITY_EDITOR
+            if (_isDebug && _field != null) DebugDrawCellStatus();
+#endif
         }
 
         public Cell[,] Create()
@@ -263,6 +272,15 @@ namespace PSB.InGame
             if (Instance == null)
             {
                 Debug.LogError("FieldManagerのインスタンスが存在しない");
+            }
+        }
+
+        void DebugDrawCellStatus()
+        {
+            foreach (Cell cell in _field)
+            {
+                Gizmos.color = cell.IsEmpty ? Color.blue : Color.red;
+                Gizmos.DrawCube(cell.Pos, new Vector3(0.9f, 1.1f, 0.9f));
             }
         }
     }

@@ -25,6 +25,7 @@ namespace PSB.InGame
 
         protected override void Exit()
         {
+            _field.DeletePathGoalOnCell();
             Context.Path.Clear();
         }
 

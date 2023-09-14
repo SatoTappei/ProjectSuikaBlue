@@ -1077,7 +1077,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _holder: {fileID: 477467199}
   _spawnHeight: 0.5
-  _totalSpawn: 9
+  _totalSpawn: 1
 --- !u!1 &509570507
 GameObject:
   m_ObjectHideFlags: 0
@@ -2434,6 +2434,7 @@ MonoBehaviour:
   _builder: {fileID: 1090166008}
   _resourceDataHolder: {fileID: 527925672}
   _buildOnStart: 0
+  _isDebug: 1
 --- !u!1 &1045590258
 GameObject:
   m_ObjectHideFlags: 0

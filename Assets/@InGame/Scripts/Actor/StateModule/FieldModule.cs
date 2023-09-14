@@ -43,5 +43,17 @@ namespace PSB.InGame
         {
             FieldManager.Instance.SetActorOnCell(index, ActorType.None);
         }
+
+        /// <summary>
+        /// 経路がある場合は経路の末端のセルの予約を削除する
+        /// </summary>
+        public void DeletePathGoalOnCell()
+        {
+            if (_context.Path.Count > 0)
+            {
+                Vector3 pos = _context.Path[_context.Path.Count - 1];
+                FieldManager.Instance.SetActorOnCell(pos, ActorType.None);
+            }
+        }
     }
 }

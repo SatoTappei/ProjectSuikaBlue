@@ -10,18 +10,27 @@ namespace PSB.InGame
     /// </summary>
     public class FemaleBreedState : BaseState
     {
-        const float TimeOut = 10.0f;
-        const float SearchRate = 1.0f;
+        readonly FieldModule _field;
+        readonly DetectModule _detect;
+        readonly RuleModule _rule;
 
-        FieldModule _field;
-        Collider[] _detected = new Collider[8];
         float _timer;
         float _nextSearchTime;
 
         public FemaleBreedState(DataContext context) : base(context, StateType.FemaleBreed)
         {
             _field = new(context);
+            _detect = new(context);
+            _rule = new(context);
         }
+
+        Collider[] Deteceted => Context.Detected;
+        Vector3 Position => Context.Transform.position;
+        string EnemyTag => Context.EnemyTag;
+        float Radius => Context.Base.SightRadius;
+        float TimeOut => Context.Base.TimeOut;
+        float SearchRate => Context.Base.SearchRate;
+        float BreedingRate { set => Context.BreedingRate.Value = value; }
 
         protected override void Enter()
         {
@@ -47,11 +56,11 @@ namespace PSB.InGame
                 PlayParticle();
             }
 
-            // 時間切れ、もしくは食料/水分共に0で評価ステートに遷移
-            if (_timer > TimeOut || (Context.Water.Value <= 0 && Context.Food.Value <= 0))
+            // 時間切れ、もしくは食料/水分共に0、もしくは死亡で評価ステートに遷移
+            if (_timer > TimeOut || _rule.IsHunger() || _rule.IsDead())
             {
                 // 繁殖率を50％にして連続でこのステートに遷移しないようにする
-                Context.BreedingRate.Value = StatusBase.Max / 2;
+                BreedingRate = StatusBase.Max / 2;
                 ToEvaluateState();
                 return;
             }
@@ -59,18 +68,13 @@ namespace PSB.InGame
 
         bool SearchEnemy()
         {
-            Array.Clear(_detected, 0, _detected.Length);
-
-            Vector3 pos = Context.Transform.position;
-            float radius = Context.Base.SightRadius;
-            LayerMask layer = Context.Base.SightTargetLayer;
-            if (Physics.OverlapSphereNonAlloc(pos, radius, _detected, layer) == 0) return false;
+            _detect.OverlapSphere(Radius);
 
             // 近い順に配列に入っているので、一番近い敵を対象の敵として書き込む。
-            foreach (Collider collider in _detected)
+            foreach (Collider collider in Deteceted)
             {
                 if (collider == null) return false;
-                if (collider.CompareTag(Context.EnemyTag)) return true;
+                if (collider.CompareTag(EnemyTag)) return true;
             }
 
             return false;
@@ -81,7 +85,7 @@ namespace PSB.InGame
             MessageBroker.Default.Publish(new PlayParticleMessage()
             {
                 Type = ParticleType.MatingReady,
-                Pos = Context.Transform.position,
+                Pos = Position,
             });
         }
     }

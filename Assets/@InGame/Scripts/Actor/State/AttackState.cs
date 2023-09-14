@@ -49,6 +49,7 @@ namespace PSB.InGame
         protected override void Exit()
         {
             Enemy = null;
+            _field.DeletePathGoalOnCell();
             Path.Clear();
         }       
 
