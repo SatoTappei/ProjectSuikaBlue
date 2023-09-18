@@ -10,7 +10,6 @@ namespace PSB.InGame
     {
         readonly MoveModule _move;
         readonly FieldModule _field;
-        bool _hasNeighbourCell;
 
         public WanderState(DataContext context) : base(context, StateType.Wander)
         {
@@ -23,23 +22,20 @@ namespace PSB.InGame
         protected override void Enter()
         {
             _move.Reset();
-            _field.SetOnCell();
-            _hasNeighbourCell = SetNeighbourCell();
+            _field.SetOnCell(_move.CurrentCellPos);
+            SetNeighbourCell();
         }
 
         protected override void Exit()
-        {          
+        {
+            _field.DeleteOnCell(_move.CurrentCellPos);
+            _field.DeleteOnCell(_move.NextCellPos);
         }
 
         protected override void Stay()
         {
-            if (!_hasNeighbourCell) { ToEvaluateState(); return; }
-
             if (_move.OnNextCell)
             {
-                // 次のセルに到着したタイミングで移動前のセルの情報を消す
-                _field.DeleteOnCell(_move.CurrentCellPos);
-
                 ToEvaluateState();
             }
             else
@@ -48,10 +44,8 @@ namespace PSB.InGame
             }
         }
 
-        bool SetNeighbourCell()
+        void SetNeighbourCell()
         {
-            _move.CurrentCellPos = Position;
-
             // 周囲8マスのランダムなセルに移動する
             Vector2Int index = FieldManager.Instance.WorldPosToGridIndex(Position);
             foreach (Vector2Int dir in Utility.EightDirections.OrderBy(_ => System.Guid.NewGuid()))
@@ -61,18 +55,14 @@ namespace PSB.InGame
                 if (!cell.IsEmpty) continue;
 
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
-                _move.NextCellPos = cell.Pos;
-                _move.NextCellPos.y = Context.Transform.position.y;
+                _move.NextCellPos = new Vector3(cell.Pos.x, Position.y, cell.Pos.z);
                 // 移動先のセルを予約する
                 _field.SetOnCell(_move.NextCellPos);
 
                 _move.Modify();
                 _move.Look();
-
-                return true;
+                break;
             }
-            
-            return false;
         }
     }
 }

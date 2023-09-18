@@ -1,4 +1,3 @@
-using System;
 using UniRx;
 using UnityEngine;
 
@@ -34,13 +33,14 @@ namespace PSB.InGame
 
         protected override void Enter()
         {
-            _field.SetOnCell();
+            _field.SetOnCell(Position);
             _timer = 0;
             _nextSearchTime = SearchRate;
         }
 
         protected override void Exit()
         {
+            _field.DeleteOnCell(Position);
         }
 
         protected override void Stay()
@@ -64,6 +64,9 @@ namespace PSB.InGame
                 ToEvaluateState();
                 return;
             }
+
+            // 交尾完了によって繁殖率が交尾しない値になった場合は、評価ステートに遷移
+            if (_rule.SkipMating()) { ToEvaluateState(); return; }
         }
 
         bool SearchEnemy()

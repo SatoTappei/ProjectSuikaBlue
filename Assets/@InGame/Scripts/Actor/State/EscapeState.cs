@@ -19,12 +19,14 @@ namespace PSB.InGame
         }
 
         List<Vector3> Path => Context.Path;
+        Vector3 Position => Context.Transform.position;
         DataContext Enemy { set => Context.Enemy = value; }
 
         protected override void Enter()
         {
+            _move.Reset();
             _move.TryStepNextCell();
-            _field.SetOnCell();
+            _field.SetOnCell(Position);
             _firstStep = true;
 
             // Ç—Ç¡Ç≠ÇËÉ}Å[ÉNçƒê∂

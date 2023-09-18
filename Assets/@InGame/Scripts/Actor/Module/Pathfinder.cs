@@ -44,7 +44,7 @@ namespace PSB.InGame
         /// <returns>経路あり:true なし:false</returns>
         public bool TryPathfindingToEnemy()
         {
-            DeletePath();
+            DeletePathGoalOnCell();
 
             // グリッド上で距離比較
             Vector3 enemyPos = _context.Enemy.transform.position;
@@ -55,13 +55,13 @@ namespace PSB.InGame
             // 対象のセル + 周囲八近傍に対して経路探索
             foreach (Vector2Int dir in Utility.SelfAndEightDirections)
             {
-                Vector2Int dirIndex = enemyIndex + dir;
-                // 経路が見つからなかった場合は弾く
-                if (!TryGetPath(currentIndex, dirIndex)) continue;
+                Vector2Int targetIndex = enemyIndex + dir;
                 // 経路の末端(敵のセルの隣)にキャラクターがいる場合は弾く
-                if (IsOnCell(GoalPos)) continue;
+                if (IsOnCell(targetIndex)) continue;
+                // 経路が見つからなかった場合は弾く
+                if (!TryGetPath(currentIndex, targetIndex)) continue;
 
-                SetOnCell(GoalPos);
+                SetOnCell(targetIndex);
                 return true;
             }
 
@@ -75,24 +75,23 @@ namespace PSB.InGame
         /// <returns>経路あり:true なし:false</returns>
         public bool TryPathfindingToEscapePoint()
         {
-            DeletePath();
+            DeletePathGoalOnCell();
 
             // グリッド上で距離比較
             Vector3 enemyPos = _context.Enemy.transform.position;
             Vector3 dir = (Position - enemyPos).normalized;
             Vector2Int currentIndex = World2Grid(Position);
-            for (int i = 10; i >= 1; i--) // 適当な値
+            for (int i = 10; i >= 1; i--) // TODO:適当な値
             {
                 Vector3 escapePos = dir * i;
                 Vector2Int escapeIndex = World2Grid(escapePos);
                 if (CreatePathIfNeighbourOnGrid(currentIndex, escapeIndex)) return true;
-
+                // 経路の末端(敵のセルの隣)にキャラクターがいる場合は弾く
+                if (IsOnCell(escapeIndex)) continue;
                 // 経路が見つからなかった場合は弾く
                 if (!TryGetPath(currentIndex, escapeIndex)) continue;
-                // 経路の末端(敵のセルの隣)にキャラクターがいる場合は弾く
-                if (IsOnCell(GoalPos)) continue;
 
-                SetOnCell(GoalPos);
+                SetOnCell(escapeIndex);
                 return true;
             }
 
@@ -106,7 +105,7 @@ namespace PSB.InGame
         /// <returns>雌への経路がある:true 雌がいないof雌への経路が無い:false</returns>
         public bool TryDetectPartner()
         {
-            DeletePath();
+            DeletePathGoalOnCell();
 
             if (Detect.OverlapSphere(_context, _detected) == 0) return false;
             
@@ -143,30 +142,31 @@ namespace PSB.InGame
         /// 経路が見つかった場合はゴールのセルを予約する
         /// </summary>
         /// <returns>経路あり:true 経路無し:false</returns>
-        public bool TryPathfindingToResource(ResourceType resource)
+        public bool TryPathfindingToResource(ResourceType type)
         {
-            DeletePath();
+            DeletePathGoalOnCell();
 
             // 資源のセルがあるか調べる
-            if (!TryGetResourceCells(resource, out List<Cell> cellList)) return false;
-            
-            // 食料のセルを近い順に経路探索
-            foreach (Cell food in cellList.OrderBy(c => Vector3.SqrMagnitude(c.Pos - Position)))
+            if (!TryGetResourceCells(type, out List<Cell> cellList)) return false;
+
+            // 資源のセルを近い順に経路探索
+            foreach (Cell resource in cellList.OrderBy(c => Vector3.SqrMagnitude(c.Pos - Position)))
             {
                 Vector2Int currentIndex = World2Grid(Position);
-                Vector2Int resourceIndex = World2Grid(food.Pos);
+                Vector2Int resourceIndex = World2Grid(resource.Pos);
+
                 if (CreatePathIfNeighbourOnGrid(currentIndex, resourceIndex)) return true;
 
                 // 対象のセル + 周囲八近傍に対して経路探索
                 foreach (Vector2Int dir in Utility.SelfAndEightDirections)
                 {
                     Vector2Int targetIndex = resourceIndex + dir;
-                    // 経路が見つからなかった場合は弾く
+                    // 既にキャラクターがおり、経路が見つからなかった場合は弾く
+                    if (IsOnCell(targetIndex)) continue;
                     if (!TryGetPath(currentIndex, targetIndex)) continue;
                     // 経路の末端(資源のセルの隣)に資源キャラクターがいる場合は弾く
-                    if (IsOnCell(GoalPos)) continue;
+                    SetOnCell(targetIndex);
 
-                    SetOnCell(GoalPos);
                     return true;
                 }
             }
@@ -181,7 +181,7 @@ namespace PSB.InGame
         /// <returns>集合地点への経路がある:true 集合地点への経路が無い:false</returns>
         public bool TryPathfindingToGatherPoint()
         {
-            DeletePath();
+            //DeletePath();
 
             Vector2Int currentIndex = World2Grid(Position);
             Vector2Int gatherIndex = World2Grid(PublicBlackBoard.GatherPos);
@@ -220,51 +220,26 @@ namespace PSB.InGame
         }
 
         /// <summary>
-        /// 現在の経路を削除(空にする)し、末端の予約を削除する。
+        /// 現在の経路の末端の予約を削除する。
         /// 経路を探索する際に呼ばないと以前の経路の末端の予約が残ったままになってしまう。
         /// </summary>
-        void DeletePath()
+        public void DeletePathGoalOnCell()
         {
             if (_context.Path.Count > 0)
             {
                 DeleteOnCell(GoalPos);
-                _context.Path.Clear();
             }
         }
 
-        Vector2Int World2Grid(in Vector3 pos)
-        {
-            return FieldManager.Instance.WorldPosToGridIndex(pos);
-        }
-
-        bool TryGetPath(Vector2Int from, Vector2Int to)
-        {
-            return FieldManager.Instance.TryGetPath(from, to, ref _context.Path);
-        }
-
-        void SetOnCell(in Vector3 pos)
-        {
-            FieldManager.Instance.SetActorOnCell(pos, _context.Type);
-        }
-
-        void DeleteOnCell(in Vector3 pos)
-        {
-            FieldManager.Instance.SetActorOnCell(pos, ActorType.None);
-        }
-
-        bool IsOnCell(in Vector3 pos)
-        {
-            return FieldManager.Instance.IsActorOnCell(pos, out ActorType _);
-        }
-
-        bool TryGetResourceCells(ResourceType type, out List<Cell> list)
-        {
-            return FieldManager.Instance.TryGetResourceCells(type, out list);
-        }
-
-        bool CreatePathIfNeighbourOnGrid(Vector2Int from, Vector2Int to)
-        {
-            return ActorHelper.CreatePathIfNeighbourOnGrid(from, to, _context);
-        }
+        // 以下ラッパー
+        Vector2Int World2Grid(in Vector3 pos) => FieldManager.Instance.WorldPosToGridIndex(pos);
+        bool TryGetPath(Vector2Int from, Vector2Int to) => FieldManager.Instance.TryGetPath(from, to, _context.Path);
+        void SetOnCell(in Vector3 pos) => FieldManager.Instance.SetActorOnCell(pos, _context.Type);
+        void SetOnCell(in Vector2Int index) => FieldManager.Instance.SetActorOnCell(index, _context.Type);
+        bool IsOnCell(in Vector3 pos) => FieldManager.Instance.IsActorOnCell(pos);
+        bool IsOnCell(in Vector2Int index) => FieldManager.Instance.IsActorOnCell(index);
+        void DeleteOnCell(in Vector3 pos) => FieldManager.Instance.SetActorOnCell(pos, ActorType.None);
+        bool TryGetResourceCells(ResourceType type, out List<Cell> list) => FieldManager.Instance.TryGetResourceCells(type, out list);
+        bool CreatePathIfNeighbourOnGrid(Vector2Int from, Vector2Int to) => ActorHelper.CreatePathIfNeighbourOnGrid(from, to, _context);
     }
 }

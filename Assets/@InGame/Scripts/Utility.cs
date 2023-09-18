@@ -78,5 +78,24 @@ namespace PSB.InGame
 
             return s;
         }
+
+        /// <summary>
+        /// デバッグ用キューブ
+        /// </summary>
+        public static void Cube(in Vector3 pos)
+        {
+            GameObject g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            g.transform.position = pos + Vector3.up * 0.5f;
+            g.transform.localScale = Vector3.one * 0.75f;
+        }
+
+        /// <summary>
+        /// デバッグ用球体
+        /// </summary>
+        public static void Sphere(in Vector3 pos)
+        {
+            GameObject g2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            g2.transform.position = pos + Vector3.up * 0.5f;
+        }
     }
 }

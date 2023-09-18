@@ -116,26 +116,23 @@ namespace PSB.InGame
         /// 指定した座標のセルにキャラクターが存在するかどうかを判定する
         /// </summary>
         /// <returns>存在する:true 存在しない:false</returns>
-        public bool IsActorOnCell(in Vector3 pos, out ActorType type)
+        public bool IsActorOnCell(in Vector3 pos)
         {
             TryGetCell(pos, out Cell cell);
-            type = cell.ActorType;
-            return type != ActorType.None;
+            return cell.IsWalkable && cell.ActorType != ActorType.None;
         }
 
-        public bool IsActorOnCell(Vector2Int index, out ActorType type)
+        public bool IsActorOnCell(Vector2Int index)
         {
             // TryGetCellメソッドはVector3をVector2Intに変換しているのでそれを省略する
             if (IsWithinGrid(index))
             {
                 Cell cell = _field[index.y, index.x];
-                type = cell.ActorType;
-                return cell.ActorType != ActorType.None;
+                return cell.IsWalkable && cell.ActorType != ActorType.None;
             }
             else
             {
                 Debug.LogWarning("グリッド外を指定している: " + index);
-                type = ActorType.None;
                 return false;
             }
         }
@@ -184,11 +181,11 @@ namespace PSB.InGame
         /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
         /// </summary>
         /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
-        public bool TryGetPath(in Vector3 startPos, in Vector3 goalPos, ref List<Vector3> path)
+        public bool TryGetPath(in Vector3 startPos, in Vector3 goalPos, List<Vector3> path)
         {
             Vector2Int startIndex = WorldPosToGridIndex(startPos);
             Vector2Int goalIndex = WorldPosToGridIndex(goalPos);
-            return TryGetPath(startIndex, goalIndex, ref path);
+            return TryGetPath(startIndex, goalIndex, path);
         }
 
         /// <summary>
@@ -196,21 +193,20 @@ namespace PSB.InGame
         /// 目的地にたどり着かなかった場合は障害物の手前までのPathになる。
         /// </summary>
         /// <returns>目的地にたどり着いた:true 障害物にぶつかった/グリッド外:false</returns>
-        public bool TryGetPath(Vector2Int startIndex, Vector2Int goalIndex, ref List<Vector3> path)
+        public bool TryGetPath(Vector2Int startIndex, Vector2Int goalIndex, List<Vector3> path)
         {
             path.Clear();
 
-            bool hasStart = IsWithinGrid(startIndex);
-            bool hasGoal = IsWithinGrid(goalIndex);
-
-            if (hasStart && hasGoal)
+            if (IsWithinGrid(startIndex) && IsWithinGrid(goalIndex))
             {
                 bool isGoal = _bresenham.TryGetPath(startIndex, goalIndex, out List<Vector2Int> indexes);
+
                 // 経路を詰めていく
                 foreach (Vector2Int index in indexes)
                 {
                     path.Add(_field[index.y, index.x].Pos);
                 }
+                path.Add(_field[goalIndex.y, goalIndex.x].Pos);
 
                 return isGoal;
             }
@@ -245,8 +241,8 @@ namespace PSB.InGame
             // xはそのまま、yはzに対応している
             Vector2Int index = new Vector2Int()
             {
-                x = Mathf.RoundToInt((_field.GetLength(1) - 1) * percentX),
-                y = Mathf.RoundToInt((_field.GetLength(0) - 1) * percentZ),
+                x = Mathf.FloorToInt((_field.GetLength(1) - 1) * percentX),
+                y = Mathf.FloorToInt((_field.GetLength(0) - 1) * percentZ),
             };
 
             return index;

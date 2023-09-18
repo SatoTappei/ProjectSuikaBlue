@@ -6,14 +6,6 @@ namespace PSB.InGame
 {
     public class InitKinpatsuSpawner : ActorSpawner
     {
-        /// <summary>
-        /// 渦巻きループ用の時計回り方向
-        /// </summary>
-        readonly Vector2Int[] Dirs =
-        {
-            Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down,
-        };
-
         [SerializeField] float _spawnHeight = 1.0f;
         [Range(1, 9)]
         [SerializeField] int _totalSpawn = 3;
@@ -38,8 +30,8 @@ namespace PSB.InGame
                 int index = sideCount % 4;
                 for(int k = 0; k < sideLength; k++)
                 {
-                    y += Dirs[index].y * 3; // 3*3の範囲をチェックする
-                    x += Dirs[index].x * 3; // 3*3の範囲をチェックする
+                    y += Utility.Counterclockwise[index].y * 3; // 3*3の範囲をチェックする
+                    x += Utility.Counterclockwise[index].x * 3; // 3*3の範囲をチェックする
 
                     if (TrySpawn(temp, field, y, x)) return;
                 }

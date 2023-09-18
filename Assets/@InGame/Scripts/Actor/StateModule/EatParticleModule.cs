@@ -14,12 +14,15 @@ namespace PSB.InGame
         const float PlayParticleRate = 0.5f;
 
         readonly DataContext _context;
+
         float _timer;
 
         public EatParticleModule(DataContext context)
         {
             _context = context;
         }
+
+        Vector3 Position => _context.Transform.position;
 
         public void Reset()
         {
@@ -41,7 +44,7 @@ namespace PSB.InGame
             MessageBroker.Default.Publish(new PlayParticleMessage()
             {
                 Type = ParticleType.Eat,
-                Pos = _context.Transform.position,
+                Pos = Position,
             });
         }
     }

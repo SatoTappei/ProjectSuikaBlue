@@ -89,13 +89,25 @@ namespace PSB.InGame
         /// </summary>
         void AddControledActorFromTemp()
         {
-            while (_temp.Count > 0)
+            if (_temp.Count == 0) return;
+
+            int count = _temp.Count;
+            for (int i = 0; i < count; i++)
             {
                 Actor actor = _temp.Dequeue();
 
                 if      (actor.Type == ActorType.KinpatsuLeader) _leader = actor;
-                else if (actor.Type == ActorType.Kinpatsu) _kinpatsuList.Add(actor);
-                else if (actor.Type == ActorType.Kurokami) _kurokamiList.Add(actor);
+                else if (actor.Type == ActorType.Kinpatsu)
+                {
+                    if (_kinpatsuList.Contains(actor)) { _temp.Enqueue(actor); Debug.Log("重複金髪"); }
+                    else _kinpatsuList.Add(actor);
+                }
+                else if (actor.Type == ActorType.Kurokami)
+                {
+                    // 同時に複数体死亡＆沸きを行うと重複して追加されるのを防ぐ
+                    if (_kurokamiList.Contains(actor)) _temp.Enqueue(actor);
+                    else _kurokamiList.Add(actor);
+                }
                 else
                 {
                     string msg = "キャラクターの種類がNoneなのでControllerで制御不可能: " + actor.name;

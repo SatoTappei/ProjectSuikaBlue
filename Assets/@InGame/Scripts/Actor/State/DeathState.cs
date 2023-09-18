@@ -1,3 +1,4 @@
+using UnityEngine;
 using UniRx;
 
 namespace PSB.InGame
@@ -20,6 +21,8 @@ namespace PSB.InGame
             _msg = msg;
         }
 
+        Vector3 Position => Context.Transform.position;
+
         protected override void Enter()
         {
             // 死亡時に集合の評価値を増加させる
@@ -35,6 +38,7 @@ namespace PSB.InGame
             // 死亡した際にはこれ以上遷移しないためセルの予約をしない。
 
             Invalid();
+            ResetValue();
             SendParticleMessage();
             SendLogMessage();
         }
@@ -42,12 +46,21 @@ namespace PSB.InGame
         void Invalid()
         {
             // 現座のセルの予約を消し、プールに戻す
-            _field.DeleteOnCell();
+            _field.DeleteOnCell(Position);
             Context.ReturnToPool?.Invoke();
             // Enterのタイミングでプールに戻すので、次に取り出した際にEnterから始まるようにリセットする
             ResetStage();
 
             MessageBroker.Default.Publish(new ActorDeathMessage() { Type = Context.Type });
+        }
+
+        void ResetValue()
+        {
+            Context.Path.Clear();
+            Context.Enemy = null;
+            Context.Leader = null;
+            Context.NextAction = ActionType.Wander;
+            Context.IsLeader = false;
         }
 
         void SendParticleMessage()

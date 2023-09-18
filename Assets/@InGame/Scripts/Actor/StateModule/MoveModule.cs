@@ -15,13 +15,14 @@ namespace PSB.InGame
 
         float _lerpProgress;
         float _speedModify = 1;
+        int cellIndex = 0;
 
         public MoveModule(DataContext context)
         {
             _context = context;
         }
 
-        public bool OnNextCell => _context.Transform.position == NextCellPos;
+        public bool OnNextCell => Position == NextCellPos;
 
         List<Vector3> Path => _context.Path;
         float MoveSpeed => _context.Base.MoveSpeed;
@@ -35,13 +36,16 @@ namespace PSB.InGame
             set => _context.Model.rotation = value;
         }
 
-        /// <summary>
-        /// 各値を既定値に戻す
-        /// </summary>
         public void Reset()
         {
+            cellIndex = 0;
+            OnCell();
+        }
+
+        void OnCell()
+        {
             CurrentCellPos = Position;
-            NextCellPos = default;
+            NextCellPos = Position;
             _lerpProgress = 0;
             _speedModify = 1;
         }
@@ -53,15 +57,22 @@ namespace PSB.InGame
         /// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
         public bool TryStepNextCell()
         {
-            Reset();
+            OnCell();
 
-            if (Path.Count > 0)
+            if (cellIndex < Path.Count)
             {
                 // 経路の先頭(次のセル)から1つ取り出す
-                NextCellPos = Path[0];
-                Path.RemoveAt(0);
+                NextCellPos = Path[cellIndex++];
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 NextCellPos.y = Position.y;
+
+                // TODO:デバッグ用、次のセルの距離が2以上になってる？
+                var i1 = FieldManager.Instance.WorldPosToGridIndex(CurrentCellPos);
+                var i2 = FieldManager.Instance.WorldPosToGridIndex(NextCellPos);
+                if (!ActorHelper.IsNeighbourOnGrid(i1, i2))
+                {
+                    Debug.Log("経路が変 " + _context.Type + " " + _context.name + ": " + _context.GetComponent<Actor>().State);
+                }
 
                 Modify();
                 Look();

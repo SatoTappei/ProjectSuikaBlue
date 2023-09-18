@@ -433,7 +433,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 240187128}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 52d58dba4f96aef4682a12c24d182fc3, type: 3}
   m_Name: 
@@ -1077,7 +1077,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _holder: {fileID: 477467199}
   _spawnHeight: 0.5
-  _totalSpawn: 1
+  _totalSpawn: 9
 --- !u!1 &509570507
 GameObject:
   m_ObjectHideFlags: 0
@@ -2221,8 +2221,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnRadius: 10
-  _interval: 4
-  _isDebug: 0
+  _interval: 0.05
+  _isDebug: 1
 --- !u!1 &1016443260
 GameObject:
   m_ObjectHideFlags: 0

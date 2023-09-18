@@ -8,7 +8,8 @@ using UnityEngine.Events;
 // 変更案: 個体の強さを数値化する。サイズと色で求め、各種評価にはその値を使う。
 // 変更案: 1つではなく、優先度でソートして次の行動を保持。
 // バグ: 集合を選択した際に、経路の末端に2体のキャラクターが被ってしまう。初期状態9人で発生
-// バグ: 死亡した際にセルの予約が消えない
+// バグ: 雌への経路の際、水の上を移動していた。
+// 仕様: 繁殖の際、隣もしくは雌と雄が同じセルにいる。
 // 報告: ステートのExitで経路の末端の予約を消しているので、
 //       直後の評価ステートの際にその位置に他のキャラクターが予約/来てしまう。
 
@@ -195,7 +196,6 @@ namespace PSB.InGame
         /// </summary>
         public void Evaluate(float[] leaderEvaluate)
         {
-
             // 敵に狙われている場合は、攻撃もしくは逃げることが最優先なので、評価値より先に判定する
             _pathfinder.SearchEnemy();
 
@@ -205,10 +205,12 @@ namespace PSB.InGame
             {
                 // 殺害
                 case ActionType.Killed:
-                    _context.NextAction = ActionType.Killed; return;
+                    _pathfinder.DeletePathGoalOnCell();
+                    _context.NextAction = action; return;
                 // 寿命
                 case ActionType.Senility:
-                    _context.NextAction = ActionType.Senility; return;
+                    _pathfinder.DeletePathGoalOnCell();
+                    _context.NextAction = action; return;
                 // 攻撃
                 case ActionType.Attack when _pathfinder.TryPathfindingToEnemy():
                     _context.NextAction = ActionType.Attack; return;
@@ -223,13 +225,13 @@ namespace PSB.InGame
                     _context.NextAction = ActionType.Breed; return;
                 // 水分
                 case ActionType.SearchWater when _pathfinder.TryPathfindingToResource(ResourceType.Water):
-                    _context.NextAction = ActionType.SearchWater; return;
+                    _context.NextAction = action; return;
                 // 食料
                 case ActionType.SearchFood when _pathfinder.TryPathfindingToResource(ResourceType.Tree):
-                    _context.NextAction = ActionType.SearchFood; return;
-                // 集合
-                case ActionType.Gather when _pathfinder.TryPathfindingToGatherPoint():
-                    _context.NextAction = ActionType.Gather; return;
+                    _context.NextAction = action; return;
+                    //// 集合
+                    //case ActionType.Gather when _pathfinder.TryPathfindingToGatherPoint():
+                    //    _context.NextAction = ActionType.Gather; return;
             }
 
             // うろうろステートに必要のない参照を消す

@@ -31,14 +31,16 @@ namespace PSB.InGame
 
         Collider[] Detecetd => Context.Detected;
         List<Vector3> Path => Context.Path;
+        Vector3 Position => Context.Transform.position;
         string EnemyTag => Context.EnemyTag;
         int MeleeDamage => Context.Base.MeleeDamage;
         DataContext Enemy { set => Context.Enemy = value; }
 
         protected override void Enter()
         {
+            _move.Reset();
             _move.TryStepNextCell();
-            _field.SetOnCell();
+            _field.SetOnCell(Position);
             _stage = Stage.Move;
             _firstStep = true;
 

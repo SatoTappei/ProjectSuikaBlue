@@ -8,7 +8,7 @@ namespace PSB.InGame
         Idle,
         Evaluate,
         SearchFood,
-        SearchWarter,
+        SearchWater,
         Wander,
         MaleBreed,
         FemaleBreed,

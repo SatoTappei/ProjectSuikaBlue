@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace PSB.InGame
@@ -19,11 +17,12 @@ namespace PSB.InGame
         /// <returns>経路を作成:true 隣のセルではない:false</returns>
         public static bool CreatePathIfNeighbourOnGrid(Vector2Int from, Vector2Int to, DataContext context)
         {
-            if (IsNeighbourOnGrid(from, to))
+            if (IsNeighbourOnGrid(from, to) && FieldManager.Instance.IsActorOnCell(from))
             {
-                // 隣のセルに食料がある場合は移動しないので、現在地を経路として追加する
-                context.Path.Add(context.Transform.position);
-                FieldManager.Instance.SetActorOnCell(context.Transform.position, context.Type);
+                // 隣のセルにある場合は移動しないので、現在地を経路として追加する
+                FieldManager.Instance.TryGetCell(from, out Cell cell);
+                context.Path.Add(cell.Pos);
+                FieldManager.Instance.SetActorOnCell(from, context.Type);
                 return true;
             }
 

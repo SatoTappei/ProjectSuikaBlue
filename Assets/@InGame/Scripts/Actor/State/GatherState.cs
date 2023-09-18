@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using UnityEngine;
 using UniRx;
 
 namespace PSB.InGame
@@ -6,18 +8,25 @@ namespace PSB.InGame
     {
         readonly MoveModule _move;
         readonly FieldModule _field;
+        readonly RuleModule _rule;
+
         bool _firstStep; // 経路のスタート地点から次のセルに移動中
 
         public GatherState(DataContext context) : base(context, StateType.Gather)
         {
             _move = new(context);
             _field = new(context);
+            _rule = new(context);
         }
+
+        List<Vector3> Path => Context.Path;
+        Vector3 Position => Context.Transform.position;
 
         protected override void Enter()
         {
-            TryStepNextCell();
-            _field.SetOnCell();
+            _move.Reset();
+            _move.TryStepNextCell();
+            _field.SetOnCell(Position);
             _firstStep = true;
 
             PlayParticle();
@@ -26,7 +35,7 @@ namespace PSB.InGame
         protected override void Exit()
         {
             _field.DeletePathGoalOnCell();
-            Context.Path.Clear();
+            Path.Clear();
         }
 
         protected override void Stay()
@@ -41,41 +50,12 @@ namespace PSB.InGame
                     _field.DeleteOnCell(_move.CurrentCellPos);
                 }
 
-                if (!TryStepNextCell()) { ToEvaluateState(); return; }
-                // 別のステートが選択されていた場合は遷移する
-                if (Context.ShouldChangeState(this)) { ToEvaluateState(); return; }
+                if (_rule.IsDead()) { ToEvaluateState(); return; }
+                if (!_move.TryStepNextCell()) { ToEvaluateState(); return; }
             }
             else
             {
                 _move.Move();
-            }
-        }
-
-        /// <summary>
-        /// 各値を既定値に戻すことで、現在のセルの位置を自身の位置で更新する。
-        /// 次のセルの位置をあれば次のセルの位置、なければ自身の位置で更新する。
-        /// </summary>
-        /// <returns>次のセルがある:true 次のセルが無い(目的地に到着):false</returns>
-        bool TryStepNextCell()
-        {
-            _move.Reset();
-
-            if (Context.Path.Count > 0)
-            {
-                // 経路の先頭(次のセル)から1つ取り出す
-                _move.NextCellPos = Context.Path[0];
-                Context.Path.RemoveAt(0);
-                // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
-                _move.NextCellPos.y = Context.Transform.position.y;
-
-                _move.Modify();
-                _move.Look();
-                return true;
-            }
-            else
-            {
-                _move.NextCellPos = Context.Transform.position;
-                return false;
             }
         }
 
@@ -84,7 +64,7 @@ namespace PSB.InGame
             MessageBroker.Default.Publish(new PlayParticleMessage()
             {
                 Type = ParticleType.Gather,
-                Pos = Context.Transform.position,
+                Pos = Position,
             });
         }
     }

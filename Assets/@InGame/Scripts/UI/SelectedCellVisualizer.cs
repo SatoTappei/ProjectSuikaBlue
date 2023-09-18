@@ -29,7 +29,7 @@ namespace PSB.InGame
         {
             if (IsRaycastHitField(out Vector3 hitPoint))
             {
-                if(FieldManager.Instance.TryGetCell(hitPoint, out Cell cell))
+                if (FieldManager.Instance.TryGetCell(hitPoint, out Cell cell))
                 {
                     _cursor.position = cell.Pos + Vector3.up * CellOffsetY;
                 }

@@ -23,8 +23,9 @@ namespace PSB.InGame
             int deltaY = b.y - a.y;
             int width = Mathf.Abs(deltaX);
             int height = Mathf.Abs(deltaY);
-            int stepX1 = 0 < deltaX ? 1 : deltaX < 0 ? -1 : 0; // 真横の場合は0
-            int stepY1 = 0 < deltaY ? 1 : deltaY < 0 ? -1 : 0; // 真上/真下の場合は0
+            int stepX1 = 0 < deltaX ? 1 : deltaX < 0 ? -1 : 0;
+            int stepY1 = 0 < deltaY ? 1 : deltaY < 0 ? -1 : 0;
+
             int longSide = Mathf.Max(width, height);
             int shortSide = Mathf.Min(width, height);
 
@@ -40,12 +41,12 @@ namespace PSB.InGame
                 stepY2 = 0 < deltaY ? 1 : deltaY < 0 ? -1 : 0; // 真上/真下の場合は0
             }
 
-            path = new(longSide);
+            path = new(longSide); // TODO:newしている
             int fraction = longSide / 2; // 本来は除算を使用しないことで高速化を図る
-            for (int i = 1; i <= longSide; i++)
+            for (int i = 0; i < longSide; i++)
             {
                 fraction += shortSide;
-                if (fraction > longSide)
+                if (fraction >= longSide)
                 {
                     fraction -= longSide;
                     a.x += stepX1;

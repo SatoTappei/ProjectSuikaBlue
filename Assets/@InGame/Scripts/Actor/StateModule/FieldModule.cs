@@ -14,12 +14,7 @@ namespace PSB.InGame
             _context = context;
         }
 
-        public void SetOnCell()
-        {
-            FieldManager.Instance.SetActorOnCell(_context.Transform.position, _context.Type);
-        }
-
-        public void SetOnCell(Vector3 pos)
+        public void SetOnCell(in Vector3 pos)
         {
             FieldManager.Instance.SetActorOnCell(pos, _context.Type);
         }
@@ -29,12 +24,7 @@ namespace PSB.InGame
             FieldManager.Instance.SetActorOnCell(index, _context.Type);
         }
 
-        public void DeleteOnCell()
-        {
-            FieldManager.Instance.SetActorOnCell(_context.Transform.position, ActorType.None);
-        }
-
-        public void DeleteOnCell(Vector3 pos)
+        public void DeleteOnCell(in Vector3 pos)
         {
             FieldManager.Instance.SetActorOnCell(pos, ActorType.None);
         }
@@ -49,11 +39,8 @@ namespace PSB.InGame
         /// </summary>
         public void DeletePathGoalOnCell()
         {
-            if (_context.Path.Count > 0)
-            {
-                Vector3 pos = _context.Path[_context.Path.Count - 1];
-                FieldManager.Instance.SetActorOnCell(pos, ActorType.None);
-            }
+            Vector3 pos = _context.Path[_context.Path.Count - 1];
+            FieldManager.Instance.SetActorOnCell(pos, ActorType.None);
         }
     }
 }

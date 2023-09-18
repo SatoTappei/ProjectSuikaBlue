@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Status_Kinpatsu
   m_EditorClassIdentifier: Assembly-CSharp::Gene
   _type: 1
-  _deltaFood: 2.7
-  _deltaWater: 2.7
-  _deltaHp: 1.7
-  _deltaLifeSpan: 1.2
-  _deltaBreedingRate: 4.8
+  _deltaFood: 1.9
+  _deltaWater: 2
+  _deltaHp: 0
+  _deltaLifeSpan: 20
+  _deltaBreedingRate: 1.3
   _minSize: 0.5
   _maxSize: 1.5
   _breedingThreshold: 0.7
@@ -134,3 +134,5 @@ MonoBehaviour:
   _enemyTag: Kurokami
   _deathGatherScore: 1
   _gatherInterval: 0.05
+  _timeOut: 10
+  _searchRate: 1

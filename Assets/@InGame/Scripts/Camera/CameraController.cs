@@ -43,7 +43,7 @@ namespace PSB.InGame
             if (UnityEngine.Input.GetKey(KeyCode.S)) move += Vector2.down;
             if (UnityEngine.Input.GetKey(KeyCode.D)) move += Vector2.right;
             if (UnityEngine.Input.GetKey(KeyCode.W)) move += Vector2.up;
-
+            
             // ÉYÅ[ÉÄ
             float fov;
             fov = UnityEngine.Input.GetAxis("Mouse ScrollWheel");
