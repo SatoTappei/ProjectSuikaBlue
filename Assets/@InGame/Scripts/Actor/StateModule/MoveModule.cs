@@ -66,13 +66,31 @@ namespace PSB.InGame
                 // 経路のセルとキャラクターの高さが違うので水平に移動させるために高さを合わせる
                 NextCellPos.y = Position.y;
 
-                // TODO:デバッグ用、次のセルの距離が2以上になってる？
-                var i1 = FieldManager.Instance.WorldPosToGridIndex(CurrentCellPos);
-                var i2 = FieldManager.Instance.WorldPosToGridIndex(NextCellPos);
-                if (!ActorHelper.IsNeighbourOnGrid(i1, i2))
+                // TODO:次のセルとの距離が1セル以上あるかの判定を行っている
+                Vector2Int currentIndex = FieldManager.Instance.WorldPosToGridIndex(CurrentCellPos);
+                Vector2Int nextIndex = FieldManager.Instance.WorldPosToGridIndex(NextCellPos);
+                if (!ActorHelper.IsNeighbourOnGrid(currentIndex, nextIndex))
                 {
-                    Debug.Log("経路が変 " + _context.Type + " " + _context.name + ": " + _context.GetComponent<Actor>().State);
+                    NextCellPos = Position;
+                    return false;
                 }
+                #region デバッグ用: 次のセルの距離が2以上になってる？
+                //var i1 = FieldManager.Instance.WorldPosToGridIndex(CurrentCellPos);
+                //var i2 = FieldManager.Instance.WorldPosToGridIndex(NextCellPos);
+                //if (!ActorHelper.IsNeighbourOnGrid(i1, i2))
+                //{
+                //    int dx = Mathf.Abs(i1.x - i2.x);
+                //    int dy = Mathf.Abs(i1.y - i2.y);
+                //    FieldManager.Instance.TryGetCell(i1, out Cell c1);
+                //    FieldManager.Instance.TryGetCell(i2, out Cell c2);
+                //    Debug.Log("経路が変 " + _context.Type + " " + _context.name + ": " + _context.GetComponent<Actor>().State + " 距離x:" + dx.ToString() + "距離y:" + dy.ToString());
+                //    var v1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                //    v1.transform.position = c1.Pos + Vector3.up * 0.5f;
+                //    var v2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                //    v2.transform.position = c2.Pos + Vector3.up * 0.5f;
+
+                //}
+                #endregion
 
                 Modify();
                 Look();

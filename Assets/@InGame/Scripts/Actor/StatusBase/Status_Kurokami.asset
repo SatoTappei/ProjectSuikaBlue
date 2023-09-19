@@ -16,7 +16,7 @@ MonoBehaviour:
   _deltaFood: 20
   _deltaWater: 20
   _deltaHp: 20
-  _deltaLifeSpan: 0
+  _deltaLifeSpan: 2.8
   _deltaBreedingRate: 0
   _minSize: 0.5
   _maxSize: 1.5

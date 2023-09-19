@@ -99,7 +99,7 @@ namespace PSB.InGame
                 if      (actor.Type == ActorType.KinpatsuLeader) _leader = actor;
                 else if (actor.Type == ActorType.Kinpatsu)
                 {
-                    if (_kinpatsuList.Contains(actor)) { _temp.Enqueue(actor); Debug.Log("èdï°ã‡îØ"); }
+                    if (_kinpatsuList.Contains(actor)) _temp.Enqueue(actor);
                     else _kinpatsuList.Add(actor);
                 }
                 else if (actor.Type == ActorType.Kurokami)

@@ -9,9 +9,11 @@ using UnityEngine.Events;
 // 変更案: 1つではなく、優先度でソートして次の行動を保持。
 // バグ: 集合を選択した際に、経路の末端に2体のキャラクターが被ってしまう。初期状態9人で発生
 // バグ: 雌への経路の際、水の上を移動していた。
+// バグ: 集合ステートでセルの予約が消えない。
 // 仕様: 繁殖の際、隣もしくは雌と雄が同じセルにいる。
 // 報告: ステートのExitで経路の末端の予約を消しているので、
 //       直後の評価ステートの際にその位置に他のキャラクターが予約/来てしまう。
+// 報告: 次のセルとの距離が1セル以上あるかの判定を行っている。
 
 // ◎攻撃
 // 1対多の状況はどうする？
@@ -229,9 +231,9 @@ namespace PSB.InGame
                 // 食料
                 case ActionType.SearchFood when _pathfinder.TryPathfindingToResource(ResourceType.Tree):
                     _context.NextAction = action; return;
-                    //// 集合
-                    //case ActionType.Gather when _pathfinder.TryPathfindingToGatherPoint():
-                    //    _context.NextAction = ActionType.Gather; return;
+                // 集合
+                case ActionType.Gather when _pathfinder.TryPathfindingToGatherPoint():
+                    _context.NextAction = ActionType.Gather; return;
             }
 
             // うろうろステートに必要のない参照を消す

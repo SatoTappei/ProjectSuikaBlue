@@ -26,7 +26,7 @@ namespace PSB.InGame
         {
             _move.Reset();
             _move.TryStepNextCell();
-            _field.SetOnCell(Position);
+            _field.SetOnCell(_move.CurrentCellPos);
             _firstStep = true;
 
             PlayParticle();

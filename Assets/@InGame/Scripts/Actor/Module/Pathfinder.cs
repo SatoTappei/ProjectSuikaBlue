@@ -181,7 +181,7 @@ namespace PSB.InGame
         /// <returns>集合地点への経路がある:true 集合地点への経路が無い:false</returns>
         public bool TryPathfindingToGatherPoint()
         {
-            //DeletePath();
+            DeletePathGoalOnCell();
 
             Vector2Int currentIndex = World2Grid(Position);
             Vector2Int gatherIndex = World2Grid(PublicBlackBoard.GatherPos);
@@ -199,12 +199,11 @@ namespace PSB.InGame
                     gatherIndex.y += Utility.Counterclockwise[index].y;
                     gatherIndex.x += Utility.Counterclockwise[index].x;
 
-                    // 経路が存在するか？
+                    // 既にキャラクターがおり、経路が見つからなかった場合は弾く
+                    if (IsOnCell(gatherIndex)) continue;
                     if (!TryGetPath(currentIndex, gatherIndex)) continue;
                     // TODO:経路の長さが0の場合がある
                     if (_context.Path.Count == 0) continue;
-                    // 経路の末端(資源のセルの隣)に資源キャラクターがいる場合は弾く
-                    if (IsOnCell(GoalPos)) continue;
 
                     SetOnCell(GoalPos);
                     return true;

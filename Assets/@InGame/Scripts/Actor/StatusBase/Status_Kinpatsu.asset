@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Status_Kinpatsu
   m_EditorClassIdentifier: Assembly-CSharp::Gene
   _type: 1
-  _deltaFood: 1.9
-  _deltaWater: 2
+  _deltaFood: 2.9
+  _deltaWater: 3.3
   _deltaHp: 0
-  _deltaLifeSpan: 20
-  _deltaBreedingRate: 1.3
+  _deltaLifeSpan: 2.5
+  _deltaBreedingRate: 20
   _minSize: 0.5
   _maxSize: 1.5
   _breedingThreshold: 0.7

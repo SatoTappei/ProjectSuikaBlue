@@ -8,7 +8,7 @@ namespace PSB.InGame
         {
             int dx = Mathf.Abs(a.x - b.x);
             int dy = Mathf.Abs(a.y - b.y);
-            return dx <= 1 && dy <= 1;
+            return (dx <= 1) && (dy <= 1);
         }
 
         /// <summary>
